@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/cip/2014/lo16wawa/Starcraft/sc2-simulation/src/main.cpp
+simu/simulation.h
+/home/cip/2014/lo16wawa/Starcraft/sc2-simulation/src/simu/simulation.h
+
+/home/cip/2014/lo16wawa/Starcraft/sc2-simulation/src/simu/simulation.cpp
+simulation.h
+/home/cip/2014/lo16wawa/Starcraft/sc2-simulation/src/simu/simulation.h
+iostream
+-
+
+/home/cip/2014/lo16wawa/Starcraft/sc2-simulation/src/simu/simulation.h
+
