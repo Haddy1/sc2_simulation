@@ -2,7 +2,7 @@
 
 
 
-##TODOs:
+## TODOs:
 * **Register team and assign races to each developer**
 * **UML digrams**
 * 3 virtual Klassen: Resource, Building, Units
