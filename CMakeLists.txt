@@ -3,8 +3,12 @@ project(starcraft)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -pedantic -O3")
 
-include_directories(src/simu)
 
-file(GLOB_RECURSE SOURCES "src/*.cpp")
 
-add_executable( TestApp ${SOURCES})
+file(GLOB SOURCES "src/*.cpp")
+
+
+add_executable( starcraft ${SOURCES})
+
+
+target_include_directories(starcraft PRIVATE ${PROJECT_SOURCE_DIR}/include)
