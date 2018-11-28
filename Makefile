@@ -1,12 +1,12 @@
 CXX = g++
-CXXFLAGS = -std=c++14 -Wall -Wextra -Wshadow -O3
+CXXFLAGS = -std=c++14 -Wall -pedantic -O3
 # uncomment for removing debug features
 #CXXFLAGS += -DNDEBUG
 
 TARGET = scsim
 
 # enable compiler optimizations
-CXXFLAGS += -march=native -ffast-math
+#CXXFLAGS += -march=native -ffast-math #no
 
 SRCD = src
 OBJD = obj
