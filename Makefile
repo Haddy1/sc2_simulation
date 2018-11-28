@@ -25,11 +25,9 @@ all: $(OBJD) $(TARGET)
 $(TARGET): $(OBJ) $(INC) Makefile
 	$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET)
 
-$(OBJD)/main.o: $(SRCD)/main.cpp $(INCD)/test.h $(INCD)/simulation.h Makefile
+$(OBJD)/%.o: $(SRCD)/%.cpp Makefile
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-$(OBJD)/simulation.o: $(SRCD)/simulation.cpp  $(INCD)/simulation.h Makefile
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 $(OBJD):
 	@mkdir $(OBJD)
