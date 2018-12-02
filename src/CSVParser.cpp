@@ -1,11 +1,15 @@
 #include "../include/CSVParser.h"
+#include "../include/UnitData.h"
 
 #include <sstream>
 #include <iostream> //debug
+#include <cctype>
+#include <algorithm>
 
 using std::istringstream;
 using std::cout;
 using std::endl;
+using std::stoi;
 
 CSVParser::CSVParser(const char *filepath) : filepath(filepath) {
 	
@@ -68,11 +72,58 @@ void CSVParser::read() {
 				istringstream iss(line);
 				string token;
 
-				getline(iss, token, ','); //name
-				//do something with token
-				getline(iss, token, ','); //minerals
-				//...
+				if (currentType == 0) {
 				
+					UnitData unitData;
+
+					getline(iss, token, ','); //name
+					unitData.name = token;
+					getline(iss, token, ',');
+					unitData.minerals = stoi(token);
+					getline(iss, token, ',');
+					unitData.vespene = stoi(token);
+					getline(iss, token, ',');
+					unitData.buildTime = stoi(token);
+					getline(iss, token, ',');
+					unitData.supplyCost = stoi(token);
+					getline(iss, token, ',');
+					unitData.supplyProvided = stoi(token);
+					getline(iss, token, ',');
+					unitData.startEnergy = stoi(token);
+					getline(iss, token, ',');
+					unitData.maxEnergy = stoi(token);
+					getline(iss, token, ',');
+					unitData.race = currentRace;
+					
+					getline(iss, token, ',');
+					vector<string> prods;
+					istringstream iss2(token);
+					string subToken;
+					while(iss2.good()) { //ugly control flow
+						getline(iss2, subToken, '/');
+						if (subToken.size() > 0) {
+							subToken.erase(remove_if(subToken.begin(), subToken.end(), isspace), subToken.end());//remove spaces
+							prods.push_back(subToken);
+						}
+					}
+					unitData.producedBy = prods;
+
+					getline(iss, token, ',');
+					vector<string> deps;
+					istringstream iss3(token);
+					string subToken2;
+					while(iss3.good()) { //ugly control flow
+						getline(iss3, subToken2, '/');
+						if (subToken2.size() > 0) {
+							subToken2.erase(remove_if(subToken2.begin(), subToken2.end(), isspace), subToken2.end());
+							deps.push_back(subToken2);
+						}
+					}
+					unitData.dependencies = deps;
+
+					unitDataMap.emplace(unitData.name, unitData);
+
+				}
 			}
 		}
 

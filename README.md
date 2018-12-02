@@ -14,3 +14,4 @@
 * actually Building and Unit classes can be instantiated, not virtual. They have a member called buildingType/unitType which contains a string from the .csv file (e.g. "command_center" or "marine")
 * minerals, gas, supply should be managed in one class where they are incremented each timestep, or reduced when building something
 * The csv reader can parse the data to a static array of structs
+* TODO: if you only edit a .h file, the make command doesnt recompile

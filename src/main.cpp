@@ -2,6 +2,7 @@
 #include <cstring>
 #include "../include/ForwardSimulator.h"
 #include "../include/CSVParser.h"
+#include "../include/UnitData.h"
 
 void usage(char *arg) {
 	std::cerr << "usage: " << arg << " <race> <buildListFile>" << std::endl;
@@ -27,6 +28,11 @@ int main(int argc, char *argv[]) {
 	// read csv
 	CSVParser csvp("res/techtrees.csv");
 	csvp.read();
+	
+	//test print
+	for (auto it = unitDataMap.begin(); it != unitDataMap.end(); ++it) {
+		std::cout << (*it).second << std::endl;
+	}
 
 	// open buildlist file
 	//
