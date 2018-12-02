@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstring>
-#include "../include/simulation.h"
-#include "../include/test.h"
+#include "../include/ForwardSimulator.h"
+#include "../include/CSVParser.h"
 
 void usage(char *arg) {
 	std::cerr << "usage: " << arg << " <race> <buildListFile>" << std::endl;
@@ -24,10 +24,13 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
+	// read csv
+	CSVParser csvp("res/techtrees.csv");
+	csvp.read();
+
 	// open buildlist file
 	//
 	
-	test();
-	test1();
+	simulateTimestep();
 	return 0;
 }

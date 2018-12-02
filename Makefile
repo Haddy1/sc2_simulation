@@ -14,7 +14,8 @@ INCD = include
 INCLUDES = -I$(INCD)
 
 # files
-SRC = $(SRCD)/simulation.cpp $(SRCD)/main.cpp
+#SRC = $(SRCD)/simulation.cpp $(SRCD)/main.cpp
+SRC = $(wildcard src/*.cpp)
 OBJ = $(patsubst $(SRCD)/%.cpp, $(OBJD)/%.o, $(SRC))
 
 
