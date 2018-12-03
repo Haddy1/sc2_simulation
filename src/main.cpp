@@ -3,6 +3,7 @@
 #include "../include/ForwardSimulator.h"
 #include "../include/CSVParser.h"
 #include "../include/UnitData.h"
+#include "../include/BuildingData.h"
 
 void usage(char *arg) {
 	std::cerr << "usage: " << arg << " <race> <buildListFile>" << std::endl;
@@ -31,6 +32,10 @@ int main(int argc, char *argv[]) {
 	
 	//test print
 	for (auto it = unitDataMap.begin(); it != unitDataMap.end(); ++it) {
+		std::cout << (*it).second << std::endl;
+	}
+	std::cout << std::endl;
+	for (auto it = buildingDataMap.begin(); it != buildingDataMap.end(); ++it) {
 		std::cout << (*it).second << std::endl;
 	}
 

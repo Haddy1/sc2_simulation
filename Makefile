@@ -16,6 +16,7 @@ INCLUDES = -I$(INCD)
 # files
 #SRC = $(SRCD)/simulation.cpp $(SRCD)/main.cpp
 SRC = $(wildcard src/*.cpp)
+INC = $(wildcard include/*.h)
 OBJ = $(patsubst $(SRCD)/%.cpp, $(OBJD)/%.o, $(SRC))
 
 
@@ -26,7 +27,7 @@ all: $(OBJD) $(TARGET)
 $(TARGET): $(OBJ) $(INC) Makefile
 	$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET)
 
-$(OBJD)/%.o: $(SRCD)/%.cpp Makefile
+$(OBJD)/%.o: $(SRCD)/%.cpp $(INC) Makefile
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 
