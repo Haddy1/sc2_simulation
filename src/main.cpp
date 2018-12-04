@@ -6,11 +6,14 @@
 #include "../include/BuildingData.h"
 #include "../include/Race.h"
 
+ForwardSimulator simulator;
+
 void usage(char *arg) {
 	std::cerr << "usage: " << arg << " <race> <buildListFile>" << std::endl;
 }
 
 int main(int argc, char *argv[]) {
+	//cmd line arguments
 	if (argc != 3) {
 		usage(argv[0]);
 		return -1;
@@ -48,6 +51,7 @@ int main(int argc, char *argv[]) {
 	// open buildlist file
 	//
 	
-	simulateTimestep();
+	//simulator(race);
+	//simulator.simulate();
 	return 0;
 }
