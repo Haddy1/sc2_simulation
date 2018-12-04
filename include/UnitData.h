@@ -5,6 +5,8 @@
 #include <vector>
 #include <iostream>
 
+#include "Race.h"
+
 using std::unordered_map;
 using std::string;
 using std::vector;
@@ -18,7 +20,7 @@ struct UnitData {
 	int supplyProvided;
 	int startEnergy;
 	int maxEnergy;
-	int race;
+	Race race;
 	vector<string> producedBy;
 	vector<string> dependencies;
 

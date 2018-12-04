@@ -4,6 +4,7 @@
 #include "../include/CSVParser.h"
 #include "../include/UnitData.h"
 #include "../include/BuildingData.h"
+#include "../include/Race.h"
 
 void usage(char *arg) {
 	std::cerr << "usage: " << arg << " <race> <buildListFile>" << std::endl;
@@ -15,12 +16,17 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	
+	Race race;
+	
 	if (strcmp("sc2-hots-terran", argv[1]) == 0) {
 		std::cout << "1" << std::endl;
+		race = Race::TERRAN;
 	} else if (strcmp("sc2-hots-protoss", argv[1]) == 0) {
 		std::cout << "2" << std::endl;
+		race = Race::PROTOSS;
 	} else if (strcmp("sc2-hots-zerg", argv[1]) == 0) {
 		std::cout << "3" << std::endl;
+		race = Race::ZERG;
 	} else {
 		usage(argv[0]);
 		return -1;
@@ -28,7 +34,7 @@ int main(int argc, char *argv[]) {
 
 	// read csv
 	CSVParser csvp("res/techtrees.csv");
-	csvp.read();
+	csvp.parse();
 	
 	//test print
 	for (auto it = unitDataMap.begin(); it != unitDataMap.end(); ++it) {

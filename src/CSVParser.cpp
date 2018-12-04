@@ -129,35 +129,26 @@ void CSVParser::parseLine(string line) {
 		//line starts with #
 		if (line.find("Protoss") != string::npos) {
 			//starting to read protoss data
-			currentRace = 0;
+			currentRace = Race::PROTOSS;
 			currentType = 0;
-			//cout << "Protoss Start: " << line << endl;
 		} else if (line.find("Zerg") != string::npos) {
-			currentRace = 1;
+			currentRace = Race::ZERG;
 			currentType = 0;
-			//cout << "Zerg Start: " << line << endl;
 		} else if (line.find("Terran") != string::npos) {
-			currentRace = 2;
+			currentRace = Race::TERRAN;
 			currentType = 0;
-			//cout << "Terran Start: " << line << endl;
 		} else if (line.find("#buildings") != string::npos) {
 			//starting to read buildings
 			currentType = 1;
-			//cout << "Buildings Start: " << line << endl;
 		} else {
-			//cout << "Misc Line: " << line << endl;
 		}
 	} else {
 		//line does not start with #
 		if (line.size() == 0) {
 			//reached end
-			//cout << "End: " << line << endl;
 		}
 		else {
 			//normal line
-			//cout << "Normal: " << line << endl;
-			//parse
-			
 
 			if (currentType == 0) {
 				parseUnitLine(line);
@@ -168,7 +159,7 @@ void CSVParser::parseLine(string line) {
 	}
 }
 
-void CSVParser::read() {
+void CSVParser::parse() {
 	ifstream is(filepath);
 
 	while (is.good()) {
