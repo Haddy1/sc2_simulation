@@ -4,6 +4,7 @@
 #include "../include/BuildingData.h"
 #include "../include/Race.h"
 #include "../include/FixedPoint.h" //test
+#include "../include/JsonLogger.h"
 
 #include <iostream>
 #include <cstring>
@@ -12,6 +13,9 @@
 
 using std::ifstream;
 using std::queue;
+using std::vector;
+using std::pair;
+using std::make_pair;
 
 
 void usage(char *arg) {
@@ -57,8 +61,8 @@ int main(int argc, char *argv[]) {
 	// open buildlist file
 	//
 	ifstream buildListFile(argv[2]);
-	
-	if (buildListFile.fail()) {
+	bool invalidBuildlist = buildListFile.fail();
+	if (invalidBuildlist) {
 		std::cerr << "couldn't open buildlist file" << std::endl;
 	}
 	
@@ -99,7 +103,11 @@ int main(int argc, char *argv[]) {
 	
 	//e*=FixedPoint(5);
 	
+	JsonLogger logger(race, ~invalidBuildlist, "res/output.h");
+	logger.printMessage(1, vector<EventEntry>{EventEntry("build-end", "marine"), EventEntry("build-start", "marine")});
+	
 	ForwardSimulator simulator(race, buildQueue);
-	simulator.simulate();
+	//simulator.simulate();
+	
 	return 0;
 }
