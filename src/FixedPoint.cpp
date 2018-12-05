@@ -31,12 +31,12 @@ FixedPoint::FixedPoint(FixedPoint&& other):
 FixedPoint::~FixedPoint() {}
 
 
-FixedPoint FixedPoint::operator=( FixedPoint& other)
+FixedPoint& FixedPoint::operator=( FixedPoint& other)
 {
     value_ = other.value_;
     return *this;
 }
-FixedPoint FixedPoint::operator=( FixedPoint&& other)
+FixedPoint& FixedPoint::operator=( FixedPoint&& other)
 {
     value_ = other.value_;
     return *this;
@@ -44,9 +44,12 @@ FixedPoint FixedPoint::operator=( FixedPoint&& other)
 
 FixedPoint FixedPoint::operator+( FixedPoint& other)
 {
-    return FixedPoint(value_ + other.value_);
+	FixedPoint result;
+	result.value_ = value_ + other.value_;
+	return result;
+    //return FixedPoint(value_ + other.value_);
 }
-FixedPoint FixedPoint::operator+=( FixedPoint& other)
+FixedPoint& FixedPoint::operator+=( FixedPoint& other)
 {
     value_ = value_ + other.value_;
     return *this;
@@ -57,7 +60,7 @@ FixedPoint FixedPoint::operator-( FixedPoint& other)
     return FixedPoint(value_ - other.value_);
 }
 
-FixedPoint FixedPoint::operator-=( FixedPoint& other)
+FixedPoint& FixedPoint::operator-=( FixedPoint& other)
 {
     value_ = value_ - other.value_;
     return *this;
@@ -65,13 +68,13 @@ FixedPoint FixedPoint::operator-=( FixedPoint& other)
 
 FixedPoint FixedPoint::operator*( FixedPoint& other)
 {
-    FixedPoint result = FixedPoint();
+    FixedPoint result;
     // Need to shift decimal point to the left after multiplication
     result.value_ = value_ * other.value_ / multiplier_;
     return result;
 }
 
-FixedPoint FixedPoint::operator*=( FixedPoint& other)
+FixedPoint& FixedPoint::operator*=( FixedPoint& other)
 {
     // Need to shift decimal point to the left after multiplication
     value_ = value_ * other.value_ / multiplier_;
@@ -80,7 +83,7 @@ FixedPoint FixedPoint::operator*=( FixedPoint& other)
 
 FixedPoint FixedPoint::operator/( FixedPoint& other)
 {
-    FixedPoint result = FixedPoint();
+    FixedPoint result;
     if (value_ < other.value_)
         // To avoid cutoff from integer division 
         // apply multiplier first to value
@@ -91,7 +94,7 @@ FixedPoint FixedPoint::operator/( FixedPoint& other)
     return result;
 }
 
-FixedPoint FixedPoint::operator/=( FixedPoint& other)
+FixedPoint& FixedPoint::operator/=( FixedPoint& other)
 {
     if (value_ < other.value_)
         // To avoid cutoff from integer division 

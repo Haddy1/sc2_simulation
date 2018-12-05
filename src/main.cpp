@@ -73,6 +73,7 @@ int main(int argc, char *argv[]) {
 	FixedPoint a(0.1);
 	FixedPoint b(0.35);
 	FixedPoint c(0.7);
+	FixedPoint d = a*b;
 	std::cout << "a: "  << a << std::endl;
 	std::cout << "b: "  << b << std::endl;
 	std::cout << "c: "  << c << std::endl;
@@ -82,6 +83,14 @@ int main(int argc, char *argv[]) {
 	std::cout << "a+b: "  << a+b << std::endl;
 	std::cout << "a+c: "  << a+c << std::endl;
 	std::cout << "b+c: "  << b+c << std::endl;
+	
+	std::cout << "d=a*b: "  << d << std::endl;
+	a*=b;
+	std::cout << "a*=b: " << a << std::endl;
+	FixedPoint e(9);
+	std::cout << "(c*e).toInt(): " << (c*e).toInt() << std::endl;
+	
+	//e*=FixedPoint(5);
 	
 	ForwardSimulator simulator(race, buildQueue);
 	simulator.simulate();

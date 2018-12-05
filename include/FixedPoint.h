@@ -23,25 +23,25 @@ class FixedPoint {
 
         ~FixedPoint();
 
-        FixedPoint operator=(FixedPoint& other);
+        FixedPoint& operator=(FixedPoint& other);
 
-        FixedPoint operator=(FixedPoint&& other);
+        FixedPoint& operator=(FixedPoint&& other);
 
         FixedPoint operator+(FixedPoint& other);
 
-        FixedPoint operator+=(FixedPoint& other);
+        FixedPoint& operator+=(FixedPoint& other);
 
         FixedPoint operator-(FixedPoint& other);
 
-        FixedPoint operator-=(FixedPoint& other);
+        FixedPoint& operator-=(FixedPoint& other);
 
         FixedPoint operator*(FixedPoint& other);
 
-        FixedPoint operator*=(FixedPoint& other);
+        FixedPoint& operator*=(FixedPoint& other);
 
         FixedPoint operator/(FixedPoint& other);
 
-        FixedPoint operator/=(FixedPoint& other);
+        FixedPoint& operator/=(FixedPoint& other);
 
         bool operator==(FixedPoint& other);
 
