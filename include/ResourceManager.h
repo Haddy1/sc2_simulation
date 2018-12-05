@@ -1,11 +1,19 @@
 #pragma once
 
+#include "FixedPoint.h"
+
 class ResourceManager {
-	int minerals;//todo use fixed point
-	int vespene;
+	FixedPoint minerals;
+	FixedPoint vespene;
 	int supply;
 	
+	int mineralWorkers;
+	int vespeneWorkers;
+	
 public:
+	static const FixedPoint mineralsPerWorkerSecond;
+	static const FixedPoint vespenePerWorkerSecond;
+	
 	ResourceManager();
 	~ResourceManager();
 	void update();

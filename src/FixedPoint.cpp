@@ -133,6 +133,10 @@ bool FixedPoint::operator<=( FixedPoint& other)
     return (value_ < other.value_ || value_ == other.value_);
 }
 
+int FixedPoint::toInt() {
+	return static_cast<int>(value_ / multiplier_);
+}
+
 std::ostream& operator<<(std::ostream& os, const FixedPoint& number)
 {
     std::string numberStr = std::to_string(number.value_);
@@ -166,3 +170,5 @@ std::ostream& operator<<(std::ostream& os, const FixedPoint& number)
     return os;
 
 }
+
+

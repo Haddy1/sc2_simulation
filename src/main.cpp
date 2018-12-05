@@ -1,12 +1,18 @@
-#include <iostream>
-#include <cstring>
 #include "../include/ForwardSimulator.h"
 #include "../include/CSVParser.h"
 #include "../include/UnitData.h"
 #include "../include/BuildingData.h"
 #include "../include/Race.h"
+#include "../include/FixedPoint.h" //test
 
-ForwardSimulator simulator;
+#include <iostream>
+#include <cstring>
+#include <fstream>
+#include <queue>
+
+using std::ifstream;
+using std::queue;
+
 
 void usage(char *arg) {
 	std::cerr << "usage: " << arg << " <race> <buildListFile>" << std::endl;
@@ -21,13 +27,13 @@ int main(int argc, char *argv[]) {
 	
 	Race race;
 	
-	if (strcmp("sc2-hots-terran", argv[1]) == 0) {
+	if (strcmp("sc2-hots-terran", argv[1]) == 0 || strcmp("terran", argv[1]) == 0) {
 		std::cout << "1" << std::endl;
 		race = Race::TERRAN;
-	} else if (strcmp("sc2-hots-protoss", argv[1]) == 0) {
+	} else if (strcmp("sc2-hots-protoss", argv[1]) == 0 || strcmp("protoss", argv[1]) == 0) {
 		std::cout << "2" << std::endl;
 		race = Race::PROTOSS;
-	} else if (strcmp("sc2-hots-zerg", argv[1]) == 0) {
+	} else if (strcmp("sc2-hots-zerg", argv[1]) == 0 || strcmp("zerg", argv[1]) == 0) {
 		std::cout << "3" << std::endl;
 		race = Race::ZERG;
 	} else {
@@ -50,8 +56,34 @@ int main(int argc, char *argv[]) {
 
 	// open buildlist file
 	//
+	ifstream buildListFile(argv[2]);
 	
-	//simulator(race);
-	//simulator.simulate();
+	if (buildListFile.fail()) {
+		std::cerr << "couldn't open buildlist file" << std::endl;
+	}
+	
+	queue<string> buildQueue;
+	while (buildListFile.good()) {
+		string s;
+		buildListFile >> s;
+		buildQueue.push(s);
+	}
+	buildListFile.close();
+	
+	FixedPoint a(0.1);
+	FixedPoint b(0.35);
+	FixedPoint c(0.7);
+	std::cout << "a: "  << a << std::endl;
+	std::cout << "b: "  << b << std::endl;
+	std::cout << "c: "  << c << std::endl;
+	std::cout << "a*b: "  << a*b << std::endl;
+	std::cout << "a*c: "  << a*c << std::endl;
+	std::cout << "b*c: "  << b*c << std::endl;
+	std::cout << "a+b: "  << a+b << std::endl;
+	std::cout << "a+c: "  << a+c << std::endl;
+	std::cout << "b+c: "  << b+c << std::endl;
+	
+	ForwardSimulator simulator(race, buildQueue);
+	simulator.simulate();
 	return 0;
 }

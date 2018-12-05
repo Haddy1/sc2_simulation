@@ -54,8 +54,10 @@ class FixedPoint {
         bool operator<=(FixedPoint& other);
 
         bool operator>=(FixedPoint& other);
+        
+        int toInt();
 
         friend std::ostream& operator<<(std::ostream& os, const FixedPoint& number);
         
-
+		
 };

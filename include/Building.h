@@ -17,6 +17,7 @@ public:
 	Building() = delete;
 	Building(string);
 	~Building();
+	void update();
 	bool busy();
 	bool ability();
 	bool createUnit(string);
