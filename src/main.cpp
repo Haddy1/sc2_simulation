@@ -87,6 +87,13 @@ int main(int argc, char *argv[]) {
 	std::cout << "d=a*b: "  << d << std::endl;
 	a*=b;
 	std::cout << "a*=b: " << a << std::endl;
+	a+=a;
+	std::cout << "a+=a: " << a << std::endl;
+	a-=a;
+	std::cout << "a-=a: " << a << std::endl;
+	a-=b;
+	std::cout << "a-=b: " << a << std::endl;
+	
 	FixedPoint e(9);
 	std::cout << "(c*e).toInt(): " << (c*e).toInt() << std::endl;
 	
