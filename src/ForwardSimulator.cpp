@@ -1,6 +1,5 @@
 #include "../include/ForwardSimulator.h"
-#include "../include/UnitData.h"
-#include "../include/BuildingData.h"
+#include "../include/EntityData.h"
 
 #include <iostream>
 
@@ -28,16 +27,14 @@ void ForwardSimulator::simulate() {
 		if (!buildOrder.empty()) {
 			string nextItem = buildOrder.front();
 			
-			if (unitDataMap.find(nextItem) != unitDataMap.end()) {
-				//next item is a unit
-				std::cout << "next unit: " << nextItem << std::endl;
-			} else if (buildingDataMap.find(nextItem) != buildingDataMap.end()) {
-				//next item is a building
-				std::cout << "next building: " << nextItem << std::endl;
+			auto it = entityDataMap.find(nextItem);
+			EntityData entityData = it->second;
+			if (entityData.isBuilding) {
+				std::cout << "nextItem: Building" << std::endl;
 			} else {
-				//error: neither unit or building
-				std::cerr << "error: item in build order does not exist" << std::endl;
+				std::cout << "nextItem: Unit" << std::endl;
 			}
+			
 		}
 		
 		

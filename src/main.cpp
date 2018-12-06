@@ -1,7 +1,8 @@
 #include "../include/ForwardSimulator.h"
 #include "../include/CSVParser.h"
-#include "../include/UnitData.h"
-#include "../include/BuildingData.h"
+//#include "../include/UnitData.h"
+//#include "../include/BuildingData.h"
+#include "../include/EntityData.h"
 #include "../include/Race.h"
 #include "../include/FixedPoint.h" //test
 #include "../include/JsonLogger.h"
@@ -50,16 +51,11 @@ int main(int argc, char *argv[]) {
 	csvp.parse();
 	
 	//test print
-	for (auto it = unitDataMap.begin(); it != unitDataMap.end(); ++it) {
-		std::cout << (*it).second << std::endl;
-	}
-	std::cout << std::endl;
-	for (auto it = buildingDataMap.begin(); it != buildingDataMap.end(); ++it) {
+	for (auto it = entityDataMap.begin(); it != entityDataMap.end(); ++it) {
 		std::cout << (*it).second << std::endl;
 	}
 
 	// open buildlist file
-	//
 	ifstream buildListFile(argv[2]);
 	bool invalidBuildlist = buildListFile.fail();
 	if (invalidBuildlist) {
@@ -74,7 +70,8 @@ int main(int argc, char *argv[]) {
 	}
 	buildListFile.close();
 	
-	FixedPoint a(0.1);
+	/*
+	FixedPoint a(0.0);
 	FixedPoint b(0.35);
 	FixedPoint c(0.7);
 	FixedPoint d = a*b;
@@ -87,27 +84,17 @@ int main(int argc, char *argv[]) {
 	std::cout << "a+b: "  << a+b << std::endl;
 	std::cout << "a+c: "  << a+c << std::endl;
 	std::cout << "b+c: "  << b+c << std::endl;
-	
 	std::cout << "d=a*b: "  << d << std::endl;
-	a*=b;
-	std::cout << "a*=b: " << a << std::endl;
-	a+=a;
-	std::cout << "a+=a: " << a << std::endl;
-	a-=a;
-	std::cout << "a-=a: " << a << std::endl;
-	a-=b;
-	std::cout << "a-=b: " << a << std::endl;
-	
-	FixedPoint e(9);
-	std::cout << "(c*e).toInt(): " << (c*e).toInt() << std::endl;
-	
-	//e*=FixedPoint(5);
+	a+= b*FixedPoint(6);
+	std::cout << "a+= b*6: " << a << std::endl;
+	*/
+
 	
 	JsonLogger logger(race, ~invalidBuildlist, "res/output.h");
 	logger.printMessage(1, vector<EventEntry>{EventEntry("build-end", "marine"), EventEntry("build-start", "marine")});
 	
 	ForwardSimulator simulator(race, buildQueue);
-	//simulator.simulate();
+	simulator.simulate();
 	
 	return 0;
 }

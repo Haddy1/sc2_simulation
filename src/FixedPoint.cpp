@@ -21,7 +21,7 @@ FixedPoint::FixedPoint(double fValue)
     // Add digits after decimal point
     value_ = static_cast<long long>(fValue * multiplier_);
 }
-FixedPoint::FixedPoint(FixedPoint& other):
+FixedPoint::FixedPoint(const FixedPoint& other):
     value_(other.value_) {}
 
 
@@ -31,7 +31,7 @@ FixedPoint::FixedPoint(FixedPoint&& other):
 FixedPoint::~FixedPoint() {}
 
 
-FixedPoint& FixedPoint::operator=( FixedPoint& other)
+FixedPoint& FixedPoint::operator=( const FixedPoint& other)
 {
     value_ = other.value_;
     return *this;
@@ -42,31 +42,32 @@ FixedPoint& FixedPoint::operator=( FixedPoint&& other)
     return *this;
 }
 
-FixedPoint FixedPoint::operator+( FixedPoint& other)
+FixedPoint FixedPoint::operator+( const FixedPoint& other)
 {
 	FixedPoint result;
 	result.value_ = value_ + other.value_;
 	return result;
     //return FixedPoint(value_ + other.value_);
 }
-FixedPoint& FixedPoint::operator+=( FixedPoint& other)
+
+FixedPoint& FixedPoint::operator+=( const FixedPoint& other)
 {
     value_ = value_ + other.value_;
     return *this;
 }
 
-FixedPoint FixedPoint::operator-( FixedPoint& other)
+FixedPoint FixedPoint::operator-( const FixedPoint& other)
 {   
     return FixedPoint(value_ - other.value_);
 }
 
-FixedPoint& FixedPoint::operator-=( FixedPoint& other)
+FixedPoint& FixedPoint::operator-=( const FixedPoint& other)
 {
     value_ = value_ - other.value_;
     return *this;
 }
 
-FixedPoint FixedPoint::operator*( FixedPoint& other)
+FixedPoint FixedPoint::operator*( const FixedPoint& other)
 {
     FixedPoint result;
     // Need to shift decimal point to the left after multiplication
@@ -74,14 +75,14 @@ FixedPoint FixedPoint::operator*( FixedPoint& other)
     return result;
 }
 
-FixedPoint& FixedPoint::operator*=( FixedPoint& other)
+FixedPoint& FixedPoint::operator*=( const FixedPoint& other)
 {
     // Need to shift decimal point to the left after multiplication
     value_ = value_ * other.value_ / multiplier_;
     return *this;
 }
 
-FixedPoint FixedPoint::operator/( FixedPoint& other)
+FixedPoint FixedPoint::operator/( const FixedPoint& other)
 {
     FixedPoint result;
     if (value_ < other.value_)
@@ -94,7 +95,7 @@ FixedPoint FixedPoint::operator/( FixedPoint& other)
     return result;
 }
 
-FixedPoint& FixedPoint::operator/=( FixedPoint& other)
+FixedPoint& FixedPoint::operator/=( const FixedPoint& other)
 {
     if (value_ < other.value_)
         // To avoid cutoff from integer division 
@@ -106,37 +107,37 @@ FixedPoint& FixedPoint::operator/=( FixedPoint& other)
     return *this;
 }
 
-bool FixedPoint::operator==( FixedPoint& other)
+bool FixedPoint::operator==( const FixedPoint& other)
 {
     return (value_ == other.value_);
 }
 
-bool FixedPoint::operator!=( FixedPoint& other)
+bool FixedPoint::operator!=( const FixedPoint& other)
 {
     return (value_ != other.value_);
 }
 
-bool FixedPoint::operator>( FixedPoint& other)
+bool FixedPoint::operator>( const FixedPoint& other)
 {
     return (value_ > other.value_);
 }
 
-bool FixedPoint::operator<( FixedPoint& other)
+bool FixedPoint::operator<( const FixedPoint& other)
 {
     return (value_ < other.value_);
 }
 
-bool FixedPoint::operator>=( FixedPoint& other)
+bool FixedPoint::operator>=( const FixedPoint& other)
 {
     return (value_ > other.value_ || value_ == other.value_);
 }
 
-bool FixedPoint::operator<=( FixedPoint& other)
+bool FixedPoint::operator<=( const FixedPoint& other)
 {
     return (value_ < other.value_ || value_ == other.value_);
 }
 
-int FixedPoint::toInt() {
+int FixedPoint::toInt() const {
 	return static_cast<int>(value_ / multiplier_);
 }
 

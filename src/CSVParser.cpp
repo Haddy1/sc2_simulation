@@ -1,6 +1,7 @@
 #include "../include/CSVParser.h"
-#include "../include/UnitData.h"
-#include "../include/BuildingData.h"
+//#include "../include/UnitData.h"
+//#include "../include/BuildingData.h"
+#include "../include/EntityData.h"
 
 #include <sstream>
 #include <iostream> //debug
@@ -16,6 +17,67 @@ CSVParser::CSVParser(const char *filepath) : filepath(filepath) {
 	
 }
 
+void CSVParser::parseEntityLine(string line) {
+	istringstream iss(line);
+	string token;
+	
+	EntityData entityData;
+	
+	if (currentType == 0) {
+		entityData.isBuilding = false;
+	} else {
+		entityData.isBuilding = true;
+	}
+
+	getline(iss, token, ','); //name
+	entityData.name = token;
+	getline(iss, token, ',');
+	entityData.minerals = stoi(token);
+	getline(iss, token, ',');
+	entityData.vespene = stoi(token);
+	getline(iss, token, ',');
+	entityData.buildTime = stoi(token);
+	getline(iss, token, ',');
+	entityData.supplyCost = stoi(token);
+	getline(iss, token, ',');
+	entityData.supplyProvided = stoi(token);
+	getline(iss, token, ',');
+	entityData.startEnergy = stoi(token);
+	getline(iss, token, ',');
+	entityData.maxEnergy = stoi(token);
+	getline(iss, token, ',');
+	entityData.race = currentRace;
+					
+	getline(iss, token, ',');
+	vector<string> prods;
+	istringstream iss2(token);
+	string subToken;
+	while(iss2.good()) {
+		getline(iss2, subToken, '/');
+		if (subToken.size() > 0) {
+			subToken.erase(remove_if(subToken.begin(), subToken.end(), isspace), subToken.end());//remove spaces
+			prods.push_back(subToken);
+		}
+	}
+	entityData.producedBy = prods;
+
+	getline(iss, token, ',');
+	vector<string> deps;
+	istringstream iss3(token);
+	string subToken2;
+	while(iss3.good()) {
+		getline(iss3, subToken2, '/');
+		if (subToken2.size() > 0) {
+			subToken2.erase(remove_if(subToken2.begin(), subToken2.end(), isspace), subToken2.end());
+			deps.push_back(subToken2);
+		}
+	}
+	entityData.dependencies = deps;
+
+	entityDataMap.emplace(entityData.name, entityData);
+}
+
+/*
 void CSVParser::parseUnitLine(string line) {
 	istringstream iss(line);
 	string token;
@@ -123,6 +185,7 @@ void CSVParser::parseBuildingLine(string line) {
 
 	buildingDataMap.emplace(buildingData.name, buildingData);
 }
+*/
 
 void CSVParser::parseLine(string line) {
 	if (line.substr(0, 1).find("#") != string::npos) {
@@ -149,12 +212,14 @@ void CSVParser::parseLine(string line) {
 		}
 		else {
 			//normal line
-
+			parseEntityLine(line);
+			/*
 			if (currentType == 0) {
 				parseUnitLine(line);
 			} else {
 				parseBuildingLine(line);
 			}
+			*/
 		}
 	}
 }

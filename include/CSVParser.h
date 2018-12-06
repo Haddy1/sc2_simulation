@@ -19,8 +19,9 @@ class CSVParser {
 	int currentType; //0:unit 1:building
 	
 	void parseLine(string);
-	void parseUnitLine(string);
-	void parseBuildingLine(string);
+	void parseEntityLine(string);
+	//void parseUnitLine(string);
+	//void parseBuildingLine(string);
 public:
 	CSVParser(const char *filepath);
 	void parse();

@@ -11,7 +11,7 @@ using std::unordered_map;
 using std::string;
 using std::vector;
 
-struct BuildingData {
+struct EntityData {
 	string name;
 	int minerals;
 	int vespene;
@@ -23,8 +23,9 @@ struct BuildingData {
 	Race race;
 	vector<string> producedBy;
 	vector<string> dependencies;
+	bool isBuilding;
 
-	friend std::ostream& operator<<(std::ostream& os, const BuildingData& d) {
+	friend std::ostream& operator<<(std::ostream& os, const EntityData& d) {
 		os << d.name << "," << d.minerals << "," << d.vespene << "," << d.buildTime << "," << d.supplyCost << "," << d.supplyProvided << ","<< d.startEnergy << "," << d.maxEnergy << "," << d.race << ",";
 		os << " producedBy: ";
 		for (string s : d.producedBy) os << s << "/";
@@ -35,4 +36,4 @@ struct BuildingData {
 	}
 };
 
-extern unordered_map<string, BuildingData> buildingDataMap;
+extern unordered_map<string, EntityData> entityDataMap;
