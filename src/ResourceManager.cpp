@@ -3,7 +3,7 @@
 const FixedPoint ResourceManager::mineralsPerWorkerSecond(70);
 const FixedPoint ResourceManager::vespenePerWorkerSecond(35);
 
-ResourceManager::ResourceManager() : minerals(0), vespene(0), supply(0), mineralWorkers(0), vespeneWorkers(0) {
+ResourceManager::ResourceManager() : minerals(50), vespene(0), supply(0), mineralWorkers(0), vespeneWorkers(0) {
 	
 }
 
@@ -13,6 +13,8 @@ ResourceManager::~ResourceManager() {
 
 void ResourceManager::update() {
 	//todo
+	minerals += mineralsPerWorkerSecond * FixedPoint(mineralWorkers);
+	vespene += vespenePerWorkerSecond * FixedPoint(vespeneWorkers);
 }
 
 int ResourceManager::getMinerals() {

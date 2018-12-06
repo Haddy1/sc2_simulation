@@ -37,3 +37,7 @@ struct EntityData {
 };
 
 extern unordered_map<string, EntityData> entityDataMap;
+
+inline bool entityExists(string s) {
+	return entityDataMap.find(s) != entityDataMap.end();
+}
