@@ -55,6 +55,8 @@ int main(int argc, char *argv[]) {
 		std::cout << (*it).second << std::endl;
 	}
 
+	std::cout << "end test print" << std::endl;
+
 	// open buildlist file
 	ifstream buildListFile(argv[2]);
 	//bool invalidBuildlist = buildListFile.fail();
@@ -68,10 +70,13 @@ int main(int argc, char *argv[]) {
 	while (buildListFile.good()) {
 		string s;
 		buildListFile >> s;
+		if (s.size() == 0) {
+			continue;
+		}
 		if (!entityExists(s)) {
 			validBuildlist = false;
 		}
-		auto it = entityDataMap.find(nextItem);
+		auto it = entityDataMap.find(s);
 		EntityData entityData = it->second;
 		if (entityData.race != race) {
 			validBuildlist = false;
@@ -81,6 +86,10 @@ int main(int argc, char *argv[]) {
 	}
 	buildListFile.close();
 	
+	if (!validBuildlist) {
+		std::cerr << "invalid buildlist" << std::endl;
+	}
+
 	/*
 	FixedPoint a(0.0);
 	FixedPoint b(0.35);

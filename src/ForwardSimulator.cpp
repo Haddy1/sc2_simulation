@@ -30,10 +30,12 @@ void ForwardSimulator::simulate() {
 			auto it = entityDataMap.find(nextItem);
 			EntityData entityData = it->second;
 			if (entityData.isBuilding) {
-				std::cout << "nextItem: Building" << std::endl;
+				std::cout << "nextItem: Building " << nextItem << std::endl;
 			} else {
-				std::cout << "nextItem: Unit" << std::endl;
+				std::cout << "nextItem: Unit " << nextItem << std::endl;
 			}
+
+			buildOrder.pop(); //TODO dont always remove
 			
 		}
 		
