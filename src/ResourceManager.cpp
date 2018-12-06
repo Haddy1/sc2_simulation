@@ -1,5 +1,7 @@
 #include "../include/ResourceManager.h"
 
+#include <cassert>
+
 const FixedPoint ResourceManager::mineralsPerWorkerSecond(70);
 const FixedPoint ResourceManager::vespenePerWorkerSecond(35);
 
@@ -29,18 +31,26 @@ int ResourceManager::getSupply() {
 	return supply;
 }
 
+void ResourceManager::consumeMinerals(FixedPoint a) {
+	assert(a <= minerals);
+	minerals -= a;
+}
+
+void ResourceManager::consumeVespene(FixedPoint a) {
+	assert(a <= vespene);
+	vespene -= a;
+}
+
 void ResourceManager::consumeMinerals(int a) {
-	//minerals -= FixedPoint(a);
-	//todo
+	consumeMinerals(FixedPoint(a));
 }
 
 void ResourceManager::consumeVespene(int a) {
-	//vespene -= FixedPoint(a);
-	//todo
+	consumeVespene(FixedPoint(a));
 }
 
 void ResourceManager::consumeSupply(int a) {
-	//supply -= a;
-	//todo
+	assert(a <= supply);
+	supply -= a;
 }
 

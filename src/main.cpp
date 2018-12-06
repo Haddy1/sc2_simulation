@@ -57,15 +57,26 @@ int main(int argc, char *argv[]) {
 
 	// open buildlist file
 	ifstream buildListFile(argv[2]);
-	bool invalidBuildlist = buildListFile.fail();
-	if (invalidBuildlist) {
+	//bool invalidBuildlist = buildListFile.fail();
+	if (buildListFile.fail()) {
 		std::cerr << "couldn't open buildlist file" << std::endl;
 	}
+	
+	bool validBuildlist = true;
 	
 	queue<string> buildQueue;
 	while (buildListFile.good()) {
 		string s;
 		buildListFile >> s;
+		if (!entityExists(s)) {
+			validBuildlist = false;
+		}
+		auto it = entityDataMap.find(nextItem);
+		EntityData entityData = it->second;
+		if (entityData.race != race) {
+			validBuildlist = false;
+		}
+		
 		buildQueue.push(s);
 	}
 	buildListFile.close();
@@ -90,7 +101,7 @@ int main(int argc, char *argv[]) {
 	*/
 
 	
-	JsonLogger logger(race, ~invalidBuildlist, "res/output.h");
+	JsonLogger logger(race, validBuildlist, "res/output.h");
 	logger.printMessage(1, vector<EventEntry>{EventEntry("build-end", "marine"), EventEntry("build-start", "marine")});
 	
 	ForwardSimulator simulator(race, buildQueue);

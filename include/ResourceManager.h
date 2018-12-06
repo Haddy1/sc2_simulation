@@ -20,6 +20,8 @@ public:
 	int getMinerals();
 	int getVespene();
 	int getSupply();
+	void consumeMinerals(FixedPoint);
+	void consumeVespene(FixedPoint);
 	void consumeMinerals(int);
 	void consumeVespene(int);
 	void consumeSupply(int);
