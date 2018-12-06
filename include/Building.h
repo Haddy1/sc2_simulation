@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Entity.h"
 #include "Ability.h"
 #include <string>
 
 using std::string;
 
-class Building {
+class Building : public Entity {
 	bool constructing;
 	int constrProgress;
 	string buildingType;
