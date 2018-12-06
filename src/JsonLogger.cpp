@@ -100,5 +100,6 @@ bool JsonLogger::validType(const char* s) {
 }
 
 bool JsonLogger::validName(const char* s) {
-	return buildingDataMap.count(s) != 0 || unitDataMap.count(s) != 0;
+	return entityDataMap.find(string(s)) != entityDataMap.end();
+	//return buildingDataMap.count(s) != 0 || unitDataMap.count(s) != 0;
 }

@@ -1,5 +1,6 @@
-#include "../include/UnitData.h"
-#include "../include/BuildingData.h"
+//#include "../include/UnitData.h"
+//#include "../include/BuildingData.h"
+#include "../include/EntityData.h"
 #include "../include/Race.h"
 
 #include <iostream>

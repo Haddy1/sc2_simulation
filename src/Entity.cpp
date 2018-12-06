@@ -2,6 +2,6 @@
 
 static int ID_Counter = 0;
 
-Entity::Entity() : {
+Entity::Entity() {
 	id = ID_Counter++;
 }
