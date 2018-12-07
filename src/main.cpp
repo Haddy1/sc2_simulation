@@ -11,6 +11,7 @@
 #include <cstring>
 #include <fstream>
 #include <queue>
+#include <cassert>
 
 using std::ifstream;
 using std::queue;
@@ -108,9 +109,9 @@ int main(int argc, char *argv[]) {
 	a+= b*FixedPoint(6);
 	std::cout << "a+= b*6: " << a << std::endl;
 	*/
-
 	
-	JsonLogger logger(race, validBuildlist, "res/output.h");
+	
+	JsonLogger logger(race, validBuildlist, "res/output.txt");
 	logger.printMessage(1, vector<EventEntry>{EventEntry("build-end", "marine"), EventEntry("build-start", "marine")});
 	
 	ForwardSimulator simulator(race, buildQueue);

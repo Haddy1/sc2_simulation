@@ -19,6 +19,10 @@ class ForwardSimulator {
 	ResourceManager resourceManager;
 	int timestep;
 	bool running;
+	
+	void simulateTerran();
+	void simulateProtoss();
+	void simulateZerg();
 public:
 	ForwardSimulator(Race);
 	ForwardSimulator(Race, queue<string>);
