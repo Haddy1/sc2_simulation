@@ -6,20 +6,23 @@
 
 using std::string;
 
+/*
+Fügt die auskommentierten variablen und methoden bei Bedarf in eure Unterklassen hinzu, da jeder andere braucht und es sonst unübersichtlich wird
+*/
 class Building : public Entity {
-	bool constructing;
-	int constrProgress;
-	string buildingType;
-	int energy;
-	bool working;
-	int workProgress;
+	//bool constructing;
+	//int constrProgress;
+	string name;
+	//int energy;
+	//bool working;
+	//int workProgress;
 	
 public:
 	Building() = delete;
 	Building(string);
 	~Building();
-	void update();
-	bool busy();
-	bool ability();
-	bool createUnit(string);
+	virtual void update();
+	virtual bool busy();
+	//virtual bool ability();
+	//virtual bool createUnit(string);
 };

@@ -4,22 +4,66 @@
 #include <iostream>
 
 ForwardSimulator::ForwardSimulator(Race r) : race(r), timestep(0), running(true) {
-	resourceManager.setMineralWorkers(6);
+	init();
+	
 }
 
 ForwardSimulator::ForwardSimulator(Race r, queue<string> q) : race(r), buildOrder(q), timestep(0), running(true) {
+	init();
+}
+
+void ForwardSimulator::init() {
+	//starting conditions
 	resourceManager.setMineralWorkers(6);
+	switch (race) {
+		case TERRAN:
+			initTerran();
+			break;
+		case PROTOSS:
+			initProtoss();
+			break;
+		case ZERG:
+			initZerg();
+			break;
+		default:
+			break;
+	}
+}
+
+void ForwardSimulator::initTerran() {
+	
+}
+
+void ForwardSimulator::initProtoss() {
+	
+}
+
+void ForwardSimulator::initZerg() {
+	ZergBuilding hatchery("hatchery");
+	buildings.push_back(hatchery);
+	ZergUnit overlord("overlord");
+	units.push_back(overlord);
+	for (int i = 0; i < 6; ++i) {
+		//TODO
+		ZergUnit drone("drone");
+		drone.setWorking(true);
+		workers.push_back(drone);
+	}
 }
 
 void ForwardSimulator::simulate() {
 	switch (race) {
 		case TERRAN:
-			simulateTerran(); break;
+			simulateTerran();
+			break;
 		case PROTOSS:
-			simulateProtoss(); break;
+			simulateProtoss();
+			break;
 		case ZERG:
-			simulateZerg(); break;
-		default: break;
+			simulateZerg();
+			break;
+		default:
+			break;
 	}
 }
 
@@ -35,7 +79,6 @@ void ForwardSimulator::simulateZerg() {
 	while (timestep < 20) {//TODO
 		
 		resourceManager.update();
-		
 		std::cout << resourceManager << std::endl;
 		
 		//update/finish buildings
