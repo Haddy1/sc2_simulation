@@ -16,7 +16,7 @@ struct EntityData {
 	int minerals;
 	int vespene;
 	int buildTime;
-	int supplyCost;
+	double supplyCost; //can be 0.5 for zerglings
 	int supplyProvided;
 	int startEnergy;
 	int maxEnergy;

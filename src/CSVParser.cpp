@@ -38,7 +38,7 @@ void CSVParser::parseEntityLine(string line) {
 	getline(iss, token, ',');
 	entityData.buildTime = stoi(token);
 	getline(iss, token, ',');
-	entityData.supplyCost = stoi(token);
+	entityData.supplyCost = stod(token);
 	getline(iss, token, ',');
 	entityData.supplyProvided = stoi(token);
 	getline(iss, token, ',');

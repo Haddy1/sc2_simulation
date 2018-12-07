@@ -7,7 +7,8 @@
 class ResourceManager {
 	FixedPoint minerals;
 	FixedPoint vespene;
-	int supply;
+	double supply;
+	double supplyMax;
 	
 	int mineralWorkers;
 	int vespeneWorkers;
@@ -21,12 +22,16 @@ public:
 	void update();
 	int getMinerals();
 	int getVespene();
-	int getSupply();
+	double getSupply();
+	double getSupplyMax();
 	void consumeMinerals(FixedPoint);
 	void consumeVespene(FixedPoint);
+	void consumeSupply(double);
 	void consumeMinerals(int);
 	void consumeVespene(int);
 	void consumeSupply(int);
+	void addSupplyMax(double);
+	void addSupplyMax(int);
 	int getMineralWorkers() const { return mineralWorkers; }
 	int getVespeneWorkers() const { return vespeneWorkers; }
 	int getWorkers() const { return mineralWorkers + vespeneWorkers; }
