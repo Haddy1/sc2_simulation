@@ -15,8 +15,8 @@ ResourceManager::~ResourceManager() {
 
 void ResourceManager::update() {
 	//TODO: error
-	//minerals += mineralsPerWorkerSecond * FixedPoint(mineralWorkers);
-	//vespene += vespenePerWorkerSecond * FixedPoint(vespeneWorkers);
+	minerals += FixedPoint(mineralWorkers) * mineralsPerWorkerSecond;
+	vespene += FixedPoint(vespeneWorkers) * vespenePerWorkerSecond;
 }
 
 int ResourceManager::getMinerals() {
