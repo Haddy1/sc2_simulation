@@ -1,19 +1,24 @@
 #include "../include/ZergBuilding.h"
 
+ZergBuilding::ZergBuilding(string name) : Building(name) {
+
+}
+
 void ZergBuilding::upgrade() {
 	//TODO
 }
 
+void ZergBuilding::update() {
 
-ZergHatchery::ZergHatchery() {
-	//TODO
 }
 
-void ZergHatchery::upgrade() {
+
+ZergHatchery::ZergHatchery(string name) : ZergBuilding(name) {
 	//TODO
 }
 
 int ZergHatchery::getLarvaCount() {
+	return 0;
 	//TODO
 }
 
@@ -26,6 +31,7 @@ void ZergHatchery::spawnQueen() {
 }
 
 ZergUnit ZergHatchery::getQueen() {
+	return ZergUnit(string());
 	//TODO
 }
 

@@ -4,6 +4,6 @@ Building::Building(string name) : name(name) {
 	
 }
 
-Building::~Building() {
-	
+void Building::update() {
+
 }

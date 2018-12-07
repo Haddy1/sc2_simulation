@@ -1,5 +1,7 @@
 #include "../include/ForwardSimulator.h"
 #include "../include/EntityData.h"
+#include "../include/ZergUnit.h"
+#include "../include/ZergBuilding.h"
 
 #include <iostream>
 
@@ -39,16 +41,18 @@ void ForwardSimulator::initProtoss() {
 }
 
 void ForwardSimulator::initZerg() {
-	ZergBuilding hatchery("hatchery");
+	/*
+	ZergBuilding hatchery(string("hatchery"));
 	buildings.push_back(hatchery);
-	ZergUnit overlord("overlord");
+	ZergUnit overlord(string("overlord"));
 	units.push_back(overlord);
 	for (int i = 0; i < 6; ++i) {
 		//TODO
-		ZergUnit drone("drone");
-		drone.setWorking(true);
+		ZergUnit drone(string("drone"));
+		//drone.setWorking(true);
 		workers.push_back(drone);
 	}
+	*/
 }
 
 void ForwardSimulator::simulate() {
@@ -82,9 +86,9 @@ void ForwardSimulator::simulateZerg() {
 		std::cout << resourceManager << std::endl;
 		
 		//update/finish buildings
-		for (Building& b : buildings) {
-			b.update();
-		}
+		//for (Building& b : buildings) {
+			//b.update();//TODO
+		//}
 		
 		//start/finish abilities
 		
@@ -96,12 +100,12 @@ void ForwardSimulator::simulateZerg() {
 			
 			if (entityData.isBuilding) {
 				std::cout << "nextItem: Building " << nextItem << std::endl;
-				Building b(nextItem);
+				ZergBuilding b(nextItem);
 				std::cout << "id: " << b.getID() << std::endl;
 				buildings.push_back(b);
 			} else {
 				std::cout << "nextItem: Unit " << nextItem << std::endl;
-				Unit u(nextItem);
+				ZergUnit u(nextItem);
 				std::cout << "id: " << u.getID() << std::endl;
 				units.push_back(u);
 			}

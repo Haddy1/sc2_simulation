@@ -20,9 +20,8 @@ class Building : public Entity {
 public:
 	Building() = delete;
 	Building(string);
-	~Building();
 	virtual void update();
-	virtual bool busy();
+	//virtual bool busy();
 	//virtual bool ability();
 	//virtual bool createUnit(string);
 };

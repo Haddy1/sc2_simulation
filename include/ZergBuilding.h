@@ -7,7 +7,9 @@ class ZergBuilding : public Building {
 	bool upgrading;
 	int upgradeProgress;
 public:
+	ZergBuilding(string);
 	void upgrade();
+	void update();
 };
 
 class ZergHatchery : public ZergBuilding {//represents hatchery, lair, hive
@@ -16,7 +18,7 @@ class ZergHatchery : public ZergBuilding {//represents hatchery, lair, hive
 	bool spawningQueen;
 	int queenProgress;
 public:
-	ZergHatchery();
+	ZergHatchery(string);
 	int getLarvaCount();
 	void takeLarva();
 	void spawnQueen();
