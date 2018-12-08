@@ -12,9 +12,9 @@ Fügt die auskommentierten variablen und methoden bei Bedarf in eure Unterklasse
 */
 class Unit : public Entity {
 	//bool working;
-	string name;
 	//int energy;
-	
+protected:
+	string name;
 public:
 	Unit() = delete;
 	Unit(string);
