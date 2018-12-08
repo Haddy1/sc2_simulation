@@ -12,11 +12,11 @@ Fügt die auskommentierten variablen und methoden bei Bedarf in eure Unterklasse
 class Building : public Entity {
 	//bool constructing;
 	//int constrProgress;
-	string name;
 	//int energy;
 	//bool working;
 	//int workProgress;
-	
+protected:
+	string name;
 public:
 	Building() = delete;
 	Building(string);
