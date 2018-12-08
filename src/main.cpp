@@ -19,6 +19,7 @@ using std::vector;
 using std::pair;
 using std::make_pair;
 
+ForwardSimulator *simulator;
 
 void usage(char *arg) {
 	std::cerr << "usage: " << arg << " <race> <buildListFile>" << std::endl;
@@ -114,8 +115,24 @@ int main(int argc, char *argv[]) {
 	JsonLogger logger(race, validBuildlist, "res/output.txt");
 	logger.printMessage(1, vector<EventEntry>{EventEntry("build-end", "marine"), EventEntry("build-start", "marine")});
 	
-	ForwardSimulator simulator(race, buildQueue);
-	simulator.simulate();
+	
+	switch (race) {
+		case TERRAN:
+			simulator = new TerranSimulator(buildQueue);
+			break;
+		case PROTOSS:
+			simulator = new ProtossSimulator(buildQueue);
+			break;
+		case ZERG:
+			simulator = new ZergSimulator(buildQueue);
+			break;
+		default:
+			break;
+	}
+	
+	simulator->simulate();
+	
+	delete simulator;
 	
 	return 0;
 }

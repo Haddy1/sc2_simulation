@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Race.h"
 #include "Building.h"
 #include "Unit.h"
+#include "ZergBuilding.h"
+#include "ZergUnit.h"
 #include "ResourceManager.h"
 
 #include <vector>
@@ -12,7 +13,7 @@ using std::vector;
 using std::queue;
 
 class ForwardSimulator {
-	Race race;
+	/*
 	queue<string> buildOrder;
 	vector<Building> buildings;
 	vector<Unit> units;
@@ -20,17 +21,62 @@ class ForwardSimulator {
 	ResourceManager resourceManager;
 	int timestep;
 	bool running;
+	*/
+	void init();
+public:
+	ForwardSimulator();
+	ForwardSimulator(queue<string>);
+	void simulate();
+};
+
+
+class TerranSimulator : public ForwardSimulator {
+	queue<string> buildOrder;
+	vector<Building*> buildings;
+	vector<Unit*> units;
+	vector<Unit*> workers;
+	ResourceManager resourceManager;
+	int timestep;
+	bool running;
 	
 	void init();
-	void initTerran();
-	void initProtoss();
-	void initZerg();
-	void simulateTerran();
-	void simulateProtoss();
-	void simulateZerg();
 public:
-	ForwardSimulator(Race);
-	ForwardSimulator(Race, queue<string>);
+	TerranSimulator();
+	TerranSimulator(queue<string>);
+	void simulate();
+};
+
+
+class ProtossSimulator : public ForwardSimulator {
+	queue<string> buildOrder;
+	vector<Building*> buildings;
+	vector<Unit*> units;
+	vector<Unit*> workers;
+	ResourceManager resourceManager;
+	int timestep;
+	bool running;
+	
+	void init();
+public:
+	ProtossSimulator();
+	ProtossSimulator(queue<string>);
+	void simulate();
+};
+
+
+class ZergSimulator : public ForwardSimulator {
+	queue<string> buildOrder;
+	vector<ZergBuilding*> buildings;
+	vector<ZergUnit*> units;
+	vector<ZergUnit*> workers;
+	ResourceManager resourceManager;
+	int timestep;
+	bool running;
+	
+	void init();
+public:
+	ZergSimulator();
+	ZergSimulator(queue<string>);
 	void simulate();
 };
 
