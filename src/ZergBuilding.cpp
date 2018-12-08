@@ -104,16 +104,18 @@ bool ZergHatchery::spawnQueen() {
 	}
 }
 
-bool ZergHatchery::queenDone() {
-	return queenProgress == 50;
-}
+//bool ZergHatchery::queenDone() {
+//	return queenProgress == 50;
+//}
 
-ZergQueen* ZergHatchery::getQueen() {
-	//TODO
-	queenProgress = 0;
-	spawningQueen = false;
-	ZergQueen *queen = new ZergQueen(string("queen"));
-	return queen;
+bool ZergHatchery::takeQueen() {
+	if (queenProgress == 50) {
+		queenProgress = 0;
+		spawningQueen = false;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 bool ZergHatchery::injectLarvas() {

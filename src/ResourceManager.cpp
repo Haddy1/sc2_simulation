@@ -20,7 +20,7 @@ void ResourceManager::update() {
 }
 
 bool ResourceManager::canBuild(EntityData& e) {
-	return ((e.minerals <= minerals.toInt()) && (e.vespene <= vespene.toInt()) && ((supplyCost + supply) <= supplyMax));
+	return ((e.minerals <= minerals.toInt()) && (e.vespene <= vespene.toInt()) && ((e.supplyCost + supply) <= supplyMax));
 }
 
 int ResourceManager::getMinerals() {

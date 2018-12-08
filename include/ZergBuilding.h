@@ -25,7 +25,7 @@ public:
 	int getLarvaCount() const;
 	bool takeLarva();
 	bool spawnQueen();
-	ZergQueen* getQueen();
+	bool takeQueen();
 	bool injectLarvas();
 };
 

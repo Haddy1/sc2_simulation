@@ -31,15 +31,15 @@ bool ZergDrone::morph(string s) {
 	//TODO
 }
 
-ZergBuilding* ZergDrone::getMorphedBuilding() {
+//ZergBuilding* ZergDrone::getMorphedBuilding() {
 	//TODO
-}
+//}
 
 
 /*
  * Queen
  */
-ZergQueen::ZergQueen(string) {
+ZergQueen::ZergQueen(string name) : ZergUnit(name) {
 	//TODO
 }
 

@@ -22,7 +22,7 @@ public:
 	ZergDrone(string);
 	void setWorking(bool);
 	bool morph(string);
-	ZergBuilding* getMorphedBuilding();
+	//ZergBuilding* getMorphedBuilding();
 };
 
 class ZergQueen : public ZergUnit {
