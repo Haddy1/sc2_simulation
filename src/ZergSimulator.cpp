@@ -15,12 +15,15 @@ void ZergSimulator::init() {
 	resourceManager.setMineralWorkers(6);
 	
 	ZergBuilding *hatchery = new ZergBuilding(string("hatchery"));
+	std::cout << "Hatchery id: " << hatchery->getID() << std::endl;
 	buildings.push_back(hatchery);
 	ZergUnit *overlord = new ZergUnit(string("overlord"));
+	std::cout << "Overlord id: " << overlord->getID() << std::endl;
 	units.push_back(overlord);
 	for (int i = 0; i < 6; ++i) {
 		//TODO
 		ZergUnit *drone = new ZergUnit(string("drone"));
+		std::cout << "Drone id: " << drone->getID() << std::endl;
 		//drone.setWorking(true);
 		workers.push_back(drone);
 	}
