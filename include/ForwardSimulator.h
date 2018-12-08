@@ -13,8 +13,9 @@ using std::vector;
 using std::queue;
 
 class ForwardSimulator {
-	/*
+	
 	queue<string> buildOrder;
+	/*
 	vector<Building> buildings;
 	vector<Unit> units;
 	vector<Unit> workers;
@@ -22,11 +23,11 @@ class ForwardSimulator {
 	int timestep;
 	bool running;
 	*/
-	void init();
+	virtual void init() = 0;
 public:
-	ForwardSimulator();
-	ForwardSimulator(queue<string>);
-	void simulate();
+	ForwardSimulator() {}
+	ForwardSimulator(queue<string> q) : buildOrder(q) {}
+	virtual void simulate() = 0;
 };
 
 

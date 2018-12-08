@@ -132,7 +132,6 @@ int main(int argc, char *argv[]) {
 	
 	simulator->simulate();
 	
-	delete simulator;
 	
 	return 0;
 }
