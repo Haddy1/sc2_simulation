@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FixedPoint.h"
+#include "EntityData.h"
 
 #include <iostream>
 
@@ -19,22 +20,30 @@ public:
 	
 	ResourceManager();
 	~ResourceManager();
+	
 	void update();
+	
+	bool canBuild(EntityData&);
+	bool consumeRes(EntityData&);
+	
 	int getMinerals();
 	int getVespene();
 	double getSupply();
 	double getSupplyMax();
-	void consumeMinerals(FixedPoint);
-	void consumeVespene(FixedPoint);
-	void consumeSupply(double);
-	void consumeMinerals(int);
-	void consumeVespene(int);
-	void consumeSupply(int);
-	void addSupplyMax(double);
-	void addSupplyMax(int);
 	int getMineralWorkers() const { return mineralWorkers; }
 	int getVespeneWorkers() const { return vespeneWorkers; }
 	int getWorkers() const { return mineralWorkers + vespeneWorkers; }
+	
+	bool consumeMinerals(FixedPoint);
+	bool consumeVespene(FixedPoint);
+	bool consumeSupply(double);
+	bool consumeMinerals(int);
+	bool consumeVespene(int);
+	bool consumeSupply(int);
+	
+	void addSupplyMax(double);
+	void addSupplyMax(int);
+	
 	void setMineralWorkers(int a) { mineralWorkers = a; }
 	void setVespeneWorkers(int a) { vespeneWorkers = a; }
 	

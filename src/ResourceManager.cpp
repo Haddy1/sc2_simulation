@@ -19,6 +19,10 @@ void ResourceManager::update() {
 	vespene += FixedPoint(vespeneWorkers) * vespenePerWorkerSecond;
 }
 
+bool ResourceManager::canBuild(EntityData& e) {
+	return ((e.minerals <= minerals.toInt()) && (e.vespene <= vespene.toInt()) && ((supplyCost + supply) <= supplyMax));
+}
+
 int ResourceManager::getMinerals() {
 	return minerals.toInt();
 }
@@ -35,31 +39,54 @@ double ResourceManager::getSupplyMax() {
 	return supplyMax;
 }
 
-void ResourceManager::consumeMinerals(FixedPoint a) {
-	assert(a <= minerals);
-	minerals -= a;
+bool ResourceManager::consumeRes(EntityData& e) {
+	if (canBuild(e)) {
+		minerals -= FixedPoint(e.minerals);
+		vespene -= FixedPoint(e.vespene);
+		supply += e.supplyCost;
+		return true;
+	} else {
+		return false;
+	}
 }
 
-void ResourceManager::consumeVespene(FixedPoint a) {
-	assert(a <= vespene);
-	vespene -= a;
+bool ResourceManager::consumeMinerals(FixedPoint a) {
+	if (a <= minerals) {
+		minerals -= a;
+		return true;
+	} else {
+		return false;
+	}
 }
 
-void ResourceManager::consumeSupply(double a) {
-	assert(supply + a <= supplyMax);
-	supply += a;
+bool ResourceManager::consumeVespene(FixedPoint a) {
+	if (a <= vespene) {
+		vespene -= a;
+		return true;
+	} else {
+		return false;
+	}
 }
 
-void ResourceManager::consumeMinerals(int a) {
-	consumeMinerals(FixedPoint(a));
+bool ResourceManager::consumeSupply(double a) {
+	if (supply + a <= supplyMax) {
+		supply += a;
+		return true;
+	} else {
+		return false;
+	}
 }
 
-void ResourceManager::consumeVespene(int a) {
-	consumeVespene(FixedPoint(a));
+bool ResourceManager::consumeMinerals(int a) {
+	return consumeMinerals(FixedPoint(a));
 }
 
-void ResourceManager::consumeSupply(int a) {
-	consumeSupply(static_cast<double>(a));
+bool ResourceManager::consumeVespene(int a) {
+	return consumeVespene(FixedPoint(a));
+}
+
+bool ResourceManager::consumeSupply(int a) {
+	return consumeSupply(static_cast<double>(a));
 }
 
 void ResourceManager::addSupplyMax(double a) {

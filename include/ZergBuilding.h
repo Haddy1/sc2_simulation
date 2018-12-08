@@ -4,11 +4,8 @@
 #include "ZergUnit.h"
 
 class ZergBuilding : public Building {
-	//bool upgrading;
-	//int upgradeProgress;
 public:
 	ZergBuilding(string);
-	//void upgrade();
 	void update();
 };
 
@@ -24,12 +21,12 @@ class ZergHatchery : public ZergBuilding {//represents hatchery, lair, hive
 public:
 	ZergHatchery(string);
 	void update();
-	void upgrade();
+	bool upgrade();
 	int getLarvaCount() const;
-	void takeLarva();
+	bool takeLarva();
 	bool spawnQueen();
 	ZergQueen* getQueen();
-	void injectLarvas();
+	bool injectLarvas();
 };
 
 class ZergSpire : public ZergBuilding {//represents spire, greater_spire
@@ -37,7 +34,7 @@ class ZergSpire : public ZergBuilding {//represents spire, greater_spire
 	int upgradeProgress;
 public:
 	ZergSpire(string);
-	void upgrade();
+	bool upgrade();
 	void update();
 };
 
@@ -47,5 +44,6 @@ class ZergNydusNetwork : public ZergBuilding {//represents nydus_network
 public:
 	ZergNydusNetwork(string);
 	void update();
-	ZergUnit* getUnit();
+	bool spawn();
+	bool takeUnit();
 };

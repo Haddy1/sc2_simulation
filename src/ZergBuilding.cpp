@@ -8,7 +8,7 @@ ZergBuilding::ZergBuilding(string name) : Building(name) {
 }
 
 void ZergBuilding::update() {
-	
+	//nothing
 }
 
 
@@ -21,12 +21,7 @@ ZergHatchery::ZergHatchery(string name) : ZergBuilding(name) {
 
 void ZergHatchery::update() {
 	//TODO
-	if (spawningQueen) {
-		++queenProgress;
-		if (queenProgress > 50) { //TODO read 50 from EntityData queen buildTime
-			queenProgress = 50;
-		}
-	}
+	//update upgrade
 	if (upgrading) {
 		++upgradeProgress;
 		if (name == string("hatchery")) {
@@ -42,7 +37,16 @@ void ZergHatchery::update() {
 				name = string("hive");
 			}
 		}
+		return; //cant do work if upgrading //TODO is this true?
 	}
+	//update queen spawn
+	if (spawningQueen) {
+		++queenProgress;
+		if (queenProgress > 50) { //TODO read 50 from EntityData queen buildTime
+			queenProgress = 50;
+		}
+	}
+	//update regular larva spawn
 	if (larvas < 3) {
 		++larvaProgress;
 		if (larvaProgress == 15) {
@@ -50,15 +54,30 @@ void ZergHatchery::update() {
 			larvaProgress = 0;
 		}
 	}
+	//update special ability
 	if (injectingLarvas) {
 		//TODO
+		++injectProgress;
+		if (injectProgress == 40) {
+			larvas += 4;
+			if (larvas > 19) {
+				larvas = 19;
+			}
+			injectingLarvas = false;
+			injectProgress = 0;
+			larvaProgress = 0; //when inject is done, there is more than 3 larvas so natural spawning resets //TODO ?
+		}
 	}
 }
 
-void ZergHatchery::upgrade() {
-	if (name != string("hive") && !upgrading) {
+bool ZergHatchery::upgrade() {
+	//cant upgrade if doing work
+	if (name != string("hive") && !upgrading && !spawningQueen && !injectingLarvas) {
 		upgrading = true;
 		upgradeProgress = 0;
+		return true;
+	} else {
+		return false;
 	}
 }
 
@@ -66,8 +85,13 @@ int ZergHatchery::getLarvaCount() const {
 	return larvas;
 }
 
-void ZergHatchery::takeLarva() {
-	//TODO
+bool ZergHatchery::takeLarva() {
+	if (larvas > 0) {
+		--larvas;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 bool ZergHatchery::spawnQueen() {
@@ -85,46 +109,85 @@ bool ZergHatchery::queenDone() {
 }
 
 ZergQueen* ZergHatchery::getQueen() {
+	//TODO
 	queenProgress = 0;
 	spawningQueen = false;
 	ZergQueen *queen = new ZergQueen(string("queen"));
 	return queen;
 }
 
-void ZergHatchery::injectLarvas() {
+bool ZergHatchery::injectLarvas() {
 	//TODO 4 eggs, 40sec, max 19
+	if (!injectingLarvas) {
+		injectingLarvas = true;
+		injectProgress = 0;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 
 /*
  * Spire, Greater Spire
  */
-ZergSpire::ZergSpire(string name) : ZergBuilding(name) {
-	//TODO
+ZergSpire::ZergSpire(string name) : ZergBuilding(name), upgrading(false), upgradeProgress(0) {
+	
 }
 
-void ZergSpire::upgrade() {
-	//TODO
+bool ZergSpire::upgrade() {
+	if (name == string("spire") && !upgrading) {
+		upgrading = true;
+		upgradeProgress = 0;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 void ZergSpire::update() {
-	//TODO
+	if (upgrading) {
+		++upgradeProgress;
+		if (upgradeProgress == 100) {
+			name = string("greater_spire");
+			upgrading = false;
+			upgradeProgress = 0;
+		}
+	}
 }
 
 
 /*
  * Nydus Network
  */
-ZergNydusNetwork::ZergNydusNetwork(string name) : ZergBuilding(name) {
-	//TODO
+ZergNydusNetwork::ZergNydusNetwork(string name) : ZergBuilding(name), spawningUnit(false), spawnProgress(0) {
+	
 }
 
 void ZergNydusNetwork::update() {
-	//TODO
+	if (spawningUnit) {
+		++spawnProgress;
+		if (spawnProgress > 20) {
+			spawnProgress = 20;
+		}
+	}
 }
 
-ZergUnit* ZergNydusNetwork::getUnit() {
-	//TODO
+bool ZergNydusNetwork::spawn() {
+	if (!spawningUnit) {
+		spawningUnit = true;
+		spawnProgress = 0;
+	}
+}
+
+bool ZergNydusNetwork::takeUnit() {//nydus worm
+	if (spawnProgress == 20) {
+		spawningUnit = false;
+		spawnProgress = 0;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 
