@@ -23,17 +23,17 @@ void ZergSimulator::init() {
 	hatcheries.push_back(hatchery);
 	resourceManager.addSupplyMax(entityDataMap.at(string("hatchery")).supplyProvided);
 	
-	ZergUnit *overlord = new ZergUnit(string("overlord"), resourceManager);
+	ZergUpgradeableUnit *overlord = new ZergUpgradeableUnit(string("overlord"), resourceManager);
 	cout << "Overlord id: " << overlord->getID() << endl;
-	units.push_back(overlord);
+	upgradeableUnits.push_back(overlord);
 	resourceManager.addSupplyMax(entityDataMap.at(string("overlord")).supplyProvided);
 	
 	for (int i = 0; i < 6; ++i) {
-		//TODO
 		ZergDrone *drone = new ZergDrone(string("drone"), resourceManager);
 		cout << "Drone id: " << drone->getID() << endl;
 		//drone.setWorking(true);
-		workers.push_back(drone);
+		drones.push_back(drone);
+		resourceManager.addSupplyMax(entityDataMap.at(string("drone")).supplyProvided);
 	}
 	
 	resourceManager.setMineralWorkers(6);
@@ -48,19 +48,52 @@ void ZergSimulator::simulate() {
 		
 		//update/finish buildings
 		for (ZergHatchery *b : hatcheries) {
-			b->update();//TODO
+			b->update();
 		}
 		for (ZergSpire *b : spires) {
-			b->update();//TODO
+			b->update();
 		}
 		for (ZergNydusNetwork *b : nydusNetworks) {
-			b->update();//TODO
+			b->update();
+			if (b->takeUnit()) {
+				ZergUnit *nydusWorm = new ZergUnit(string("nydus_worm"), resourceManager);
+				cout << "Nydus Worm id: " << nydusWorm->getID() << endl;
+				units.push_back(nydusWorm);
+				resourceManager.addSupplyMax(entityDataMap.at(string("nydus_worm")).supplyProvided);
+			}
 		}
+		
 		//update/finish units
-		for (ZergLarva *u : larvas) {
+		auto it = larvas.begin();
+		while (it != larvas.end()) {
+			ZergLarva *u = (*it);
+			u->update();
+			if (u->isDone()) {
+				EntityData& entityData = u->getUnitData();
+				//create new unit
+				if (entityData.name == string("drone")) {
+					ZergDrone *drone = new ZergDrone(string("drone"), resourceManager);
+					drones.push_back(drone);
+					resourceManager.addSupplyMax(entityDataMap.at(string("drone")).supplyProvided);
+				} else if ((entityData.name == string("overlord")) || (entityData.name == string("zergling")) || (entityData.name == string("corruptor"))) {
+					ZergUpgradeableUnit *unit = new ZergUpgradeableUnit(entityData.name, resourceManager);
+					upgradeableUnits.push_back(unit);
+					resourceManager.addSupplyMax(entityDataMap.at(entityData.name).supplyProvided);
+				} else {
+					ZergUnit *unit = new ZergUnit(entityData.name, resourceManager);
+					units.push_back(unit);
+					resourceManager.addSupplyMax(entityDataMap.at(entityData.name).supplyProvided);
+				}
+				//remove this larva
+				it = larvas.erase(it);
+			} else {
+				++it;
+			}
+		}
+		for (ZergUpgradeableUnit *u : upgradeableUnits) {
 			u->update();//TODO
 		}
-		for (ZergDrone *u : workers) {
+		for (ZergDrone *u : drones) {
 			u->update();//TODO
 		}
 		for (ZergQueen *u : queens) {

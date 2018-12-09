@@ -51,3 +51,17 @@ public:
 	void update();
 	bool injectLarva();
 };
+
+
+class ZergUpgradeableUnit : public ZergUnit {
+	EntityData& unitData;
+	EntityData* upgradeData;
+	bool upgrading;
+	int upgradeProgress;
+public:
+	ZergUpgradeableUnit(string, ResourceManager&);
+	void update();
+	bool upgrade();
+};
+
+

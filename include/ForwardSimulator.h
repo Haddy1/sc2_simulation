@@ -80,7 +80,8 @@ class ZergSimulator : public ForwardSimulator {
 	vector<ZergNydusNetwork*> nydusNetworks;
 	
 	vector<ZergUnit*> units;
-	vector<ZergDrone*> workers;
+	vector<ZergUpgradeableUnit*> upgradeableUnits;
+	vector<ZergDrone*> drones;
 	vector<ZergLarva*> larvas;
 	vector<ZergQueen*> queens;
 	

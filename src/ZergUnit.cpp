@@ -111,3 +111,62 @@ bool ZergQueen::injectLarva() {
 	}
 }
 
+
+/*
+ * Upgradeable Unit: Overlord, Zergling, Corruptor
+ */
+/*
+class ZergUpgradeableUnit : public ZergUnit {
+	EntityData& unitData;
+	bool upgrading;
+	bool upgradeProgress;
+public:
+	ZergUpgradeableUnit(string, ResourceManager&);
+	void update();
+	bool upgrade();
+};
+*/
+ZergUpgradeableUnit::ZergUpgradeableUnit(string name, ResourceManager& r) : ZergUnit(name, r), unitData(entityDataMap.at(name)), upgradeData(nullptr), upgrading(false), upgradeProgress(0) {
+	
+}
+
+void ZergUpgradeableUnit::update() {
+	if (upgrading) {
+		++upgradeProgress;
+		if (upgradeProgress == upgradeData->buildTime) {//TODO
+			upgrading = false;
+			name = upgradeData->name;
+			unitData = *upgradeData;
+		}
+	}
+}
+
+bool ZergUpgradeableUnit::upgrade() {
+	if (upgrading)
+		return false;
+	
+	if (name == string("overlord")) {
+		upgradeData = &entityDataMap.at(string("overseer"));
+	} else if (name == string("zergling")) {
+		upgradeData = &entityDataMap.at(string("baneling"));
+	} else if (name == string("corruptor")) {
+		upgradeData = &entityDataMap.at(string("brood_lord"));
+	} else {
+		return false;
+	}
+	
+	if (r.canBuild(*upgradeData)) {
+		r.consumeRes(*upgradeData);
+		upgrading = true;
+		upgradeProgress = 0;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
+
+
+
+
