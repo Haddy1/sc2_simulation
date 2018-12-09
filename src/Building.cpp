@@ -4,6 +4,3 @@ Building::Building(string name) : name(name) {
 	
 }
 
-void Building::update() {
-
-}

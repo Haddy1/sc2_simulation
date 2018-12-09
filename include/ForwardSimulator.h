@@ -10,9 +10,11 @@
 
 #include <vector>
 #include <queue>
+#include <string>
 
 using std::vector;
 using std::queue;
+using std::string;
 
 class ForwardSimulator {
 	
@@ -75,13 +77,22 @@ public:
 
 
 class ZergSimulator : public ForwardSimulator {
-	queue<string> buildOrder;
-	vector<ZergBuilding*> buildings;
-	vector<ZergUnit*> units;
-	vector<ZergUnit*> workers;
 	ResourceManager resourceManager;
+	queue<string> buildOrder;
 	int timestep;
+	int maxTime;
 	bool running;
+	
+	vector<ZergBuilding*> buildings;
+	vector<ZergHatchery*> hatcheries;
+	vector<ZergSpire*> spires;
+	vector<ZergNydusNetwork*> nydusNetworks;
+	
+	vector<ZergUnit*> units;
+	vector<ZergUpgradeableUnit*> upgradeableUnits;
+	vector<ZergDrone*> drones;
+	vector<ZergLarva*> larvas;
+	vector<ZergQueen*> queens;
 	
 	void init();
 public:

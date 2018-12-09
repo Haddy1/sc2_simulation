@@ -1,21 +1,28 @@
 #include "../include/ZergBuilding.h"
 
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
 /*
  * Generic Zerg Building (tech tree only)
  */
-ZergBuilding::ZergBuilding(string name) : Building(name) {
-
+ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(r) {
+	r.addSupplyMax(entityDataMap.at(name).supplyProvided);
+	techAdd(name);
+	cout << "Building " << name << " with id=" << getID() << "created" << endl;
 }
 
-void ZergBuilding::update() {
-	//nothing
-}
+
 
 
 /*
  * Hatchery, Lair, Hive
  */
-ZergHatchery::ZergHatchery(string name) : ZergBuilding(name) {
+ZergHatchery::ZergHatchery(string name, ResourceManager& r) :
+	ZergBuilding(name, r), lairData(entityDataMap.at(string("lair"))), hiveData(entityDataMap.at(string("hive"))), queenData(entityDataMap.at(string("queen"))), larvas(0), larvaProgress(0), spawningQueen(false), queenProgress(0) , injectingLarvas(false) , injectProgress(0) , upgrading(false) , upgradeProgress(0) 
+{
 	//TODO
 }
 
@@ -25,32 +32,36 @@ void ZergHatchery::update() {
 	if (upgrading) {
 		++upgradeProgress;
 		if (name == string("hatchery")) {
-			if (upgradeProgress == 80) {
+			if (upgradeProgress == lairData.buildTime) {
 				upgrading = false;
 				upgradeProgress = 0;
 				name = string("lair");
+				techAdd(string("lair"));
+				techRemove(string("hatchery"));
 			}
 		} else if (name == string("lair")) {
-			if (upgradeProgress == 100) {
+			if (upgradeProgress == hiveData.buildTime) {
 				upgrading = false;
 				upgradeProgress = 0;
 				name = string("hive");
+				techAdd(string("hive"));
+				techRemove(string("lair"));
 			}
 		}
-		return; //cant do work if upgrading //TODO is this true?
+		//return; //cant do work if upgrading //TODO is this true?
 	}
 	//update queen spawn
 	if (spawningQueen) {
 		++queenProgress;
-		if (queenProgress > 50) { //TODO read 50 from EntityData queen buildTime
-			queenProgress = 50;
+		if (queenProgress > queenData.buildTime) { //TODO read 50 from EntityData queen buildTime
+			queenProgress = queenData.buildTime;
 		}
 	}
 	//update regular larva spawn
 	if (larvas < 3) {
 		++larvaProgress;
 		if (larvaProgress == 15) {
-			larvas++;
+			++larvas;
 			larvaProgress = 0;
 		}
 	}
@@ -72,10 +83,34 @@ void ZergHatchery::update() {
 
 bool ZergHatchery::upgrade() {
 	//cant upgrade if doing work
-	if (name != string("hive") && !upgrading && !spawningQueen && !injectingLarvas) {
-		upgrading = true;
-		upgradeProgress = 0;
-		return true;
+	if (!upgrading && !spawningQueen && !injectingLarvas) {
+		if (name == string("hatchery")) {
+			if (!dependencyFulfilled(lairData)) {
+				return false;
+			}
+			if (r.canBuild(lairData)) { //TODO replace by if (r.consumeRes(...)) correct ?
+				r.consumeRes(lairData);
+				upgrading = true;
+				upgradeProgress = 0;
+				return true;
+			} else {
+				return false;
+			}
+		} else if (name == string("lair")) {
+			if (!dependencyFulfilled(hiveData)) {
+				return false;
+			}
+			if (r.canBuild(hiveData)) {
+				r.consumeRes(hiveData);
+				upgrading = true;
+				upgradeProgress = 0;
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
 	} else {
 		return false;
 	}
@@ -94,11 +129,33 @@ bool ZergHatchery::takeLarva() {
 	}
 }
 
+bool ZergHatchery::morphLarva(string s) {
+	if (larvas == 0)
+		return false;
+	EntityData& entity = entityDataMap.at(s);
+	if (!dependencyFulfilled(entity)) {
+		return false;
+	}
+	if (r.canBuild(entity)) {
+		--larvas;
+		return true;
+	}
+	return false;
+}
+
 bool ZergHatchery::spawnQueen() {
 	if (!spawningQueen) {
-		spawningQueen = true;
-		queenProgress = 0;
-		return true;
+		if (!dependencyFulfilled(queenData)) {
+			return false;
+		}
+		if (r.canBuild(queenData)) {
+			r.consumeRes(queenData);
+			spawningQueen = true;
+			queenProgress = 0;
+			return true;
+		} else {
+			return false;
+		}
 	} else {
 		return false;
 	}
@@ -109,7 +166,7 @@ bool ZergHatchery::spawnQueen() {
 //}
 
 bool ZergHatchery::takeQueen() {
-	if (queenProgress == 50) {
+	if (queenProgress == queenData.buildTime) {
 		queenProgress = 0;
 		spawningQueen = false;
 		return true;
@@ -133,15 +190,23 @@ bool ZergHatchery::injectLarvas() {
 /*
  * Spire, Greater Spire
  */
-ZergSpire::ZergSpire(string name) : ZergBuilding(name), upgrading(false), upgradeProgress(0) {
+ZergSpire::ZergSpire(string name, ResourceManager& r) : ZergBuilding(name, r), greaterSpireData(entityDataMap.at(string("greater_spire"))), upgrading(false), upgradeProgress(0) {
 	
 }
 
 bool ZergSpire::upgrade() {
 	if (name == string("spire") && !upgrading) {
-		upgrading = true;
-		upgradeProgress = 0;
-		return true;
+		if (!dependencyFulfilled(greaterSpireData)) {
+			return false;
+		}
+		if (r.canBuild(greaterSpireData)) {
+			r.consumeRes(greaterSpireData);
+			upgrading = true;
+			upgradeProgress = 0;
+			return true;
+		} else {
+			return false;
+		}
 	} else {
 		return false;
 	}
@@ -150,10 +215,12 @@ bool ZergSpire::upgrade() {
 void ZergSpire::update() {
 	if (upgrading) {
 		++upgradeProgress;
-		if (upgradeProgress == 100) {
+		if (upgradeProgress == greaterSpireData.buildTime) {
 			name = string("greater_spire");
 			upgrading = false;
 			upgradeProgress = 0;
+			techAdd(string("greater_spire"));
+			techRemove(string("spire"));
 		}
 	}
 }
@@ -162,28 +229,39 @@ void ZergSpire::update() {
 /*
  * Nydus Network
  */
-ZergNydusNetwork::ZergNydusNetwork(string name) : ZergBuilding(name), spawningUnit(false), spawnProgress(0) {
+ZergNydusNetwork::ZergNydusNetwork(string name, ResourceManager& r) : ZergBuilding(name, r), nydusWormData(entityDataMap.at(string("nydus_worm"))), spawningUnit(false), spawnProgress(0) {
 	
 }
 
 void ZergNydusNetwork::update() {
 	if (spawningUnit) {
 		++spawnProgress;
-		if (spawnProgress > 20) {
-			spawnProgress = 20;
+		if (spawnProgress > nydusWormData.buildTime) {
+			spawnProgress = nydusWormData.buildTime;
 		}
 	}
 }
 
 bool ZergNydusNetwork::spawn() {
 	if (!spawningUnit) {
-		spawningUnit = true;
-		spawnProgress = 0;
+		if (!dependencyFulfilled(nydusWormData)) {
+			return false;
+		}
+		if (r.canBuild(nydusWormData)) {
+			r.consumeRes(nydusWormData);
+			spawningUnit = true;
+			spawnProgress = 0;
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
 	}
 }
 
 bool ZergNydusNetwork::takeUnit() {//nydus worm
-	if (spawnProgress == 20) {
+	if (spawnProgress == nydusWormData.buildTime) {
 		spawningUnit = false;
 		spawnProgress = 0;
 		return true;

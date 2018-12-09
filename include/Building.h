@@ -20,7 +20,7 @@ protected:
 public:
 	Building() = delete;
 	Building(string);
-	virtual void update();
+	//virtual void update();
 	//virtual bool busy();
 	//virtual bool ability();
 	//virtual bool createUnit(string);

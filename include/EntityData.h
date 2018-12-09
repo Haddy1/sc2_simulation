@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "Race.h"
+#include "Tech.h"
 
 using std::unordered_map;
 using std::string;
@@ -40,4 +41,16 @@ extern unordered_map<string, EntityData> entityDataMap;
 
 inline bool entityExists(string s) {
 	return entityDataMap.find(s) != entityDataMap.end();
+}
+
+inline bool dependencyFulfilled(EntityData& e) {
+	if (e.dependencies.size() == 0) {
+		return true;
+	}
+	for (string& dep : e.dependencies) {
+		if (techContains(dep)) {
+			return true;
+		}
+	}
+	return false;
 }
