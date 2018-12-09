@@ -1,7 +1,6 @@
-//#include "../include/UnitData.h"
-//#include "../include/BuildingData.h"
 #include "../include/EntityData.h"
 #include "../include/Race.h"
+#include "../include/ResourceManager.h"
 
 #include <iostream>
 #include <fstream>
@@ -31,26 +30,28 @@ private:
 };
 
 class JsonLogger {
-public: 
-	JsonLogger(Race, bool);
-	JsonLogger(Race, bool, std::string);
+public:
+	JsonLogger(Race, ResourceManager, bool);
+	JsonLogger(Race, ResourceManager, bool, std::string);
 	~JsonLogger();
 	
 	void printMessage(int, vector<EventEntry>);
+	
 private:
 	Race race;
+	ResourceManager rm;
 	bool validBuildlist;
 	
 	std::string path;
 	char ws = '\t'; // changeable whitespace character
 	
 	std::ofstream out;
-	std::streambuf *coutbuf;
+	std::streambuf* coutbuf;
 	
 	void printBeginning();
 	void redirect();
 	void undo_redirect();
 	
 	bool validType(const char*);
-	bool validName(const char*);
+	bool validName(string);
 };

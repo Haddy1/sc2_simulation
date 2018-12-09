@@ -3,11 +3,11 @@
 
 #include <iostream>
 
-ProtossSimulator::ProtossSimulator() : timestep(0), running(true) {
+ProtossSimulator::ProtossSimulator() : logger(PROTOSS, resourceManager, !buildOrder.empty(), "output/log.txt"), timestep(1), running(true) {
 	init();
 }
 
-ProtossSimulator::ProtossSimulator(queue<string> q) : buildOrder(q), timestep(0), running(true) {
+ProtossSimulator::ProtossSimulator(queue<string> q) : buildOrder(q), logger(PROTOSS, resourceManager, !buildOrder.empty(), "output/log.txt"), timestep(1), running(true) {
 	init();
 }
 
@@ -17,5 +17,10 @@ void ProtossSimulator::init() {
 }
 
 void ProtossSimulator::simulate() {
-	
+	while(timestep < 10) {
+		resourceManager.update();
+		
+		logger.printMessage(timestep, vector<EventEntry>{EventEntry("build-end", "marine"), EventEntry("build-start", "marine")});
+		++timestep;
+	}
 }

@@ -1,10 +1,12 @@
 #pragma once
 
+#include "Race.h"
 #include "Building.h"
 #include "Unit.h"
 #include "ZergBuilding.h"
 #include "ZergUnit.h"
 #include "ResourceManager.h"
+#include "JsonLogger.h"
 
 #include <vector>
 #include <queue>
@@ -24,12 +26,15 @@ class ForwardSimulator {
 	bool running;
 	*/
 	virtual void init() = 0;
+	
 public:
 	ForwardSimulator() {}
 	ForwardSimulator(queue<string> q) : buildOrder(q) {}
+	virtual ~ForwardSimulator() = 0;
 	virtual void simulate() = 0;
 };
 
+inline ForwardSimulator::~ForwardSimulator() {}
 
 class TerranSimulator : public ForwardSimulator {
 	queue<string> buildOrder;
@@ -44,6 +49,7 @@ class TerranSimulator : public ForwardSimulator {
 public:
 	TerranSimulator();
 	TerranSimulator(queue<string>);
+	~TerranSimulator() {}
 	void simulate();
 };
 
@@ -54,6 +60,7 @@ class ProtossSimulator : public ForwardSimulator {
 	vector<Unit*> units;
 	vector<Unit*> workers;
 	ResourceManager resourceManager;
+	JsonLogger logger;
 	int timestep;
 	bool running;
 	
@@ -61,6 +68,8 @@ class ProtossSimulator : public ForwardSimulator {
 public:
 	ProtossSimulator();
 	ProtossSimulator(queue<string>);
+	~ProtossSimulator() {}
+	
 	void simulate();
 };
 
@@ -78,6 +87,7 @@ class ZergSimulator : public ForwardSimulator {
 public:
 	ZergSimulator();
 	ZergSimulator(queue<string>);
+	~ZergSimulator() {}
 	void simulate();
 };
 
