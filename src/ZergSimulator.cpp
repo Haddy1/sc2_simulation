@@ -43,6 +43,10 @@ void ZergSimulator::simulate() {
 		//update/finish buildings
 		for (ZergHatchery *b : hatcheries) {
 			b->update();
+			if (b->takeQueen()) {
+				ZergQueen *queen = new ZergQueen(string("queen"), resourceManager);
+				queens.push_back(queen);
+			}
 		}
 		for (ZergSpire *b : spires) {
 			b->update();
@@ -80,19 +84,57 @@ void ZergSimulator::simulate() {
 				++it;
 			}
 		}
+		
 		for (ZergUpgradeableUnit *u : upgradeableUnits) {
-			u->update();//TODO
+			u->update();
 		}
-		for (ZergDrone *u : drones) {
-			u->update();//TODO
+		
+		auto it2 = drones.begin();
+		while (it2 != drones.end()) {
+			ZergDrone *drone = (*it2);
+			drone->update();
+			if (drone->morphingDone()) {
+				EntityData& entityData = drone->getBuildingData();
+				//create new unit
+				if (entityData.name == string("hatchery")) {
+					ZergHatchery *hatchery = new ZergHatchery(string("hatchery"), resourceManager);
+					hatcheries.push_back(hatchery);
+				} else if (entityData.name == string("spire")) {
+					ZergSpire *spire = new ZergSpire(string("spire"), resourceManager);
+					spires.push_back(spire);
+				} else if (entityData.name == string("nydus_network")) {
+					ZergNydusNetwork *nydusNetwork = new ZergNydusNetwork(string("nydus_network"), resourceManager);
+					nydusNetworks.push_back(nydusNetwork);
+				} else {
+					ZergBuilding *building = new ZergBuilding(entityData.name, resourceManager);
+					buildings.push_back(building);
+				}
+				//remove this drone
+				it2 = drones.erase(it2);
+				delete drone;
+			} else {
+				++it2;
+			}
 		}
+		
 		for (ZergQueen *u : queens) {
-			u->update();//TODO
+			u->update();
 		}
 		
 		//start/finish abilities
+		for (ZergQueen *queen : queens) {
+			if (queen->canInjectLarvas()) {
+				//search for a hatchery
+				for (ZergHatchery *hatchery : hatcheries) {
+					if (hatchery->injectLarvas()) {
+						queen->injectLarvas();
+						break;
+					}
+				}
+			}
+		}
 		
-		//start build if possible
+		//start build if possible //TODO
 		if (!buildOrder.empty()) {
 			string nextItem = buildOrder.front();
 			
@@ -118,6 +160,7 @@ void ZergSimulator::simulate() {
 		
 		
 		//redistribute workers
+		//TODO
 		
 		++timestep;
 	}

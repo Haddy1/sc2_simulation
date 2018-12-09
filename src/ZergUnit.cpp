@@ -111,7 +111,11 @@ void ZergQueen::update() {
 	}
 }
 
-bool ZergQueen::injectLarva() {
+bool ZergQueen::canInjectLarvas() {
+	return (energy >= FixedPoint(25));
+}
+
+bool ZergQueen::injectLarvas() {
 	if (energy >= FixedPoint(25)) {
 		energy -= FixedPoint(25);
 		return true;

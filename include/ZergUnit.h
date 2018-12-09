@@ -49,7 +49,8 @@ class ZergQueen : public ZergUnit {
 public:
 	ZergQueen(string, ResourceManager&);
 	void update();
-	bool injectLarva();
+	bool canInjectLarvas();
+	bool injectLarvas();
 };
 
 
