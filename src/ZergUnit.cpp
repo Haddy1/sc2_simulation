@@ -66,6 +66,7 @@ bool ZergDrone::morph(EntityData& e) {
 		morphing = true;
 		morphProgress = 0;
 		morphingToData = &e;
+		return true;
 	} else {
 		return false;
 	}

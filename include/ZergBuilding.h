@@ -10,7 +10,6 @@ protected:
 	ResourceManager& r;
 public:
 	ZergBuilding(string, ResourceManager&);
-	void update();
 };
 
 

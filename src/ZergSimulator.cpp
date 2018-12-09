@@ -3,42 +3,68 @@
 
 #include <iostream>
 
-ZergSimulator::ZergSimulator() : timestep(0), running(true) {
+using std::cout;
+using std::endl;
+
+ZergSimulator::ZergSimulator() : timestep(0), maxTime(600), running(true) {
 	init();
 }
 
-ZergSimulator::ZergSimulator(queue<string> q) : buildOrder(q), timestep(0), running(true) {
+ZergSimulator::ZergSimulator(queue<string> q) : buildOrder(q), timestep(0), maxTime(600), running(true) {
 	init();
 }
 
 void ZergSimulator::init() {
-	resourceManager.setMineralWorkers(6);
+	cout << "Start Configuration:" << endl;
 	
-	ZergBuilding *hatchery = new ZergBuilding(string("hatchery"), resourceManager);
-	std::cout << "Hatchery id: " << hatchery->getID() << std::endl;
-	buildings.push_back(hatchery);
+	
+	ZergHatchery *hatchery = new ZergHatchery(string("hatchery"), resourceManager);
+	cout << "Hatchery id: " << hatchery->getID() << endl;
+	hatcheries.push_back(hatchery);
+	resourceManager.addSupplyMax(entityDataMap.at(string("hatchery")).supplyProvided);
+	
 	ZergUnit *overlord = new ZergUnit(string("overlord"), resourceManager);
-	std::cout << "Overlord id: " << overlord->getID() << std::endl;
+	cout << "Overlord id: " << overlord->getID() << endl;
 	units.push_back(overlord);
+	resourceManager.addSupplyMax(entityDataMap.at(string("overlord")).supplyProvided);
+	
 	for (int i = 0; i < 6; ++i) {
 		//TODO
-		ZergUnit *drone = new ZergUnit(string("drone"), resourceManager);
-		std::cout << "Drone id: " << drone->getID() << std::endl;
+		ZergDrone *drone = new ZergDrone(string("drone"), resourceManager);
+		cout << "Drone id: " << drone->getID() << endl;
 		//drone.setWorking(true);
 		workers.push_back(drone);
 	}
 	
+	resourceManager.setMineralWorkers(6);
+	
 }
 
 void ZergSimulator::simulate() {
-	while (timestep < 20) {//TODO
+	while (running && (timestep < maxTime)) {//TODO
 		
 		resourceManager.update();
-		std::cout << resourceManager << std::endl;
+		cout << resourceManager << endl;
 		
 		//update/finish buildings
-		for (Building *b : buildings) {
+		for (ZergHatchery *b : hatcheries) {
 			b->update();//TODO
+		}
+		for (ZergSpire *b : spires) {
+			b->update();//TODO
+		}
+		for (ZergNydusNetwork *b : nydusNetworks) {
+			b->update();//TODO
+		}
+		//update/finish units
+		for (ZergLarva *u : larvas) {
+			u->update();//TODO
+		}
+		for (ZergDrone *u : workers) {
+			u->update();//TODO
+		}
+		for (ZergQueen *u : queens) {
+			u->update();//TODO
 		}
 		
 		//start/finish abilities

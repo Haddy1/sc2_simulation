@@ -7,9 +7,7 @@ ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(
 
 }
 
-void ZergBuilding::update() {
-	//nothing
-}
+
 
 
 /*
