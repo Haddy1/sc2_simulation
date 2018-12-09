@@ -1,12 +1,12 @@
 #include "../include/JsonLogger.h"
 
 // log into cout
-JsonLogger::JsonLogger(Race r, ResourceManager manager, bool valid) : race(r), rm(manager), validBuildlist(valid)  {
+JsonLogger::JsonLogger(Race r, ResourceManager& manager, bool valid) : race(r), rm(manager), validBuildlist(valid)  {
 	printBeginning();
 }
 
 // log into file by redirecting from cout to file(path)
-JsonLogger::JsonLogger(Race r, ResourceManager manager, bool valid, std::string str) : race(r), rm(manager), validBuildlist(valid), path(str), out(str.c_str()), coutbuf(cout.rdbuf()) {	
+JsonLogger::JsonLogger(Race r, ResourceManager& manager, bool valid, std::string str) : race(r), rm(manager), validBuildlist(valid), path(str), out(str.c_str()), coutbuf(cout.rdbuf()) {	
 	printBeginning();
 }
 
@@ -15,7 +15,7 @@ JsonLogger::~JsonLogger() {
 	if(validBuildlist) {
 		cout << endl << ws << "]\n"; // ends the "messages" block
 	}
-	if(race != NONE) cout << "}\n";
+	cout << "}\n";
 	undo_redirect();
 	
 	if(!path.empty()) {

@@ -31,15 +31,15 @@ private:
 
 class JsonLogger {
 public:
-	JsonLogger(Race, ResourceManager, bool);
-	JsonLogger(Race, ResourceManager, bool, std::string);
+	JsonLogger(Race, ResourceManager&, bool);
+	JsonLogger(Race, ResourceManager&, bool, std::string);
 	~JsonLogger();
 	
 	void printMessage(int, vector<EventEntry>);
 	
 private:
 	Race race;
-	ResourceManager rm;
+	ResourceManager& rm;
 	bool validBuildlist;
 	
 	std::string path;
