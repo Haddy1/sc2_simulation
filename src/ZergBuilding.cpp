@@ -3,7 +3,7 @@
 /*
  * Generic Zerg Building (tech tree only)
  */
-ZergBuilding::ZergBuilding(string name) : Building(name) {
+ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(r) {
 
 }
 
@@ -15,7 +15,7 @@ void ZergBuilding::update() {
 /*
  * Hatchery, Lair, Hive
  */
-ZergHatchery::ZergHatchery(string name) : ZergBuilding(name) {
+ZergHatchery::ZergHatchery(string name, ResourceManager& r) : ZergBuilding(name, r) {
 	//TODO
 }
 
@@ -133,7 +133,7 @@ bool ZergHatchery::injectLarvas() {
 /*
  * Spire, Greater Spire
  */
-ZergSpire::ZergSpire(string name) : ZergBuilding(name), upgrading(false), upgradeProgress(0) {
+ZergSpire::ZergSpire(string name, ResourceManager& r) : ZergBuilding(name, r), upgrading(false), upgradeProgress(0) {
 	
 }
 
@@ -162,7 +162,7 @@ void ZergSpire::update() {
 /*
  * Nydus Network
  */
-ZergNydusNetwork::ZergNydusNetwork(string name) : ZergBuilding(name), spawningUnit(false), spawnProgress(0) {
+ZergNydusNetwork::ZergNydusNetwork(string name, ResourceManager& r) : ZergBuilding(name, r), spawningUnit(false), spawnProgress(0) {
 	
 }
 
@@ -179,6 +179,9 @@ bool ZergNydusNetwork::spawn() {
 	if (!spawningUnit) {
 		spawningUnit = true;
 		spawnProgress = 0;
+		return true;
+	} else {
+		return false;
 	}
 }
 

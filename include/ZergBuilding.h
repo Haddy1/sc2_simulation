@@ -2,12 +2,17 @@
 
 #include "Building.h"
 #include "ZergUnit.h"
+#include "ResourceManager.h"
+#include "EntityData.h"
 
 class ZergBuilding : public Building {
+protected:
+	ResourceManager& r;
 public:
-	ZergBuilding(string);
+	ZergBuilding(string, ResourceManager&);
 	void update();
 };
+
 
 class ZergHatchery : public ZergBuilding {//represents hatchery, lair, hive
 	int larvas;
@@ -19,7 +24,7 @@ class ZergHatchery : public ZergBuilding {//represents hatchery, lair, hive
 	bool upgrading;
 	int upgradeProgress;
 public:
-	ZergHatchery(string);
+	ZergHatchery(string, ResourceManager&);
 	void update();
 	bool upgrade();
 	int getLarvaCount() const;
@@ -29,20 +34,22 @@ public:
 	bool injectLarvas();
 };
 
+
 class ZergSpire : public ZergBuilding {//represents spire, greater_spire
 	bool upgrading;
 	int upgradeProgress;
 public:
-	ZergSpire(string);
+	ZergSpire(string, ResourceManager&);
 	bool upgrade();
 	void update();
 };
+
 
 class ZergNydusNetwork : public ZergBuilding {//represents nydus_network
 	bool spawningUnit;
 	int spawnProgress;
 public:
-	ZergNydusNetwork(string);
+	ZergNydusNetwork(string, ResourceManager&);
 	void update();
 	bool spawn();
 	bool takeUnit();

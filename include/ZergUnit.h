@@ -2,16 +2,22 @@
 
 #include "Unit.h"
 #include "ZergBuilding.h"
+#include "ResourceManager.h"
+#include "EntityData.h"
 
 class ZergUnit : public Unit {
+protected:
+	ResourceManager& r;
 public:
-	ZergUnit(string);
+	ZergUnit(string, ResourceManager&);
 };
+
 
 class ZergLarva : public ZergUnit {
 public:
-	ZergLarva(string);
+	ZergLarva(string, ResourceManager&);
 };
+
 
 class ZergDrone : public ZergUnit {
 	bool working;
@@ -19,16 +25,17 @@ class ZergDrone : public ZergUnit {
 	int morphProgress;
 	string morphingTo;
 public:
-	ZergDrone(string);
+	ZergDrone(string, ResourceManager&);
 	void setWorking(bool);
 	bool morph(string);
 	//ZergBuilding* getMorphedBuilding();
 };
 
+
 class ZergQueen : public ZergUnit {
 int energy;
 public:
-	ZergQueen(string);
+	ZergQueen(string, ResourceManager&);
 	void update();
 	bool injectLarva();
 };

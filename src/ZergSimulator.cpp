@@ -14,15 +14,15 @@ ZergSimulator::ZergSimulator(queue<string> q) : buildOrder(q), timestep(0), runn
 void ZergSimulator::init() {
 	resourceManager.setMineralWorkers(6);
 	
-	ZergBuilding *hatchery = new ZergBuilding(string("hatchery"));
+	ZergBuilding *hatchery = new ZergBuilding(string("hatchery"), resourceManager);
 	std::cout << "Hatchery id: " << hatchery->getID() << std::endl;
 	buildings.push_back(hatchery);
-	ZergUnit *overlord = new ZergUnit(string("overlord"));
+	ZergUnit *overlord = new ZergUnit(string("overlord"), resourceManager);
 	std::cout << "Overlord id: " << overlord->getID() << std::endl;
 	units.push_back(overlord);
 	for (int i = 0; i < 6; ++i) {
 		//TODO
-		ZergUnit *drone = new ZergUnit(string("drone"));
+		ZergUnit *drone = new ZergUnit(string("drone"), resourceManager);
 		std::cout << "Drone id: " << drone->getID() << std::endl;
 		//drone.setWorking(true);
 		workers.push_back(drone);
@@ -51,12 +51,12 @@ void ZergSimulator::simulate() {
 			
 			if (entityData.isBuilding) {
 				std::cout << "nextItem: Building " << nextItem << std::endl;
-				ZergBuilding *b = new ZergBuilding(nextItem);
+				ZergBuilding *b = new ZergBuilding(nextItem, resourceManager);
 				std::cout << "id: " << b->getID() << std::endl;
 				buildings.push_back(b);
 			} else {
 				std::cout << "nextItem: Unit " << nextItem << std::endl;
-				ZergUnit *u = new ZergUnit(nextItem);
+				ZergUnit *u = new ZergUnit(nextItem, resourceManager);
 				std::cout << "id: " << u->getID() << std::endl;
 				units.push_back(u);
 			}

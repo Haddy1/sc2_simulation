@@ -77,9 +77,12 @@ int main(int argc, char *argv[]) {
 		}
 		if (!entityExists(s)) {
 			validBuildlist = false;
+			break;
 		}
-		auto it = entityDataMap.find(s);
-		EntityData entityData = it->second;
+		
+		EntityData entityData = entityDataMap.at(s);
+		//auto it = entityDataMap.find(s);
+		//EntityData entityData = it->second;
 		if (entityData.race != race) {
 			validBuildlist = false;
 		}

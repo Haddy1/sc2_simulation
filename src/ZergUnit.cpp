@@ -3,7 +3,7 @@
 /*
  * Generic Unit that cant morph
  */
-ZergUnit::ZergUnit(string name) : Unit(name) {
+ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
 
 }
 
@@ -11,7 +11,7 @@ ZergUnit::ZergUnit(string name) : Unit(name) {
 /*
  * Larva
  */
-ZergLarva::ZergLarva(string name) : ZergUnit(name) {
+ZergLarva::ZergLarva(string name, ResourceManager& r) : ZergUnit(name, r) {
 
 }
 
@@ -19,7 +19,7 @@ ZergLarva::ZergLarva(string name) : ZergUnit(name) {
 /*
  * Drone
  */
-ZergDrone::ZergDrone(string name) : ZergUnit(name) {
+ZergDrone::ZergDrone(string name, ResourceManager& r) : ZergUnit(name, r) {
 
 }
 
@@ -29,6 +29,7 @@ void ZergDrone::setWorking(bool b) {
 
 bool ZergDrone::morph(string s) {
 	//TODO
+	return false;
 }
 
 //ZergBuilding* ZergDrone::getMorphedBuilding() {
@@ -39,7 +40,7 @@ bool ZergDrone::morph(string s) {
 /*
  * Queen
  */
-ZergQueen::ZergQueen(string name) : ZergUnit(name) {
+ZergQueen::ZergQueen(string name, ResourceManager& r) : ZergUnit(name, r) {
 	//TODO
 }
 
