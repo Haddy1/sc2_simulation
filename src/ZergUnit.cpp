@@ -1,10 +1,16 @@
 #include "../include/ZergUnit.h"
 
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
 /*
  * Generic Unit that cant morph
  */
 ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
-
+	r.addSupplyMax(entityDataMap.at(name).supplyProvided);
+	cout << "Unit " << name << " with id=" << getID() << "created" << endl;
 }
 
 
@@ -61,6 +67,9 @@ bool ZergDrone::morph(string s) {
 bool ZergDrone::morph(EntityData& e) {
 	if (working || morphing)
 		return false;
+	if (!dependencyFulfilled(e)) {
+		return false;
+	}
 	if (r.canBuild(e)) {
 		r.consumeRes(e);
 		morphing = true;
@@ -155,6 +164,9 @@ bool ZergUpgradeableUnit::upgrade() {
 		return false;
 	}
 	
+	if (!dependencyFulfilled(*upgradeData)) {
+		return false;
+	}
 	if (r.canBuild(*upgradeData)) {
 		r.consumeRes(*upgradeData);
 		upgrading = true;

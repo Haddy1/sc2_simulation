@@ -19,21 +19,15 @@ void ZergSimulator::init() {
 	
 	
 	ZergHatchery *hatchery = new ZergHatchery(string("hatchery"), resourceManager);
-	cout << "Hatchery id: " << hatchery->getID() << endl;
 	hatcheries.push_back(hatchery);
-	resourceManager.addSupplyMax(entityDataMap.at(string("hatchery")).supplyProvided);
 	
 	ZergUpgradeableUnit *overlord = new ZergUpgradeableUnit(string("overlord"), resourceManager);
-	cout << "Overlord id: " << overlord->getID() << endl;
 	upgradeableUnits.push_back(overlord);
-	resourceManager.addSupplyMax(entityDataMap.at(string("overlord")).supplyProvided);
 	
 	for (int i = 0; i < 6; ++i) {
 		ZergDrone *drone = new ZergDrone(string("drone"), resourceManager);
-		cout << "Drone id: " << drone->getID() << endl;
 		//drone.setWorking(true);
 		drones.push_back(drone);
-		resourceManager.addSupplyMax(entityDataMap.at(string("drone")).supplyProvided);
 	}
 	
 	resourceManager.setMineralWorkers(6);
@@ -57,35 +51,31 @@ void ZergSimulator::simulate() {
 			b->update();
 			if (b->takeUnit()) {
 				ZergUnit *nydusWorm = new ZergUnit(string("nydus_worm"), resourceManager);
-				cout << "Nydus Worm id: " << nydusWorm->getID() << endl;
 				units.push_back(nydusWorm);
-				resourceManager.addSupplyMax(entityDataMap.at(string("nydus_worm")).supplyProvided);
 			}
 		}
 		
 		//update/finish units
 		auto it = larvas.begin();
 		while (it != larvas.end()) {
-			ZergLarva *u = (*it);
-			u->update();
-			if (u->isDone()) {
-				EntityData& entityData = u->getUnitData();
+			ZergLarva *larva = (*it);
+			larva->update();
+			if (larva->isDone()) {
+				EntityData& entityData = larva->getUnitData();
 				//create new unit
 				if (entityData.name == string("drone")) {
 					ZergDrone *drone = new ZergDrone(string("drone"), resourceManager);
 					drones.push_back(drone);
-					resourceManager.addSupplyMax(entityDataMap.at(string("drone")).supplyProvided);
 				} else if ((entityData.name == string("overlord")) || (entityData.name == string("zergling")) || (entityData.name == string("corruptor"))) {
 					ZergUpgradeableUnit *unit = new ZergUpgradeableUnit(entityData.name, resourceManager);
 					upgradeableUnits.push_back(unit);
-					resourceManager.addSupplyMax(entityDataMap.at(entityData.name).supplyProvided);
 				} else {
 					ZergUnit *unit = new ZergUnit(entityData.name, resourceManager);
 					units.push_back(unit);
-					resourceManager.addSupplyMax(entityDataMap.at(entityData.name).supplyProvided);
 				}
 				//remove this larva
 				it = larvas.erase(it);
+				delete larva;
 			} else {
 				++it;
 			}
