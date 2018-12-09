@@ -19,7 +19,7 @@ ZergLarva::ZergLarva(string name, ResourceManager& r) : ZergUnit(name, r) {
 /*
  * Drone
  */
-ZergDrone::ZergDrone(string name, ResourceManager& r) : ZergUnit(name, r) {
+ZergDrone::ZergDrone(string name, ResourceManager& r) : ZergUnit(name, r), working(false) , morphing(false) , morphProgress(0) , morphingTo("")  {
 
 }
 
@@ -40,7 +40,7 @@ bool ZergDrone::morph(string s) {
 /*
  * Queen
  */
-ZergQueen::ZergQueen(string name, ResourceManager& r) : ZergUnit(name, r) {
+ZergQueen::ZergQueen(string name, ResourceManager& r) : ZergUnit(name, r), energy(25) {
 	//TODO
 }
 

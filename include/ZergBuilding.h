@@ -15,6 +15,9 @@ public:
 
 
 class ZergHatchery : public ZergBuilding {//represents hatchery, lair, hive
+	EntityData& lairData;
+	EntityData& hiveData;
+	EntityData& queenData;
 	int larvas;
 	int larvaProgress;
 	bool spawningQueen;
@@ -36,6 +39,7 @@ public:
 
 
 class ZergSpire : public ZergBuilding {//represents spire, greater_spire
+	EntityData& greaterSpireData;
 	bool upgrading;
 	int upgradeProgress;
 public:
@@ -46,6 +50,7 @@ public:
 
 
 class ZergNydusNetwork : public ZergBuilding {//represents nydus_network
+	EntityData& nydusWormData;
 	bool spawningUnit;
 	int spawnProgress;
 public:
