@@ -4,6 +4,7 @@
 #include "ZergBuilding.h"
 #include "ResourceManager.h"
 #include "EntityData.h"
+#include "FixedPoint.h"
 
 class ZergUnit : public Unit {
 protected:
@@ -14,8 +15,14 @@ public:
 
 
 class ZergLarva : public ZergUnit {
+	EntityData& morphingToData;
+	int morphProgress;
 public:
-	ZergLarva(string, ResourceManager&);
+	ZergLarva(string name, ResourceManager& r, string morphingTo);
+	ZergLarva(string name, ResourceManager& r, EntityData& morphingTo);
+	void update();
+	bool isDone();
+	EntityData& getUnitData();
 };
 
 
@@ -23,17 +30,22 @@ class ZergDrone : public ZergUnit {
 	bool working;
 	bool morphing;
 	int morphProgress;
-	string morphingTo;
+	EntityData* morphingToData;
 public:
 	ZergDrone(string, ResourceManager&);
 	void setWorking(bool);
+	void update();
 	bool morph(string);
-	//ZergBuilding* getMorphedBuilding();
+	bool morph(EntityData&);
+	bool isMorphing();
+	bool morphingDone();
+	EntityData& getBuildingData();
 };
 
 
 class ZergQueen : public ZergUnit {
-int energy;
+	EntityData& queenData;
+	FixedPoint energy;
 public:
 	ZergQueen(string, ResourceManager&);
 	void update();

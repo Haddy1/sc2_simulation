@@ -11,46 +11,99 @@ ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
 /*
  * Larva
  */
-ZergLarva::ZergLarva(string name, ResourceManager& r) : ZergUnit(name, r) {
+ZergLarva::ZergLarva(string name, ResourceManager& r, string morphingTo) : ZergUnit(name, r), morphingToData(entityDataMap.at(morphingTo)), morphProgress(0) {
 
+}
+
+ZergLarva::ZergLarva(string name, ResourceManager& r, EntityData& morphingTo) : ZergUnit(name, r), morphingToData(morphingTo), morphProgress(0) {
+
+}
+
+void ZergLarva::update() {
+	++morphProgress;
+	/*
+	if (morphProgress == morphingToData.buildTime) {
+		morphProgress = morphingToData.buildTime;
+	} // not needed with >= in isDone()
+	*/
+}
+
+bool ZergLarva::isDone() {
+	return (morphProgress >= morphingToData.buildTime);
+}
+
+EntityData& ZergLarva::getUnitData() {
+	return morphingToData;
 }
 
 
 /*
  * Drone
  */
-ZergDrone::ZergDrone(string name, ResourceManager& r) : ZergUnit(name, r), working(false) , morphing(false) , morphProgress(0) , morphingTo("")  {
-
+ZergDrone::ZergDrone(string name, ResourceManager& r) : ZergUnit(name, r), working(false) , morphing(false) , morphProgress(0) , morphingToData(nullptr) {
+	
 }
 
 void ZergDrone::setWorking(bool b) {
 	working = b;
 }
 
-bool ZergDrone::morph(string s) {
-	//TODO
-	return false;
+void ZergDrone::update() {
+	if (morphing) {
+		++morphProgress;
+	}
 }
 
-//ZergBuilding* ZergDrone::getMorphedBuilding() {
-	//TODO
-//}
+bool ZergDrone::morph(string s) {
+	return morph(entityDataMap.at(s));
+}
+
+bool ZergDrone::morph(EntityData& e) {
+	if (working || morphing)
+		return false;
+	if (r.canBuild(e)) {
+		r.consumeRes(e);
+		morphing = true;
+		morphProgress = 0;
+		morphingToData = &e;
+	} else {
+		return false;
+	}
+}
+
+bool ZergDrone::isMorphing() {
+	return morphing;
+}
+
+bool ZergDrone::morphingDone() {
+	if (!morphing)
+		return false;
+	return (morphingToData->buildTime >= morphProgress);
+}
+
+EntityData& ZergDrone::getBuildingData() {
+	return *morphingToData;
+}
 
 
 /*
  * Queen
  */
-ZergQueen::ZergQueen(string name, ResourceManager& r) : ZergUnit(name, r), energy(25) {
-	//TODO
+ZergQueen::ZergQueen(string name, ResourceManager& r) : ZergUnit(name, r), queenData(entityDataMap.at(string("queen"))), energy(queenData.startEnergy) {
+	
 }
 
 void ZergQueen::update() {
-	//TODO
+	energy += FixedPoint(0.5625);
+	FixedPoint maxEnergy(queenData.maxEnergy);
+	if (energy > maxEnergy) {
+		energy = maxEnergy;
+	}
 }
 
 bool ZergQueen::injectLarva() {
-	if (energy >= 25) {
-		energy -= 25;
+	if (energy >= FixedPoint(25)) {
+		energy -= FixedPoint(25);
 		return true;
 	} else {
 		return false;

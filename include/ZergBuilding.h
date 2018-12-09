@@ -30,8 +30,11 @@ public:
 	ZergHatchery(string, ResourceManager&);
 	void update();
 	bool upgrade();
+	
 	int getLarvaCount() const;
-	bool takeLarva();
+	bool takeLarva(); //dont use
+	bool morphLarva(string); //can only take larva from hatchery by morphing
+	
 	bool spawnQueen();
 	bool takeQueen();
 	bool injectLarvas();

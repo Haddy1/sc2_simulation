@@ -114,6 +114,17 @@ bool ZergHatchery::takeLarva() {
 	}
 }
 
+bool ZergHatchery::morphLarva(string s) {
+	if (larvas == 0)
+		return false;
+	EntityData& entity = entityDataMap.at(s);
+	if (r.canBuild(entity)) {
+		--larvas;
+		return true;
+	}
+	return false;
+}
+
 bool ZergHatchery::spawnQueen() {
 	if (!spawningQueen) {
 		if (r.canBuild(queenData)) {
