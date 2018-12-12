@@ -113,10 +113,6 @@ int main(int argc, char *argv[]) {
 	*/
 	
 	
-	JsonLogger logger(race, validBuildlist, "res/output.txt");
-	logger.printMessage(1, vector<EventEntry>{EventEntry("build-end", "marine"), EventEntry("build-start", "marine")});
-	
-	
 	switch (race) {
 		case TERRAN:
 			simulator = new TerranSimulator(buildQueue);
@@ -132,7 +128,7 @@ int main(int argc, char *argv[]) {
 	}
 	
 	simulator->simulate();
-	
+	delete simulator;
 	
 	return 0;
 }
