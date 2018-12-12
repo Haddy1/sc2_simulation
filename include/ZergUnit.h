@@ -5,6 +5,7 @@
 #include "ResourceManager.h"
 #include "EntityData.h"
 #include "FixedPoint.h"
+#include "Tech.h"
 
 class ZergUnit : public Unit {
 protected:
