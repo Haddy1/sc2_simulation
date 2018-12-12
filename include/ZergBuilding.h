@@ -33,6 +33,7 @@ public:
 	int getLarvaCount() const;
 	bool takeLarva(); //dont use
 	bool morphLarva(string); //can only take larva from hatchery by morphing
+	bool morphLarva(EntityData&);
 	
 	bool spawnQueen();
 	bool takeQueen();

@@ -35,13 +35,13 @@ int main(int argc, char *argv[]) {
 	Race race;
 	
 	if (strcmp("sc2-hots-terran", argv[1]) == 0 || strcmp("terran", argv[1]) == 0) {
-		std::cout << "1" << std::endl;
+		std::cout << "Race: Terran" << std::endl;
 		race = Race::TERRAN;
 	} else if (strcmp("sc2-hots-protoss", argv[1]) == 0 || strcmp("protoss", argv[1]) == 0) {
-		std::cout << "2" << std::endl;
+		std::cout << "Race: Protoss" << std::endl;
 		race = Race::PROTOSS;
 	} else if (strcmp("sc2-hots-zerg", argv[1]) == 0 || strcmp("zerg", argv[1]) == 0) {
-		std::cout << "3" << std::endl;
+		std::cout << "Race: Zerg" << std::endl;
 		race = Race::ZERG;
 	} else {
 		usage(argv[0]);
@@ -54,10 +54,10 @@ int main(int argc, char *argv[]) {
 	
 	//test print
 	for (auto it = entityDataMap.begin(); it != entityDataMap.end(); ++it) {
-		std::cout << (*it).second << std::endl;
+		//std::cout << (*it).second << std::endl;
 	}
 
-	std::cout << "end test print" << std::endl;
+	//std::cout << "end test print" << std::endl;
 
 	// open buildlist file
 	ifstream buildListFile(argv[2]);
@@ -80,9 +80,7 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 		
-		EntityData entityData = entityDataMap.at(s);
-		//auto it = entityDataMap.find(s);
-		//EntityData entityData = it->second;
+		EntityData& entityData = entityDataMap.at(s); //always use reference to EntityData
 		if (entityData.race != race) {
 			validBuildlist = false;
 		}

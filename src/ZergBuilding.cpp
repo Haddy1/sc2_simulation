@@ -11,7 +11,7 @@ using std::endl;
 ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(r) {
 	r.addSupplyMax(entityDataMap.at(name).supplyProvided);
 	techAdd(name);
-	cout << "Building " << name << " with id=" << getID() << "created" << endl;
+	cout << "Building " << name << " with id=" << getID() << " created." << endl;
 }
 
 
@@ -21,7 +21,7 @@ ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(
  * Hatchery, Lair, Hive
  */
 ZergHatchery::ZergHatchery(string name, ResourceManager& r) :
-	ZergBuilding(name, r), lairData(entityDataMap.at(string("lair"))), hiveData(entityDataMap.at(string("hive"))), queenData(entityDataMap.at(string("queen"))), larvas(0), larvaProgress(0), spawningQueen(false), queenProgress(0) , injectingLarvas(false) , injectProgress(0) , upgrading(false) , upgradeProgress(0) 
+	ZergBuilding(name, r), lairData(entityDataMap.at(string("lair"))), hiveData(entityDataMap.at(string("hive"))), queenData(entityDataMap.at(string("queen"))), larvas(3), larvaProgress(0), spawningQueen(false), queenProgress(0) , injectingLarvas(false) , injectProgress(0) , upgrading(false) , upgradeProgress(0) 
 {
 	//TODO
 }
@@ -130,13 +130,18 @@ bool ZergHatchery::takeLarva() {
 }
 
 bool ZergHatchery::morphLarva(string s) {
+	EntityData& entity = entityDataMap.at(s);
+	return morphLarva(entity);
+}
+
+bool ZergHatchery::morphLarva(EntityData& entity) {
 	if (larvas == 0)
 		return false;
-	EntityData& entity = entityDataMap.at(s);
 	if (!dependencyFulfilled(entity)) {
 		return false;
 	}
 	if (r.canBuild(entity)) {
+		r.consumeRes(entity);
 		--larvas;
 		return true;
 	}

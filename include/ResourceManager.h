@@ -48,7 +48,7 @@ public:
 	void setVespeneWorkers(int a) { vespeneWorkers = a; }
 	
 	friend std::ostream& operator<<(std::ostream& os, const ResourceManager& r) {
-		os << "Resources: " << r.minerals << ", " << r.vespene << ", " << r.supply;
+		os << "Resources: " << r.minerals << ", " << r.vespene << ", " << r.supply << "/" << r.supplyMax;
 		return os;
 	}
 };

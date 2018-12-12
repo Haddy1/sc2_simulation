@@ -22,4 +22,5 @@ public:
 	//bool busy();
 	//bool assign();
 	//bool ability();
+	string getName() { return name; }
 };

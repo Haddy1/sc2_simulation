@@ -24,4 +24,5 @@ public:
 	//virtual bool busy();
 	//virtual bool ability();
 	//virtual bool createUnit(string);
+	string getName() { return name; }
 };

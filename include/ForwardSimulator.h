@@ -73,6 +73,7 @@ class ZergSimulator : public ForwardSimulator {
 	int timestep;
 	int maxTime;
 	bool running;
+	int gasBuildings;
 	
 	vector<ZergBuilding*> buildings;
 	vector<ZergHatchery*> hatcheries;

@@ -10,7 +10,7 @@ using std::endl;
  */
 ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
 	r.addSupplyMax(entityDataMap.at(name).supplyProvided);
-	cout << "Unit " << name << " with id=" << getID() << "created" << endl;
+	cout << "Unit " << name << " with id=" << getID() << " created." << endl;
 }
 
 
@@ -65,7 +65,7 @@ bool ZergDrone::morph(string s) {
 }
 
 bool ZergDrone::morph(EntityData& e) {
-	if (working || morphing)
+	if (morphing)
 		return false;
 	if (!dependencyFulfilled(e)) {
 		return false;
@@ -75,6 +75,7 @@ bool ZergDrone::morph(EntityData& e) {
 		morphing = true;
 		morphProgress = 0;
 		morphingToData = &e;
+		working = false;
 		return true;
 	} else {
 		return false;
@@ -88,7 +89,7 @@ bool ZergDrone::isMorphing() {
 bool ZergDrone::morphingDone() {
 	if (!morphing)
 		return false;
-	return (morphingToData->buildTime >= morphProgress);
+	return (morphingToData->buildTime <= morphProgress);
 }
 
 EntityData& ZergDrone::getBuildingData() {
