@@ -42,6 +42,10 @@ EntityData& ZergLarva::getUnitData() {
 	return morphingToData;
 }
 
+bool ZergLarva::busy() {
+	return true;
+}
+
 
 /*
  * Drone
@@ -96,6 +100,10 @@ EntityData& ZergDrone::getBuildingData() {
 	return *morphingToData;
 }
 
+bool ZergDrone::busy() {
+	return morphing;
+}
+
 
 /*
  * Queen
@@ -125,21 +133,14 @@ bool ZergQueen::injectLarvas() {
 	}
 }
 
+bool ZergQueen::busy() {
+	return false; //TODO injecting larvas??
+}
+
 
 /*
  * Upgradeable Unit: Overlord, Zergling, Corruptor
  */
-/*
-class ZergUpgradeableUnit : public ZergUnit {
-	EntityData& unitData;
-	bool upgrading;
-	bool upgradeProgress;
-public:
-	ZergUpgradeableUnit(string, ResourceManager&);
-	void update();
-	bool upgrade();
-};
-*/
 ZergUpgradeableUnit::ZergUpgradeableUnit(string name, ResourceManager& r) : ZergUnit(name, r), unitData(entityDataMap.at(name)), upgradeData(nullptr), upgrading(false), upgradeProgress(0) {
 	
 }
@@ -180,6 +181,10 @@ bool ZergUpgradeableUnit::upgrade() {
 	} else {
 		return false;
 	}
+}
+
+bool ZergUpgradeableUnit::busy() {
+	return upgrading;
 }
 
 

@@ -15,8 +15,6 @@ ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(
 }
 
 
-
-
 /*
  * Hatchery, Lair, Hive
  */
@@ -166,10 +164,6 @@ bool ZergHatchery::spawnQueen() {
 	}
 }
 
-//bool ZergHatchery::queenDone() {
-//	return queenProgress == 50;
-//}
-
 bool ZergHatchery::takeQueen() {
 	if (queenProgress == queenData.buildTime) {
 		queenProgress = 0;
@@ -189,6 +183,10 @@ bool ZergHatchery::injectLarvas() {
 	} else {
 		return false;
 	}
+}
+
+bool ZergHatchery::busy() {
+	return (upgrading || spawningQueen); //TODO larva injection?
 }
 
 
@@ -228,6 +226,10 @@ void ZergSpire::update() {
 			techRemove(string("spire"));
 		}
 	}
+}
+
+bool ZergSpire::busy() {
+	return (upgrading);
 }
 
 
@@ -273,6 +275,10 @@ bool ZergNydusNetwork::takeUnit() {//nydus worm
 	} else {
 		return false;
 	}
+}
+
+bool ZergNydusNetwork::busy() {
+	return (spawningUnit);
 }
 
 

@@ -23,6 +23,7 @@ public:
 	void update();
 	bool isDone();
 	EntityData& getUnitData();
+	bool busy();
 };
 
 
@@ -40,6 +41,7 @@ public:
 	bool isMorphing();
 	bool morphingDone();
 	EntityData& getBuildingData();
+	bool busy();
 };
 
 
@@ -51,6 +53,7 @@ public:
 	void update();
 	bool canInjectLarvas();
 	bool injectLarvas();
+	bool busy();
 };
 
 
@@ -63,6 +66,7 @@ public:
 	ZergUpgradeableUnit(string, ResourceManager&);
 	void update();
 	bool upgrade();
+	bool busy();
 };
 
 

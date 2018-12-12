@@ -38,6 +38,7 @@ public:
 	bool spawnQueen();
 	bool takeQueen();
 	bool injectLarvas();
+	bool busy();
 };
 
 
@@ -49,6 +50,7 @@ public:
 	ZergSpire(string, ResourceManager&);
 	bool upgrade();
 	void update();
+	bool busy();
 };
 
 
@@ -61,4 +63,5 @@ public:
 	void update();
 	bool spawn();
 	bool takeUnit();
+	bool busy();
 };

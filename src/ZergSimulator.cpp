@@ -9,11 +9,11 @@ using std::cout;
 using std::endl;
 using std::stringstream;
 
-ZergSimulator::ZergSimulator() : timestep(1), maxTime(200), running(true), gasBuildings(0) {
+ZergSimulator::ZergSimulator() : timestep(1), maxTime(600), gasBuildings(0) {
 	init();
 }
 
-ZergSimulator::ZergSimulator(queue<string> q) : buildOrder(q), timestep(1), maxTime(200), running(true), gasBuildings(0) {
+ZergSimulator::ZergSimulator(queue<string> q) : buildOrder(q), timestep(1), maxTime(600), gasBuildings(0) {
 	init();
 }
 
@@ -40,16 +40,27 @@ void ZergSimulator::init() {
 }
 
 void ZergSimulator::simulate() {
-	while (running && (timestep < maxTime)) {//TODO
+	bool continueSimulation = true;
+	
+	while (continueSimulation && (timestep < maxTime)) {//TODO
 		
-		stringstream ss;
 		cout << "t = " << timestep << endl;
 		
+		/*
+		* Update Resources
+		*/
 		resourceManager.update();
 		cout << resourceManager << endl;
 		
-		//update/finish buildings
+		/*
+		* Update/Finish Buildings
+		*/
 		bool buildFinished = false;
+		
+		//update queens first to avoid update directly after a hatchery spawns a queen
+		for (ZergQueen *u : queens) {
+			u->update();
+		}
 		
 		for (ZergHatchery *b : hatcheries) {
 			b->update();
@@ -73,39 +84,12 @@ void ZergSimulator::simulate() {
 		}
 		
 		//update/finish units
-		auto it = larvas.begin();
-		while (it != larvas.end()) {
-			ZergLarva *larva = (*it);
-			larva->update();
-			if (larva->isDone()) {
-				EntityData& entityData = larva->getUnitData();
-				//create new unit
-				if (entityData.name == string("drone")) {
-					ZergDrone *drone = new ZergDrone(string("drone"), resourceManager);
-					drones.push_back(drone);
-					buildFinished = true;
-				} else if ((entityData.name == string("overlord")) || (entityData.name == string("zergling")) || (entityData.name == string("corruptor"))) {
-					ZergUpgradeableUnit *unit = new ZergUpgradeableUnit(entityData.name, resourceManager);
-					upgradeableUnits.push_back(unit);
-					buildFinished = true;
-				} else {
-					ZergUnit *unit = new ZergUnit(entityData.name, resourceManager);
-					units.push_back(unit);
-					buildFinished = true;
-				}
-				//remove this larva
-				it = larvas.erase(it);
-				delete larva;
-			} else {
-				++it;
-			}
-		}
-		
 		for (ZergUpgradeableUnit *u : upgradeableUnits) {
 			u->update();
 			//TODO if upgrade done generate event
 		}
 		
+		//Drones
 		auto it2 = drones.begin();
 		while (it2 != drones.end()) {
 			ZergDrone *drone = (*it2);
@@ -141,13 +125,42 @@ void ZergSimulator::simulate() {
 			}
 		}
 		
-		for (ZergQueen *u : queens) {
-			u->update();
+		//Larvas
+		auto it = larvas.begin();
+		while (it != larvas.end()) {
+			ZergLarva *larva = (*it);
+			larva->update();
+			if (larva->isDone()) {
+				EntityData& entityData = larva->getUnitData();
+				//create new unit
+				if (entityData.name == string("drone")) {
+					ZergDrone *drone = new ZergDrone(string("drone"), resourceManager);
+					drones.push_back(drone);
+					buildFinished = true;
+				} else if ((entityData.name == string("overlord")) || (entityData.name == string("zergling")) || (entityData.name == string("corruptor"))) {
+					ZergUpgradeableUnit *unit = new ZergUpgradeableUnit(entityData.name, resourceManager);
+					upgradeableUnits.push_back(unit);
+					buildFinished = true;
+				} else {
+					ZergUnit *unit = new ZergUnit(entityData.name, resourceManager);
+					units.push_back(unit);
+					buildFinished = true;
+				}
+				//remove this larva
+				it = larvas.erase(it);
+				delete larva;
+			} else {
+				++it;
+			}
 		}
 		
 		
 		
-		//start/finish abilities
+		
+		
+		/*
+		* Start/Finish Abilities
+		*/
 		for (ZergQueen *queen : queens) {
 			if (queen->canInjectLarvas()) {
 				//search for a hatchery
@@ -161,8 +174,12 @@ void ZergSimulator::simulate() {
 			}
 		}
 		
+		
+		/*
+		* Start Build if possible
+		*/
 		//start build if possible //TODO
-		bool removeItem = false;
+		bool buildStarted = false;
 		
 		if (!buildOrder.empty()) {
 			string nextItem = buildOrder.front();
@@ -173,7 +190,7 @@ void ZergSimulator::simulate() {
 				for (auto *u : upgradeableUnits) {
 					if (u->getName() == string("overlord")) {
 						if (u->upgrade()) {
-							removeItem = true;
+							buildStarted = true;
 							break;
 						}
 					}
@@ -182,7 +199,7 @@ void ZergSimulator::simulate() {
 				for (auto *u : upgradeableUnits) {
 					if (u->getName() == string("zergling")) {
 						if (u->upgrade()) {
-							removeItem = true;
+							buildStarted = true;
 							break;
 						}
 					}
@@ -191,7 +208,7 @@ void ZergSimulator::simulate() {
 				for (auto *u : upgradeableUnits) {
 					if (u->getName() == string("corruptor")) {
 						if (u->upgrade()) {
-							removeItem = true;
+							buildStarted = true;
 							break;
 						}
 					}
@@ -200,7 +217,7 @@ void ZergSimulator::simulate() {
 				for (auto *b : hatcheries) {
 					if (b->getName() == string("hatchery")) {
 						if (b->upgrade()) {
-							removeItem = true;
+							buildStarted = true;
 							break;
 						}
 					}
@@ -209,7 +226,7 @@ void ZergSimulator::simulate() {
 				for (auto *b : hatcheries) {
 					if (b->getName() == string("lair")) {
 						if (b->upgrade()) {
-							removeItem = true;
+							buildStarted = true;
 							break;
 						}
 					}
@@ -217,28 +234,28 @@ void ZergSimulator::simulate() {
 			} else if (nextItem == string("greater_spire")) {
 				for (auto *s : spires) {
 					if (s->upgrade()) {
-						removeItem = true;
+						buildStarted = true;
 						break;
 					}
 				}
 			} else if (nextItem == string("nydus_worm")) { //building produce unit
 				for (auto *n : nydusNetworks) {
 					if (n->spawn()) {
-						removeItem = true;
+						buildStarted = true;
 						break;
 					}
 				}
 			} else if (nextItem == string("queen")) {
 				for (auto *b : hatcheries) {
 					if (b->spawnQueen()) {
-						removeItem = true;
+						buildStarted = true;
 						break;
 					}
 				}
-			} else if (entityData.isBuilding) { //drone to building // TODO check if can build gas building ??
+			} else if (entityData.isBuilding) { //drone to building // TODO check if can build gas building ?? (max 2)
 				for (auto *d : drones) {
 					if (d->morph(entityData)) {
-						removeItem = true;
+						buildStarted = true;
 						break;
 					}
 				}
@@ -247,21 +264,23 @@ void ZergSimulator::simulate() {
 					if (b->morphLarva(entityData)) {
 						ZergLarva *larva = new ZergLarva(string("larva"), resourceManager, entityData);
 						larvas.push_back(larva);
-						removeItem = true;
+						buildStarted = true;
 						break;
 					}
 				}
 			}
 			
 			
-			if (removeItem) {
+			if (buildStarted) {
 				buildOrder.pop();
 			}
 			
 		}
 		
 		
-		//redistribute workers
+		/*
+		* Redistribute Workers
+		*/
 		//TODO
 		int workers = 0;
 		int maxGasWorkers = gasBuildings * 3;
@@ -276,12 +295,42 @@ void ZergSimulator::simulate() {
 		resourceManager.setMineralWorkers(mineralWorkers);
 		resourceManager.setVespeneWorkers(gasWorkers);
 		
-		if (removeItem || buildFinished) {
+		
+		/*
+		* TODO only log when something happened
+		*/
+		if (buildStarted || buildFinished) {
 			
 		} else {
 			
 		}
 		
+		
+		/*
+		* TODO End simulation if everything idle and queue empty
+		*/
+		continueSimulation = (!buildOrder.empty());
+		for (auto *a : hatcheries) {
+			continueSimulation |= a->busy();
+		}
+		for (auto *a : spires) {
+			continueSimulation |= a->busy();
+		}
+		for (auto *a : nydusNetworks) {
+			continueSimulation |= a->busy();
+		}
+		for (auto *a : upgradeableUnits) {
+			continueSimulation |= a->busy();
+		}
+		for (auto *a : drones) {
+			continueSimulation |= a->busy();
+		}
+		for (auto *a : larvas) {
+			continueSimulation |= a->busy();
+		}
+		for (auto *a : queens) {
+			continueSimulation |= a->busy();
+		}
 		
 		++timestep;
 		
