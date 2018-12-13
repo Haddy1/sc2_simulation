@@ -13,9 +13,9 @@ JsonLogger::JsonLogger(Race r, ResourceManager& manager, bool valid, std::string
 JsonLogger::~JsonLogger() {
 	redirect();
 	if(validBuildlist) {
-		cout << endl << ws << "]\n"; // ends the "messages" block
+		cout << endl << ws << "]" << endl; // ends the "messages" block
 	}
-	cout << "}\n";
+	cout << "}" << endl;
 	undo_redirect();
 	
 	if(!path.empty()) {
@@ -36,68 +36,78 @@ void JsonLogger::undo_redirect() {
 
 void JsonLogger::printBeginning() {
 	redirect();
-	cout << "{\n"; 
-	cout << ws << "\"buildlistValid\": " << (int) validBuildlist << ",\n"; 
-	cout << ws << "\"game\": \"" << toString(race) << "\",\n";
-	
+	cout << "{" << endl; 
+	cout << ws << "\"buildlistValid\": " << (int) validBuildlist << "," << endl; 
+	cout << ws << "\"game\": \"" << toString(race) << "\"" << (validBuildlist ? "," : "") << endl;
+	undo_redirect();
+}
+
+void JsonLogger::printSetup(vector<pair<string, vector<int>>> units) {
+	// print initial units
+	redirect();
 	if(validBuildlist) {
-		cout << ws << "\"messages\": [\n";
+		cout << ws << "\"initialUnits\" : {" << endl;
+		for(auto& unit : units) {
+			cout << string(2, ws) << "\"" << unit.first << "\" : [";
+			for(auto& id : unit.second) {
+				cout << "\"" << id << "\"" << (id != unit.second.back() ? string(1, ',') + ws : "]");
+			}
+			cout << (unit != units.back() ? ", " : "") << endl;
+		}
+		cout << ws << "}," << endl;
 	}
 	undo_redirect();
 }
 
-// TODO special ability events and initial units
-void JsonLogger::printMessage(int time, vector<EventEntry> events) {
-	assert(time > 0);
+void JsonLogger::printMessage(int time, vector<EventEntry*> events) {
+	// add messages keyword at the beginning
+	if(time == 0 && validBuildlist) {
+		if(validBuildlist) {
+			redirect();
+			cout << ws << "\"messages\": [" << endl;
+			undo_redirect();
+		}
+	}
 	// messages not added to log for invalid build lists
-	if(!validBuildlist) {
+	if(!validBuildlist || events.empty()) {
 		return;
 	}
 	redirect();
 	// add message entry to output
 	if(time > 1) {
-		cout << ",\n"; // separation with previous message entry
+		cout << "," << endl; // separation with previous message entry
 	}
-	cout << string(2, ws) << "{\n";
+	cout << string(2, ws) << "{" << endl;
 	// time
-	cout << string(3, ws) << "\"time\": " << time << ",\n";
+	cout << string(3, ws) << "\"time\": " << time << "," << endl;
 	// status
-	cout << string(3, ws) << "\"status\": {\n";
+	cout << string(3, ws) << "\"status\": {" << endl;
 	
-	cout << string(4, ws) << "\"workers\": {\n";
-	cout << string(5, ws) << "\"minerals\": " << rm.getMineralWorkers() << ",\n";
-	cout << string(5, ws) << "\"vespene\": " << rm.getVespeneWorkers() << "\n";
-	cout << string(4, ws) << "},\n";
+	cout << string(4, ws) << "\"workers\": {" << endl;
+	cout << string(5, ws) << "\"minerals\": " << rm.getMineralWorkers() << "," << endl;
+	cout << string(5, ws) << "\"vespene\": " << rm.getVespeneWorkers() << endl;
+	cout << string(4, ws) << "}," << endl;
 	
-	cout << string(4, ws) << "\"resources\": {\n";
-	cout << string(5, ws) << "\"minerals\": " << rm.getMinerals() << ",\n";
-	cout << string(5, ws) << "\"vespene\": " << rm.getVespene() << ",\n";
-	cout << string(5, ws) << "\"supply-used\": " << rm.getSupply() << ",\n";
-	cout << string(5, ws) << "\"supply\": " << rm.getSupplyMax() << "\n";
-	cout << string(4, ws) << "}\n";
+	cout << string(4, ws) << "\"resources\": {" << endl;
+	cout << string(5, ws) << "\"minerals\": " << rm.getMinerals() << "," << endl;
+	cout << string(5, ws) << "\"vespene\": " << rm.getVespene() << "," << endl;
+	cout << string(5, ws) << "\"supply-used\": " << rm.getSupply() << "," << endl;
+	cout << string(5, ws) << "\"supply\": " << rm.getSupplyMax() << endl;
+	cout << string(4, ws) << "}" << endl;
 	
-	cout << string(3, ws) << "},\n";
+	cout << string(3, ws) << "}," << endl;
 	// events
-	cout << string(3, ws) << "\"events\": [\n";
+	cout << string(3, ws) << "\"events\": [" << endl;
 	for(auto& event : events) {
-		//if(!validType(event.first().c_str()) || !validName(event.second())) { continue;}
-		cout << string(4, ws) << "{\n";
-		cout << string(5, ws) << "\"type\": " << event.first() << ",\n";
-		cout << string(5, ws) << "\"name\": " << event.second() << "\n";
-		cout << string(4, ws) << "}\n";
-		
-		if(&event != &events.back()) {
-			cout << string(4, ws) << ",\n";
+		if(!event->valid()) {
+			continue;
 		}
+		cout << string(4, ws) << "{" << endl;
+		cout << string(5, ws) << "\"type\": " << event->first() << "," << endl;
+		cout << string(5, ws) << "\"name\": " << event->second() << endl;
+		cout << string(4, ws) << "}" << (&event != &events.back() ? "," : "") << endl;
 	}
+	cout << string(3, ws) << "]" << endl;
 	cout << string(2, ws) << "}";
 	undo_redirect();
-}
-
-bool JsonLogger::validType(const char* s) {
-	return strcmp(s, "build-start") == 0 || strcmp(s, "build-end") == 0 || strcmp(s, "special") == 0;
-}
-
-bool JsonLogger::validName(string s) {
-	return entityDataMap.find(s) != entityDataMap.end();
 }

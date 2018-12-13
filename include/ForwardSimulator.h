@@ -68,8 +68,8 @@ class ProtossSimulator : public ForwardSimulator {
 	
 	void init();
 public:
-	ProtossSimulator();
-	ProtossSimulator(queue<string>);
+	ProtossSimulator(bool);
+	ProtossSimulator(queue<string>, bool);
 	~ProtossSimulator() {}
 	
 	void simulate();
