@@ -73,8 +73,9 @@ void CSVParser::parseEntityLine(string line) {
 		}
 	}
 	entityData.dependencies = deps;
-
-	entityDataMap.emplace(entityData.name, entityData);
+	
+	string entityName = entityData.name;
+	entityDataMap.emplace(entityName, entityData);
 }
 
 
@@ -104,13 +105,6 @@ void CSVParser::parseLine(string line) {
 		else {
 			//normal line
 			parseEntityLine(line);
-			/*
-			if (currentType == 0) {
-				parseUnitLine(line);
-			} else {
-				parseBuildingLine(line);
-			}
-			*/
 		}
 	}
 }
@@ -125,8 +119,6 @@ void CSVParser::parse() {
 	}
 	
 	is.close();
-	
-	
 
 	for (auto it = lines.begin(); it != lines.end(); ++it) {
 		string line = *it;

@@ -50,13 +50,13 @@ bool ZergLarva::busy() {
 /*
  * Drone
  */
-ZergDrone::ZergDrone(string name, ResourceManager& r) : ZergUnit(name, r), working(false) , morphing(false) , morphProgress(0) , morphingToData(nullptr) {
+ZergDrone::ZergDrone(string name, ResourceManager& r) : ZergUnit(name, r), morphing(false) , morphProgress(0) , morphingToData(nullptr) {
 	
 }
 
-void ZergDrone::setWorking(bool b) {
-	working = b;
-}
+//void ZergDrone::setWorking(bool b) {
+	//working = b;
+//}
 
 void ZergDrone::update() {
 	if (morphing) {
@@ -79,7 +79,7 @@ bool ZergDrone::morph(EntityData& e) {
 		morphing = true;
 		morphProgress = 0;
 		morphingToData = &e;
-		working = false;
+		//working = false;
 		return true;
 	} else {
 		return false;

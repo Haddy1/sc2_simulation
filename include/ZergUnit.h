@@ -29,13 +29,13 @@ public:
 
 
 class ZergDrone : public ZergUnit {
-	bool working;
+	//bool working;
 	bool morphing;
 	int morphProgress;
 	EntityData* morphingToData;
 public:
 	ZergDrone(string, ResourceManager&);
-	void setWorking(bool);
+	//void setWorking(bool);
 	void update();
 	bool morph(string);
 	bool morph(EntityData&);
