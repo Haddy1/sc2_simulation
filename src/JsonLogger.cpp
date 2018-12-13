@@ -107,6 +107,7 @@ void JsonLogger::printMessage(int time, vector<EventEntry*> events) {
 		cout << string(5, ws) << "\"name\": " << event->second() << endl;
 		cout << string(4, ws) << "}" << (&event != &events.back() ? "," : "") << endl;
 	}
+	cout << string(3, ws) << "]" << endl;
 	cout << string(2, ws) << "}";
 	undo_redirect();
 }
