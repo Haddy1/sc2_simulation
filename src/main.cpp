@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
 			simulator = new TerranSimulator(buildQueue);
 			break;
 		case PROTOSS:
-			simulator = new ProtossSimulator(buildQueue);
+			simulator = new ProtossSimulator(buildQueue, validBuildlist);
 			break;
 		case ZERG:
 			simulator = new ZergSimulator(buildQueue);
