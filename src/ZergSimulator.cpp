@@ -332,6 +332,7 @@ void ZergSimulator::simulate() {
 			continueSimulation |= a->busy();
 		}
 		
+		techPrint();
 		++timestep;
 		
 		

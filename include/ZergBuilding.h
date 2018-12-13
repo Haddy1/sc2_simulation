@@ -4,6 +4,7 @@
 #include "ZergUnit.h"
 #include "ResourceManager.h"
 #include "EntityData.h"
+#include "Tech.h"
 
 class ZergBuilding : public Building {
 protected:

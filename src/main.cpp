@@ -1,11 +1,10 @@
 #include "../include/ForwardSimulator.h"
 #include "../include/CSVParser.h"
-//#include "../include/UnitData.h"
-//#include "../include/BuildingData.h"
 #include "../include/EntityData.h"
 #include "../include/Race.h"
 #include "../include/FixedPoint.h" //test
 #include "../include/JsonLogger.h"
+#include "../include/BuildlistValidator.h"
 
 #include <iostream>
 #include <cstring>
@@ -66,7 +65,7 @@ int main(int argc, char *argv[]) {
 		std::cerr << "couldn't open buildlist file" << std::endl;
 	}
 	
-	bool validBuildlist = true;
+	bool invalidBuildlist = false;
 	
 	queue<string> buildQueue;
 	while (buildListFile.good()) {
@@ -76,21 +75,29 @@ int main(int argc, char *argv[]) {
 			continue;
 		}
 		if (!entityExists(s)) {
-			validBuildlist = false;
+			invalidBuildlist = true;
 			break;
 		}
 		
 		EntityData& entityData = entityDataMap.at(s); //always use reference to EntityData
 		if (entityData.race != race) {
-			validBuildlist = false;
+			invalidBuildlist = true;
 		}
 		
 		buildQueue.push(s);
 	}
 	buildListFile.close();
 	
-	if (!validBuildlist) {
+	
+	
+	BuildlistValidator validator(race, buildQueue);
+	invalidBuildlist |= (!validator.validate());
+	
+	
+	
+	if (invalidBuildlist) {
 		std::cerr << "invalid buildlist" << std::endl;
+		return -1;
 	}
 
 	/*
