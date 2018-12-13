@@ -16,7 +16,7 @@ class Building : public Entity {
 	//bool working;
 	//int workProgress;
 protected:
-	string name;
+	//string name;
 public:
 	Building() = delete;
 	Building(string);
@@ -24,5 +24,5 @@ public:
 	//virtual bool busy();
 	//virtual bool ability();
 	//virtual bool createUnit(string);
-	string getName() { return name; }
+	//string getName() { return name; }
 };

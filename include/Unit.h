@@ -14,13 +14,13 @@ class Unit : public Entity {
 	//bool working;
 	//int energy;
 protected:
-	string name;
+	//string name;
 public:
 	Unit() = delete;
 	Unit(string);
-	~Unit();
+	//~Unit();
 	//bool busy();
 	//bool assign();
 	//bool ability();
-	string getName() { return name; }
+	//string getName() { return name; }
 };

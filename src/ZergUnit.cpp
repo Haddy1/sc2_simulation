@@ -9,7 +9,7 @@ using std::endl;
  * Generic Unit that cant morph
  */
 ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
-	r.addSupplyMax(entityDataMap.at(name).supplyProvided);
+	r.addSupplyMax(entityData.supplyProvided);
 	cout << "Unit " << name << " with id=" << getID() << " created." << endl;
 }
 
@@ -108,13 +108,13 @@ bool ZergDrone::busy() {
 /*
  * Queen
  */
-ZergQueen::ZergQueen(string name, ResourceManager& r) : ZergUnit(name, r), queenData(entityDataMap.at(string("queen"))), energy(queenData.startEnergy) {
+ZergQueen::ZergQueen(string name, ResourceManager& r) : ZergUnit(name, r), energy(entityData.startEnergy) {
 	
 }
 
 void ZergQueen::update() {
 	energy += FixedPoint(0.5625);
-	FixedPoint maxEnergy(queenData.maxEnergy);
+	FixedPoint maxEnergy(entityData.maxEnergy);
 	if (energy > maxEnergy) {
 		energy = maxEnergy;
 	}
@@ -141,7 +141,7 @@ bool ZergQueen::busy() {
 /*
  * Upgradeable Unit: Overlord, Zergling, Corruptor
  */
-ZergUpgradeableUnit::ZergUpgradeableUnit(string name, ResourceManager& r) : ZergUnit(name, r), unitData(entityDataMap.at(name)), upgradeData(nullptr), upgrading(false), upgradeProgress(0) {
+ZergUpgradeableUnit::ZergUpgradeableUnit(string name, ResourceManager& r) : ZergUnit(name, r), upgradeData(nullptr), upgrading(false), upgradeProgress(0) {
 	
 }
 
@@ -150,8 +150,7 @@ void ZergUpgradeableUnit::update() {
 		++upgradeProgress;
 		if (upgradeProgress == upgradeData->buildTime) {//TODO
 			upgrading = false;
-			name = upgradeData->name;
-			unitData = *upgradeData;
+			entityData = *upgradeData;
 		}
 	}
 }
@@ -160,11 +159,11 @@ bool ZergUpgradeableUnit::upgrade() {
 	if (upgrading)
 		return false;
 	
-	if (name == string("overlord")) {
+	if (entityData.name == string("overlord")) {
 		upgradeData = &entityDataMap.at(string("overseer"));
-	} else if (name == string("zergling")) {
+	} else if (entityData.name == string("zergling")) {
 		upgradeData = &entityDataMap.at(string("baneling"));
-	} else if (name == string("corruptor")) {
+	} else if (entityData.name == string("corruptor")) {
 		upgradeData = &entityDataMap.at(string("brood_lord"));
 	} else {
 		return false;

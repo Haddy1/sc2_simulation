@@ -9,7 +9,7 @@ using std::endl;
  * Generic Zerg Building (tech tree only)
  */
 ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(r) {
-	r.addSupplyMax(entityDataMap.at(name).supplyProvided);
+	r.addSupplyMax(entityData.supplyProvided);
 	techAdd(name);
 	cout << "Building " << name << " with id=" << getID() << " created." << endl;
 }
@@ -29,19 +29,19 @@ void ZergHatchery::update() {
 	//update upgrade
 	if (upgrading) {
 		++upgradeProgress;
-		if (name == string("hatchery")) {
+		if (entityData.name == string("hatchery")) {
 			if (upgradeProgress == lairData.buildTime) {
 				upgrading = false;
 				upgradeProgress = 0;
-				name = string("lair");
+				entityData = lairData;
 				techAdd(string("lair"));
 				techRemove(string("hatchery"));
 			}
-		} else if (name == string("lair")) {
+		} else if (entityData.name == string("lair")) {
 			if (upgradeProgress == hiveData.buildTime) {
 				upgrading = false;
 				upgradeProgress = 0;
-				name = string("hive");
+				entityData = hiveData;
 				techAdd(string("hive"));
 				techRemove(string("lair"));
 			}
@@ -51,7 +51,7 @@ void ZergHatchery::update() {
 	//update queen spawn
 	if (spawningQueen) {
 		++queenProgress;
-		if (queenProgress > queenData.buildTime) { //TODO read 50 from EntityData queen buildTime
+		if (queenProgress > queenData.buildTime) {
 			queenProgress = queenData.buildTime;
 		}
 	}
@@ -82,7 +82,7 @@ void ZergHatchery::update() {
 bool ZergHatchery::upgrade() {
 	//cant upgrade if doing work
 	if (!upgrading && !spawningQueen && !injectingLarvas) {
-		if (name == string("hatchery")) {
+		if (entityData.name == string("hatchery")) {
 			if (!dependencyFulfilled(lairData)) {
 				return false;
 			}
@@ -94,7 +94,7 @@ bool ZergHatchery::upgrade() {
 			} else {
 				return false;
 			}
-		} else if (name == string("lair")) {
+		} else if (entityData.name == string("lair")) {
 			if (!dependencyFulfilled(hiveData)) {
 				return false;
 			}
@@ -198,7 +198,7 @@ ZergSpire::ZergSpire(string name, ResourceManager& r) : ZergBuilding(name, r), g
 }
 
 bool ZergSpire::upgrade() {
-	if (name == string("spire") && !upgrading) {
+	if (entityData.name == string("spire") && !upgrading) {
 		if (!dependencyFulfilled(greaterSpireData)) {
 			return false;
 		}
@@ -219,7 +219,7 @@ void ZergSpire::update() {
 	if (upgrading) {
 		++upgradeProgress;
 		if (upgradeProgress == greaterSpireData.buildTime) {
-			name = string("greater_spire");
+			entityData = greaterSpireData;
 			upgrading = false;
 			upgradeProgress = 0;
 			techAdd(string("greater_spire"));

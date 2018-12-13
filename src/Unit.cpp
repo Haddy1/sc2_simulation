@@ -1,10 +1,10 @@
 #include "../include/Unit.h"
 
-Unit::Unit(string name) : name(name) {
+Unit::Unit(string name) : Entity(name) {
 	
 }
 
-Unit::~Unit() {
-	
-}
+//Unit::~Unit() {
+//	
+//}
 

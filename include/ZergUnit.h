@@ -47,7 +47,6 @@ public:
 
 
 class ZergQueen : public ZergUnit {
-	EntityData& queenData;
 	FixedPoint energy;
 public:
 	ZergQueen(string, ResourceManager&);
@@ -59,7 +58,6 @@ public:
 
 
 class ZergUpgradeableUnit : public ZergUnit {
-	EntityData& unitData;
 	EntityData* upgradeData;
 	bool upgrading;
 	int upgradeProgress;

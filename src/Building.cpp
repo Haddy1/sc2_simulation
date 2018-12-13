@@ -1,6 +1,6 @@
 #include "../include/Building.h"
 
-Building::Building(string name) : name(name) {
+Building::Building(string name) : Entity(name) {
 	
 }
 
