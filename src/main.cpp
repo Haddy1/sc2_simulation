@@ -34,13 +34,13 @@ int main(int argc, char *argv[]) {
 	Race race;
 	
 	if (strcmp("sc2-hots-terran", argv[1]) == 0 || strcmp("terran", argv[1]) == 0) {
-		std::cout << "Race: Terran" << std::endl;
+		//std::cout << "Race: Terran" << std::endl;
 		race = Race::TERRAN;
 	} else if (strcmp("sc2-hots-protoss", argv[1]) == 0 || strcmp("protoss", argv[1]) == 0) {
-		std::cout << "Race: Protoss" << std::endl;
+		//std::cout << "Race: Protoss" << std::endl;
 		race = Race::PROTOSS;
 	} else if (strcmp("sc2-hots-zerg", argv[1]) == 0 || strcmp("zerg", argv[1]) == 0) {
-		std::cout << "Race: Zerg" << std::endl;
+		//std::cout << "Race: Zerg" << std::endl;
 		race = Race::ZERG;
 	} else {
 		usage(argv[0]);
@@ -117,6 +117,18 @@ int main(int argc, char *argv[]) {
 	std::cout << "d=a*b: "  << d << std::endl;
 	a+= b*FixedPoint(6);
 	std::cout << "a+= b*6: " << a << std::endl;
+	*/
+	/*
+	FixedPoint a(0.0);
+	FixedPoint b(1.0);
+	FixedPoint c(2.0);
+	FixedPoint d(1.1);
+	FixedPoint e(2.9);
+	std::cout << "FP test: " << (a*2) << std::endl;
+	std::cout << "FP test: " << (b*2) << std::endl;
+	std::cout << "FP test: " << (c*2) << std::endl;
+	std::cout << "FP test: " << (d*2) << std::endl;
+	std::cout << "FP test: " << (e*2) << std::endl;
 	*/
 	
 	

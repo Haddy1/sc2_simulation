@@ -9,7 +9,7 @@ using std::endl;
  * Generic Zerg Building (tech tree only)
  */
 ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(r) {
-	r.addSupplyMax(entityData.supplyProvided);
+	r.addSupplyMax(entityData->supplyProvided);
 	techAdd(name);
 	//cout << "Building " << name << " with id=" << getID() << " created." << endl;
 }
@@ -29,19 +29,19 @@ void ZergHatchery::update() {
 	//update upgrade
 	if (upgrading) {
 		++upgradeProgress;
-		if (entityData.name == string("hatchery")) {
+		if (entityData->name == string("hatchery")) {
 			if (upgradeProgress == lairData.buildTime) {
 				upgrading = false;
 				upgradeProgress = 0;
-				entityData = lairData;
+				entityData = &lairData;
 				techAdd(string("lair"));
 				techRemove(string("hatchery"));
 			}
-		} else if (entityData.name == string("lair")) {
+		} else if (entityData->name == string("lair")) {
 			if (upgradeProgress == hiveData.buildTime) {
 				upgrading = false;
 				upgradeProgress = 0;
-				entityData = hiveData;
+				entityData = &hiveData;
 				techAdd(string("hive"));
 				techRemove(string("lair"));
 			}
@@ -82,7 +82,7 @@ void ZergHatchery::update() {
 bool ZergHatchery::upgrade() {
 	//cant upgrade if doing work
 	if (!upgrading && !spawningQueen && !injectingLarvas) {
-		if (entityData.name == string("hatchery")) {
+		if (entityData->name == string("hatchery")) {
 			if (!dependencyFulfilled(lairData)) {
 				return false;
 			}
@@ -94,7 +94,7 @@ bool ZergHatchery::upgrade() {
 			} else {
 				return false;
 			}
-		} else if (entityData.name == string("lair")) {
+		} else if (entityData->name == string("lair")) {
 			if (!dependencyFulfilled(hiveData)) {
 				return false;
 			}
@@ -138,11 +138,20 @@ bool ZergHatchery::morphLarva(EntityData& entity) {
 	if (!dependencyFulfilled(entity)) {
 		return false;
 	}
-	if (r.canBuild(entity)) {
-		r.consumeRes(entity);
-		--larvas;
-		return true;
+	if (entity.name == string("zergling")) {
+		if (r.canBuild(entity, 2)) {
+			r.consumeRes(entity, 2);
+			--larvas;
+			return true;
+		}
+	} else {
+		if (r.canBuild(entity)) {
+			r.consumeRes(entity);
+			--larvas;
+			return true;
+		}
 	}
+	
 	return false;
 }
 
@@ -198,7 +207,7 @@ ZergSpire::ZergSpire(string name, ResourceManager& r) : ZergBuilding(name, r), g
 }
 
 bool ZergSpire::upgrade() {
-	if (entityData.name == string("spire") && !upgrading) {
+	if (entityData->name == string("spire") && !upgrading) {
 		if (!dependencyFulfilled(greaterSpireData)) {
 			return false;
 		}
@@ -219,7 +228,7 @@ void ZergSpire::update() {
 	if (upgrading) {
 		++upgradeProgress;
 		if (upgradeProgress == greaterSpireData.buildTime) {
-			entityData = greaterSpireData;
+			entityData = &greaterSpireData;
 			upgrading = false;
 			upgradeProgress = 0;
 			techAdd(string("greater_spire"));

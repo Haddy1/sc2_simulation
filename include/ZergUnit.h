@@ -16,14 +16,14 @@ public:
 
 
 class ZergLarva : public ZergUnit {
-	EntityData& morphingToData;
+	EntityData *morphingToData;
 	int morphProgress;
 public:
 	ZergLarva(string name, ResourceManager& r, string morphingTo);
-	ZergLarva(string name, ResourceManager& r, EntityData& morphingTo);
+	ZergLarva(string name, ResourceManager& r, EntityData *morphingTo);
 	void update();
 	bool isDone();
-	EntityData& getUnitData();
+	EntityData *getUnitData();
 	bool busy();
 };
 
@@ -32,16 +32,16 @@ class ZergDrone : public ZergUnit {
 	//bool working;
 	bool morphing;
 	int morphProgress;
-	EntityData* morphingToData;
+	EntityData *morphingToData;
 public:
 	ZergDrone(string, ResourceManager&);
 	//void setWorking(bool);
 	void update();
 	bool morph(string);
-	bool morph(EntityData&);
+	bool morph(EntityData*);
 	bool isMorphing();
 	bool morphingDone();
-	EntityData& getBuildingData();
+	EntityData *getBuildingData();
 	bool busy();
 };
 
@@ -58,7 +58,7 @@ public:
 
 
 class ZergUpgradeableUnit : public ZergUnit {
-	EntityData* upgradeData;
+	EntityData *upgradeData;
 	bool upgrading;
 	int upgradeProgress;
 public:

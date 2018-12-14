@@ -13,7 +13,7 @@ ZergSimulator::ZergSimulator() : logger(ZERG, resourceManager, true), timestep(1
 	init();
 }
 
-ZergSimulator::ZergSimulator(queue<string> q) : logger(PROTOSS, resourceManager, true), buildOrder(q), timestep(1), maxTime(600), gasBuildings(0) {
+ZergSimulator::ZergSimulator(queue<string> q) : logger(ZERG, resourceManager, true), buildOrder(q), timestep(1), maxTime(600), gasBuildings(0) {
 	init();
 }
 
@@ -125,33 +125,33 @@ void ZergSimulator::simulate() {
 			ZergDrone *drone = (*it2);
 			drone->update();
 			if (drone->morphingDone()) {
-				EntityData& entityData = drone->getBuildingData();
+				EntityData *entityData = drone->getBuildingData();
 				//create new unit
-				if (entityData.name == string("hatchery")) {
+				if (entityData->name == string("hatchery")) {
 					ZergHatchery *hatchery = new ZergHatchery(string("hatchery"), resourceManager);
 					hatcheries.push_back(hatchery);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
-				} else if (entityData.name == string("spire")) {
+				} else if (entityData->name == string("spire")) {
 					ZergSpire *spire = new ZergSpire(string("spire"), resourceManager);
 					spires.push_back(spire);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
-				} else if (entityData.name == string("nydus_network")) {
+				} else if (entityData->name == string("nydus_network")) {
 					ZergNydusNetwork *nydusNetwork = new ZergNydusNetwork(string("nydus_network"), resourceManager);
 					nydusNetworks.push_back(nydusNetwork);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else {
-					if (entityData.name == string("extractor")) {
+					if (entityData->name == string("extractor")) {
 						++gasBuildings;
 					}
-					ZergBuilding *building = new ZergBuilding(entityData.name, resourceManager);
+					ZergBuilding *building = new ZergBuilding(entityData->name, resourceManager);
 					buildings.push_back(building);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				}
@@ -169,24 +169,34 @@ void ZergSimulator::simulate() {
 			ZergLarva *larva = (*it);
 			larva->update();
 			if (larva->isDone()) {
-				EntityData& entityData = larva->getUnitData();
+				EntityData *entityData = larva->getUnitData();
 				//create new unit
-				if (entityData.name == string("drone")) {
+				if (entityData->name == string("drone")) {
 					ZergDrone *drone = new ZergDrone(string("drone"), resourceManager);
 					drones.push_back(drone);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
-				} else if ((entityData.name == string("overlord")) || (entityData.name == string("zergling")) || (entityData.name == string("corruptor"))) {
-					ZergUpgradeableUnit *unit = new ZergUpgradeableUnit(entityData.name, resourceManager);
+				} else if (entityData->name == string("zergling")) { //edge case: 2 zerglings are produced
+					ZergUpgradeableUnit *unit1 = new ZergUpgradeableUnit(entityData->name, resourceManager);
+					ZergUpgradeableUnit *unit2 = new ZergUpgradeableUnit(entityData->name, resourceManager);
+					upgradeableUnits.push_back(unit1);
+					upgradeableUnits.push_back(unit2);
+					EventEntry *eventEntry1 = new EventEntry("build-end", entityData->name);
+					loggerEvents.push_back(eventEntry1);
+					EventEntry *eventEntry2 = new EventEntry("build-end", entityData->name);
+					loggerEvents.push_back(eventEntry2); //TODO logger
+					buildFinished = true;
+				} else if ((entityData->name == string("overlord")) || (entityData->name == string("corruptor"))) {
+					ZergUpgradeableUnit *unit = new ZergUpgradeableUnit(entityData->name, resourceManager);
 					upgradeableUnits.push_back(unit);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else {
-					ZergUnit *unit = new ZergUnit(entityData.name, resourceManager);
+					ZergUnit *unit = new ZergUnit(entityData->name, resourceManager);
 					units.push_back(unit);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData.name); // dont copy these 2 lines over and over
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name); // dont copy these 2 lines over and over
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				}
@@ -298,7 +308,7 @@ void ZergSimulator::simulate() {
 				}
 			} else if (entityData.isBuilding) { //drone to building // TODO check if can build gas building ?? (max 2)
 				for (auto *d : drones) {
-					if (d->morph(entityData)) {
+					if (d->morph(&entityData)) {
 						buildStarted = true;
 						break;
 					}
@@ -306,7 +316,7 @@ void ZergSimulator::simulate() {
 			} else { //larva to unit
 				for (auto *b : hatcheries) {
 					if (b->morphLarva(entityData)) {
-						ZergLarva *larva = new ZergLarva(string("larva"), resourceManager, entityData);
+						ZergLarva *larva = new ZergLarva(string("larva"), resourceManager, &entityData);
 						larvas.push_back(larva);
 						buildStarted = true;
 						break;
@@ -391,6 +401,16 @@ void ZergSimulator::simulate() {
 		
 		
 	}
+	
+	/*
+	if (!continueSimulation) {
+		cout << "EVERYTHING IDLE" << endl;
+	}
+	if (timestep >= maxTime) {
+		cout << "TIMEOUT" << endl;
+	}
+	*/
+	
 }
 
 

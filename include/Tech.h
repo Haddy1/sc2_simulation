@@ -23,11 +23,11 @@ inline void techRemove(string s) {
 	builtTech.erase(s);
 }
 
-inline bool dependencyFulfilled(EntityData& e) {
+inline bool dependencyFulfilled(const EntityData& e) {
 	if (e.dependencies.size() == 0) {
 		return true;
 	}
-	for (string& dep : e.dependencies) {
+	for (const string& dep : e.dependencies) {
 		if (techContains(dep)) {
 			return true;
 		}

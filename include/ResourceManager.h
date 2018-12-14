@@ -23,8 +23,10 @@ public:
 	
 	void update();
 	
-	bool canBuild(EntityData&);
-	bool consumeRes(EntityData&);
+	bool canBuild(const EntityData&);
+	bool consumeRes(const EntityData&);
+	bool canBuild(const EntityData&, int);
+	bool consumeRes(const EntityData&, int);
 	
 	int getMinerals();
 	int getVespene();
@@ -33,6 +35,8 @@ public:
 	int getMineralWorkers() const { return mineralWorkers; }
 	int getVespeneWorkers() const { return vespeneWorkers; }
 	int getWorkers() const { return mineralWorkers + vespeneWorkers; }
+	int getSupplyInt();
+	int getSupplyMaxInt();
 	
 	bool consumeMinerals(FixedPoint);
 	bool consumeVespene(FixedPoint);
@@ -43,6 +47,10 @@ public:
 	
 	void addSupplyMax(double);
 	void addSupplyMax(int);
+	
+	void decrementSupply(); //used by zerg when a drone morphs
+	void decreaseSupply(double);
+	void increaseSupply(double);
 	
 	void setMineralWorkers(int a) { mineralWorkers = a; }
 	void setVespeneWorkers(int a) { vespeneWorkers = a; }

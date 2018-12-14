@@ -9,7 +9,7 @@ using std::endl;
  * Generic Unit that cant morph
  */
 ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
-	r.addSupplyMax(entityData.supplyProvided);
+	r.addSupplyMax(entityData->supplyProvided);
 	//cout << "Unit " << name << " with id=" << getID() << " created." << endl;
 }
 
@@ -17,11 +17,11 @@ ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
 /*
  * Larva
  */
-ZergLarva::ZergLarva(string name, ResourceManager& r, string morphingTo) : ZergUnit(name, r), morphingToData(entityDataMap.at(morphingTo)), morphProgress(0) {
+ZergLarva::ZergLarva(string name, ResourceManager& r, string morphingTo) : ZergUnit(name, r), morphingToData(&entityDataMap.at(morphingTo)), morphProgress(0) {
 
 }
 
-ZergLarva::ZergLarva(string name, ResourceManager& r, EntityData& morphingTo) : ZergUnit(name, r), morphingToData(morphingTo), morphProgress(0) {
+ZergLarva::ZergLarva(string name, ResourceManager& r, EntityData *morphingTo) : ZergUnit(name, r), morphingToData(morphingTo), morphProgress(0) {
 
 }
 
@@ -35,10 +35,10 @@ void ZergLarva::update() {
 }
 
 bool ZergLarva::isDone() {
-	return (morphProgress >= morphingToData.buildTime);
+	return (morphProgress >= morphingToData->buildTime);
 }
 
-EntityData& ZergLarva::getUnitData() {
+EntityData *ZergLarva::getUnitData() {
 	return morphingToData;
 }
 
@@ -65,20 +65,21 @@ void ZergDrone::update() {
 }
 
 bool ZergDrone::morph(string s) {
-	return morph(entityDataMap.at(s));
+	return morph(&entityDataMap.at(s));
 }
 
-bool ZergDrone::morph(EntityData& e) {
+bool ZergDrone::morph(EntityData *e) {
 	if (morphing)
 		return false;
-	if (!dependencyFulfilled(e)) {
+	if (!dependencyFulfilled(*e)) {
 		return false;
 	}
-	if (r.canBuild(e)) {
-		r.consumeRes(e);
+	if (r.canBuild(*e)) {
+		r.consumeRes(*e);
+		r.decrementSupply();
 		morphing = true;
 		morphProgress = 0;
-		morphingToData = &e;
+		morphingToData = e;
 		//working = false;
 		return true;
 	} else {
@@ -96,8 +97,8 @@ bool ZergDrone::morphingDone() {
 	return (morphingToData->buildTime <= morphProgress);
 }
 
-EntityData& ZergDrone::getBuildingData() {
-	return *morphingToData;
+EntityData *ZergDrone::getBuildingData() {
+	return morphingToData;
 }
 
 bool ZergDrone::busy() {
@@ -108,13 +109,13 @@ bool ZergDrone::busy() {
 /*
  * Queen
  */
-ZergQueen::ZergQueen(string name, ResourceManager& r) : ZergUnit(name, r), energy(entityData.startEnergy) {
+ZergQueen::ZergQueen(string name, ResourceManager& r) : ZergUnit(name, r), energy(entityData->startEnergy) {
 	
 }
 
 void ZergQueen::update() {
 	energy += FixedPoint(0.5625);
-	FixedPoint maxEnergy(entityData.maxEnergy);
+	FixedPoint maxEnergy(entityData->maxEnergy);
 	if (energy > maxEnergy) {
 		energy = maxEnergy;
 	}
@@ -150,20 +151,21 @@ void ZergUpgradeableUnit::update() {
 		++upgradeProgress;
 		if (upgradeProgress == upgradeData->buildTime) {//TODO
 			upgrading = false;
-			entityData = *upgradeData;
+			entityData = upgradeData;
 		}
 	}
 }
 
 bool ZergUpgradeableUnit::upgrade() {
-	if (upgrading)
+	if (upgrading) {
 		return false;
+	}
 	
-	if (entityData.name == string("overlord")) {
+	if (entityData->name == string("overlord")) {
 		upgradeData = &entityDataMap.at(string("overseer"));
-	} else if (entityData.name == string("zergling")) {
+	} else if (entityData->name == string("zergling")) {
 		upgradeData = &entityDataMap.at(string("baneling"));
-	} else if (entityData.name == string("corruptor")) {
+	} else if (entityData->name == string("corruptor")) {
 		upgradeData = &entityDataMap.at(string("brood_lord"));
 	} else {
 		return false;
@@ -172,12 +174,15 @@ bool ZergUpgradeableUnit::upgrade() {
 	if (!dependencyFulfilled(*upgradeData)) {
 		return false;
 	}
+	
+	r.decreaseSupply(entityData->supplyCost); // since we are morphing, take away the supply this unit currently uses
 	if (r.canBuild(*upgradeData)) {
 		r.consumeRes(*upgradeData);
 		upgrading = true;
 		upgradeProgress = 0;
 		return true;
 	} else {
+		r.increaseSupply(entityData->supplyCost); // failed to build, put supply back
 		return false;
 	}
 }

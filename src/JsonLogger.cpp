@@ -48,9 +48,14 @@ void JsonLogger::printSetup(vector<pair<string, vector<int>>>& units) {
 	if(validBuildlist) {
 		cout << ws << "\"initialUnits\" : {" << endl;
 		for(auto& unit : units) {
-			cout << string(2, ws) << "\"" << unit.first << "\" : [";
+			cout << string(2, ws) << "\"" << unit.first << "\" : [" << endl;
 			for(auto& id : unit.second) {
-				cout << "\"" << id << "\"" << (id != unit.second.back() ? string(1, ',') + ws : "]");
+				cout << string(3, ws) << "\"" << id << "\"";
+				if (id != unit.second.back()) {
+					cout << "," << endl;
+				} else {
+					cout << endl << string(2, ws) << "]";
+				}//				<< (id != unit.second.back() ? string(1, ',') + ws : "]");
 			}
 			cout << (unit != units.back() ? ", " : "") << endl;
 		}
@@ -91,8 +96,8 @@ void JsonLogger::printMessage(int time, vector<EventEntry*>& events) {
 	cout << string(4, ws) << "\"resources\": {" << endl;
 	cout << string(5, ws) << "\"minerals\": " << rm.getMinerals() << "," << endl;
 	cout << string(5, ws) << "\"vespene\": " << rm.getVespene() << "," << endl;
-	cout << string(5, ws) << "\"supply-used\": " << rm.getSupply() << "," << endl;
-	cout << string(5, ws) << "\"supply\": " << rm.getSupplyMax() << endl;
+	cout << string(5, ws) << "\"supply-used\": " << rm.getSupplyInt() << "," << endl;
+	cout << string(5, ws) << "\"supply\": " << rm.getSupplyMaxInt() << endl;
 	cout << string(4, ws) << "}" << endl;
 	
 	cout << string(3, ws) << "}," << endl;
@@ -103,8 +108,8 @@ void JsonLogger::printMessage(int time, vector<EventEntry*>& events) {
 			continue;
 		}
 		cout << string(4, ws) << "{" << endl;
-		cout << string(5, ws) << "\"type\": " << event->first() << "," << endl;
-		cout << string(5, ws) << "\"name\": " << event->second() << endl;
+		cout << string(5, ws) << "\"type\": \"" << event->first() << "\"," << endl;
+		cout << string(5, ws) << "\"name\": \"" << event->second() << "\"" << endl;
 		cout << string(4, ws) << "}" << (&event != &events.back() ? "," : "") << endl;
 	}
 	cout << string(3, ws) << "]" << endl;

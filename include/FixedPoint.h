@@ -58,6 +58,8 @@ class FixedPoint {
         int toInt() const ;
 
         friend std::ostream& operator<<(std::ostream& os, const FixedPoint& number);
+		
+		FixedPoint operator*(const int other);
         
 		
 };

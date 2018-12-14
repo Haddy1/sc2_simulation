@@ -175,4 +175,10 @@ std::ostream& operator<<(std::ostream& os, const FixedPoint& number)
 
 }
 
+FixedPoint FixedPoint::operator*(const int other) {
+	FixedPoint result;
+    result.value_ = value_ * other;
+    return result;
+}
+
 
