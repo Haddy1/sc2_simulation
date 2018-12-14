@@ -59,7 +59,7 @@ void ZergSimulator::init() {
 	//};
 	
 	logger.printSetup(initUnits);
-	logger.printMessage(0, {});
+	logger.printMessage(0);
 	
 	//cout << endl;
 }

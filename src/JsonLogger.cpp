@@ -42,7 +42,7 @@ void JsonLogger::printBeginning() {
 	undo_redirect();
 }
 
-void JsonLogger::printSetup(vector<pair<string, vector<int>>> units) {
+void JsonLogger::printSetup(vector<pair<string, vector<int>>>& units) {
 	// print initial units
 	redirect();
 	if(validBuildlist) {
@@ -59,7 +59,7 @@ void JsonLogger::printSetup(vector<pair<string, vector<int>>> units) {
 	undo_redirect();
 }
 
-void JsonLogger::printMessage(int time, vector<EventEntry*> events) {
+void JsonLogger::printMessage(int time, vector<EventEntry*>& events) {
 	// add messages keyword at the beginning
 	if(time == 0 && validBuildlist) {
 		if(validBuildlist) {
@@ -110,4 +110,15 @@ void JsonLogger::printMessage(int time, vector<EventEntry*> events) {
 	cout << string(3, ws) << "]" << endl;
 	cout << string(2, ws) << "}";
 	undo_redirect();
+}
+
+void JsonLogger::printMessage(int time) {
+	// add messages keyword at the beginning
+	if(time == 0 && validBuildlist) {
+		if(validBuildlist) {
+			redirect();
+			cout << ws << "\"messages\": [" << endl;
+			undo_redirect();
+		}
+	}
 }

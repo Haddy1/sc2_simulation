@@ -19,7 +19,7 @@ void ProtossSimulator::init() {
 		make_pair<string, vector<int>>("command_center", {6})
 	};
 	logger.printSetup(initUnits);
-	logger.printMessage(0, {});
+	logger.printMessage(0);
 	//...
 }
 

@@ -22,6 +22,10 @@ public:
 		
 	}
 	
+	virtual ~EventEntry() {
+		
+	}
+	
 	string first() const {
 		return val.first;
 	}
@@ -47,6 +51,10 @@ public:
 		
 	}
 	
+	~AbilityEntry() {
+		
+	}
+	
 	virtual string getID() const {return triggeredBy;}
 	virtual string getTarget() const {return targetBuilding;}
 	
@@ -63,14 +71,17 @@ private:
 	string targetBuilding;
 };
 
+
+
 class JsonLogger {
 public:
 	JsonLogger(Race, ResourceManager&, bool);
 	JsonLogger(Race, ResourceManager&, bool, std::string);
 	~JsonLogger();
 	
-	void printSetup(vector<pair<string, vector<int>>>);
-	void printMessage(int, vector<EventEntry*>);
+	void printSetup(vector<pair<string, vector<int>>>&);
+	void printMessage(int, vector<EventEntry*>&);
+	void printMessage(int);
 	
 private:
 	Race race;
