@@ -9,25 +9,33 @@ using std::cout;
 using std::endl;
 using std::stringstream;
 
-ZergSimulator::ZergSimulator() : timestep(1), maxTime(600), gasBuildings(0) {
+ZergSimulator::ZergSimulator() : logger(ZERG, resourceManager, true), timestep(1), maxTime(600), gasBuildings(0) {
 	init();
 }
 
-ZergSimulator::ZergSimulator(queue<string> q) : buildOrder(q), timestep(1), maxTime(600), gasBuildings(0) {
+ZergSimulator::ZergSimulator(queue<string> q) : logger(PROTOSS, resourceManager, true), buildOrder(q), timestep(1), maxTime(600), gasBuildings(0) {
 	init();
 }
 
 void ZergSimulator::init() {
-	cout << "Start Configuration:" << endl;
+	//cout << "Start Configuration:" << endl;
+	vector<int> droneIDs;
+	vector<int> hatcheryIDs;
+	vector<int> overlordIDs;
 	
 	ZergHatchery *hatchery = new ZergHatchery(string("hatchery"), resourceManager);
+	hatcheryIDs.push_back(hatchery->getID());
 	hatcheries.push_back(hatchery);
 	
 	ZergUpgradeableUnit *overlord = new ZergUpgradeableUnit(string("overlord"), resourceManager);
+	overlordIDs.push_back(overlord->getID());
 	upgradeableUnits.push_back(overlord);
+	
+	
 	
 	for (int i = 0; i < 6; ++i) {
 		ZergDrone *drone = new ZergDrone(string("drone"), resourceManager);
+		droneIDs.push_back(drone->getID());
 		//drone.setWorking(true);
 		drones.push_back(drone);
 	}
@@ -36,7 +44,24 @@ void ZergSimulator::init() {
 	resourceManager.setMineralWorkers(6);
 	resourceManager.setVespeneWorkers(0);
 	
-	cout << endl;
+	vector<pair<string, vector<int>>> initUnits;
+	//pair<string, vector<int>> dronePair(string("drone"), droneIDs);
+	//initUnits.push_back(make_pair<string, vector<int>>(stringDrone, droneIDs));
+	//initUnits.push_back(dronePair);
+	initUnits.push_back(pair<string, vector<int>>(string("drone"), droneIDs));
+	initUnits.push_back(pair<string, vector<int>>(string("hatchery"), hatcheryIDs));
+	initUnits.push_back(pair<string, vector<int>>(string("overlord"), overlordIDs));
+	
+	//vector<pair<string, vector<int>>> initUnits = {
+	//	make_pair<string, vector<int>>(string("drone"), droneIDs),
+	//	make_pair<string, vector<int>>(string("hatchery"), hatcheryIDs),
+	//	make_pair<string, vector<int>>(string("overlord"), overlordIDs)
+	//};
+	
+	logger.printSetup(initUnits);
+	logger.printMessage(0, {});
+	
+	//cout << endl;
 }
 
 void ZergSimulator::simulate() {
@@ -44,13 +69,14 @@ void ZergSimulator::simulate() {
 	
 	while (continueSimulation && (timestep < maxTime)) {//TODO
 		
-		cout << "t = " << timestep << endl;
+		vector<EventEntry*> loggerEvents;
+		//cout << "t = " << timestep << endl;
 		
 		/*
 		* Update Resources
 		*/
 		resourceManager.update();
-		cout << resourceManager << endl;
+		//cout << resourceManager << endl;
 		
 		/*
 		* Update/Finish Buildings
@@ -67,6 +93,8 @@ void ZergSimulator::simulate() {
 			if (b->takeQueen()) {
 				ZergQueen *queen = new ZergQueen(string("queen"), resourceManager);
 				queens.push_back(queen);
+				EventEntry *eventEntry = new EventEntry("build-end", "queen");
+				loggerEvents.push_back(eventEntry);
 				buildFinished = true;
 			}
 		}
@@ -79,6 +107,8 @@ void ZergSimulator::simulate() {
 			if (b->takeUnit()) {
 				ZergUnit *nydusWorm = new ZergUnit(string("nydus_worm"), resourceManager);
 				units.push_back(nydusWorm);
+				EventEntry *eventEntry = new EventEntry("build-end", "nydus_worm");
+				loggerEvents.push_back(eventEntry);
 				buildFinished = true;
 			}
 		}
@@ -100,14 +130,20 @@ void ZergSimulator::simulate() {
 				if (entityData.name == string("hatchery")) {
 					ZergHatchery *hatchery = new ZergHatchery(string("hatchery"), resourceManager);
 					hatcheries.push_back(hatchery);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else if (entityData.name == string("spire")) {
 					ZergSpire *spire = new ZergSpire(string("spire"), resourceManager);
 					spires.push_back(spire);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else if (entityData.name == string("nydus_network")) {
 					ZergNydusNetwork *nydusNetwork = new ZergNydusNetwork(string("nydus_network"), resourceManager);
 					nydusNetworks.push_back(nydusNetwork);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else {
 					if (entityData.name == string("extractor")) {
@@ -115,6 +151,8 @@ void ZergSimulator::simulate() {
 					}
 					ZergBuilding *building = new ZergBuilding(entityData.name, resourceManager);
 					buildings.push_back(building);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				}
 				//remove this drone
@@ -136,14 +174,20 @@ void ZergSimulator::simulate() {
 				if (entityData.name == string("drone")) {
 					ZergDrone *drone = new ZergDrone(string("drone"), resourceManager);
 					drones.push_back(drone);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else if ((entityData.name == string("overlord")) || (entityData.name == string("zergling")) || (entityData.name == string("corruptor"))) {
 					ZergUpgradeableUnit *unit = new ZergUpgradeableUnit(entityData.name, resourceManager);
 					upgradeableUnits.push_back(unit);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData.name);
+					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else {
 					ZergUnit *unit = new ZergUnit(entityData.name, resourceManager);
 					units.push_back(unit);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData.name); // dont copy these 2 lines over and over
+					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				}
 				//remove this larva
@@ -272,6 +316,9 @@ void ZergSimulator::simulate() {
 			
 			
 			if (buildStarted) {
+				EventEntry *eventEntry = new EventEntry("build-start", nextItem);
+				loggerEvents.push_back(eventEntry);
+				
 				buildOrder.pop();
 			}
 			
@@ -295,15 +342,6 @@ void ZergSimulator::simulate() {
 		resourceManager.setMineralWorkers(mineralWorkers);
 		resourceManager.setVespeneWorkers(gasWorkers);
 		
-		
-		/*
-		* TODO only log when something happened
-		*/
-		if (buildStarted || buildFinished) {
-			
-		} else {
-			
-		}
 		
 		
 		/*
@@ -332,7 +370,23 @@ void ZergSimulator::simulate() {
 			continueSimulation |= a->busy();
 		}
 		
-		//techPrint();
+		
+		
+		
+		//AbilityEntry c("special", "chronoboost");
+		//loggerEvents.push_back(&c);
+		if (buildFinished) {
+			//TODO unused var
+		}
+		
+		
+		
+		logger.printMessage(timestep, loggerEvents);
+		for (auto it = loggerEvents.begin(); it != loggerEvents.end(); ++it) {
+			delete (*it);
+		}
+		
+		
 		++timestep;
 		
 		

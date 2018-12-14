@@ -44,7 +44,7 @@ bool ResourceManager::consumeRes(EntityData& e) {
 		minerals -= FixedPoint(e.minerals);
 		vespene -= FixedPoint(e.vespene);
 		supply += e.supplyCost;
-		std::cout << "paid res for " << e.name << std::endl;
+		//std::cout << "paid res for " << e.name << std::endl;
 		return true;
 	} else {
 		return false;

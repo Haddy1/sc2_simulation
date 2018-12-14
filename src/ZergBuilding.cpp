@@ -11,7 +11,7 @@ using std::endl;
 ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(r) {
 	r.addSupplyMax(entityData.supplyProvided);
 	techAdd(name);
-	cout << "Building " << name << " with id=" << getID() << " created." << endl;
+	//cout << "Building " << name << " with id=" << getID() << " created." << endl;
 }
 
 

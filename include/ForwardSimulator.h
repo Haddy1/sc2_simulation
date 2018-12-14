@@ -77,6 +77,7 @@ public:
 
 
 class ZergSimulator : public ForwardSimulator {
+	JsonLogger logger;
 	ResourceManager resourceManager;
 	queue<string> buildOrder;
 	int timestep;

@@ -10,7 +10,7 @@ using std::endl;
  */
 ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
 	r.addSupplyMax(entityData.supplyProvided);
-	cout << "Unit " << name << " with id=" << getID() << " created." << endl;
+	//cout << "Unit " << name << " with id=" << getID() << " created." << endl;
 }
 
 
