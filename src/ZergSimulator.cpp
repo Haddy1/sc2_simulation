@@ -90,7 +90,10 @@ void ZergSimulator::simulate() {
 		}
 		
 		for (ZergHatchery *b : hatcheries) {
-			b->update();
+			if (b->update()) { //Upgrade done, generate event
+				EventEntry *eventEntry = new EventEntry("build-end", b->getName(), b->getID(), b->getID());
+				loggerEvents.push_back(eventEntry);
+			}
 			if (b->takeQueen()) {
 				ZergQueen *queen = new ZergQueen(string("queen"), resourceManager);
 				queens.push_back(queen);
@@ -100,7 +103,10 @@ void ZergSimulator::simulate() {
 			}
 		}
 		for (ZergSpire *b : spires) {
-			b->update();
+			if (b->update()) { //Upgrade done, generate event
+				EventEntry *eventEntry = new EventEntry("build-end", b->getName(), b->getID(), b->getID());
+				loggerEvents.push_back(eventEntry);
+			}
 			//TODO if upgrade done generate event
 		}
 		for (ZergNydusNetwork *b : nydusNetworks) {
@@ -116,7 +122,10 @@ void ZergSimulator::simulate() {
 		
 		//update/finish units
 		for (ZergUpgradeableUnit *u : upgradeableUnits) {
-			u->update();
+			if (u->update()) { //Upgrade done, generate event
+				EventEntry *eventEntry = new EventEntry("build-end", u->getName(), u->getID(), u->getID());
+				loggerEvents.push_back(eventEntry);
+			}
 			//TODO if upgrade done generate event
 		}
 		

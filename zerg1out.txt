@@ -1,0 +1,466 @@
+{
+	"buildlistValid": 1,
+	"game": "sc2-hots-zerg",
+	"initialUnits" : {
+		"drone" : [
+			"2",
+			"3",
+			"4",
+			"5",
+			"6",
+			"7"
+		], 
+		"hatchery" : [
+			"0"
+		], 
+		"overlord" : [
+			"1"
+		]
+	},
+	"messages": [
+		{
+			"time": 1,
+			"status": {
+				"workers": {
+					"minerals": 6,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 4,
+					"vespene": 0,
+					"supply-used": 7,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "drone"				}
+			]
+		},
+		{
+			"time": 12,
+			"status": {
+				"workers": {
+					"minerals": 6,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 0,
+					"vespene": 0,
+					"supply-used": 8,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "drone"				}
+			]
+		},
+		{
+			"time": 18,
+			"status": {
+				"workers": {
+					"minerals": 7,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 25,
+					"vespene": 0,
+					"supply-used": 8,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "drone",
+					"producerID": "8",
+					"producedIDs": [
+						"10"
+					]
+				}
+			]
+		},
+		{
+			"time": 29,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 79,
+					"vespene": 0,
+					"supply-used": 8,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "drone",
+					"producerID": "9",
+					"producedIDs": [
+						"11"
+					]
+				}
+			]
+		},
+		{
+			"time": 51,
+			"status": {
+				"workers": {
+					"minerals": 7,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 2,
+					"vespene": 0,
+					"supply-used": 7,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "spawning_pool",
+					"producerID": "2"				}
+			]
+		},
+		{
+			"time": 61,
+			"status": {
+				"workers": {
+					"minerals": 7,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 1,
+					"vespene": 0,
+					"supply-used": 8,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "drone"				}
+			]
+		},
+		{
+			"time": 71,
+			"status": {
+				"workers": {
+					"minerals": 7,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 0,
+					"vespene": 0,
+					"supply-used": 9,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "drone"				}
+			]
+		},
+		{
+			"time": 78,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 35,
+					"vespene": 0,
+					"supply-used": 9,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "drone",
+					"producerID": "12",
+					"producedIDs": [
+						"14"
+					]
+				}
+			]
+		},
+		{
+			"time": 88,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 91,
+					"vespene": 0,
+					"supply-used": 9,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "drone",
+					"producerID": "13",
+					"producedIDs": [
+						"15"
+					]
+				}
+			]
+		},
+		{
+			"time": 90,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 3,
+					"vespene": 0,
+					"supply-used": 9,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "overlord"				}
+			]
+		},
+		{
+			"time": 115,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 161,
+					"vespene": 0,
+					"supply-used": 9,
+					"supply": 18
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "overlord",
+					"producerID": "16",
+					"producedIDs": [
+						"17"
+					]
+				}
+			]
+		},
+		{
+			"time": 116,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 117,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 18
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "spawning_pool",
+					"producerID": "2",
+					"producedIDs": [
+						"18"
+					]
+				},
+				{
+					"type": "build-start",
+					"name": "zergling"				}
+			]
+		},
+		{
+			"time": 117,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 73,
+					"vespene": 0,
+					"supply-used": 11,
+					"supply": 18
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "zergling"				}
+			]
+		},
+		{
+			"time": 118,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 30,
+					"vespene": 0,
+					"supply-used": 12,
+					"supply": 18
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "zergling"				}
+			]
+		},
+		{
+			"time": 138,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 6,
+					"vespene": 0,
+					"supply-used": 14,
+					"supply": 18
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "queen",
+					"producerID": "0"				}
+			]
+		},
+		{
+			"time": 140,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 18,
+					"vespene": 0,
+					"supply-used": 14,
+					"supply": 18
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "zergling",
+					"producerID": "19",
+					"producedIDs": [
+						"22",
+						"23"
+					]
+				}
+			]
+		},
+		{
+			"time": 141,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 24,
+					"vespene": 0,
+					"supply-used": 14,
+					"supply": 18
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "zergling",
+					"producerID": "20",
+					"producedIDs": [
+						"24",
+						"25"
+					]
+				}
+			]
+		},
+		{
+			"time": 142,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 31,
+					"vespene": 0,
+					"supply-used": 14,
+					"supply": 18
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "zergling",
+					"producerID": "21",
+					"producedIDs": [
+						"26",
+						"27"
+					]
+				}
+			]
+		},
+		{
+			"time": 188,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 321,
+					"vespene": 0,
+					"supply-used": 14,
+					"supply": 18
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "queen",
+					"producerID": "0",
+					"producedIDs": [
+						"28"
+					]
+				},
+				{
+					"type": "special",
+					"name": "injectlarvae",
+					"triggeredBy": "28",
+					"targetBuilding": "0"
+				}
+			]
+		}
+	]
+}

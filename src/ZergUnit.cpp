@@ -146,14 +146,16 @@ ZergUpgradeableUnit::ZergUpgradeableUnit(string name, ResourceManager& r) : Zerg
 	
 }
 
-void ZergUpgradeableUnit::update() {
+bool ZergUpgradeableUnit::update() {
 	if (upgrading) {
 		++upgradeProgress;
 		if (upgradeProgress == upgradeData->buildTime) {//TODO
 			upgrading = false;
 			entityData = upgradeData;
+			return true;
 		}
 	}
+	return false;
 }
 
 bool ZergUpgradeableUnit::upgrade() {

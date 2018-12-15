@@ -24,8 +24,9 @@ ZergHatchery::ZergHatchery(string name, ResourceManager& r) :
 	//TODO
 }
 
-void ZergHatchery::update() {
+bool ZergHatchery::update() {
 	//TODO
+	bool justUpgraded = false;
 	//update upgrade
 	if (upgrading) {
 		++upgradeProgress;
@@ -36,6 +37,7 @@ void ZergHatchery::update() {
 				entityData = &lairData;
 				techAdd(string("lair"));
 				techRemove(string("hatchery"));
+				justUpgraded = true;
 			}
 		} else if (entityData->name == string("lair")) {
 			if (upgradeProgress == hiveData.buildTime) {
@@ -44,6 +46,7 @@ void ZergHatchery::update() {
 				entityData = &hiveData;
 				techAdd(string("hive"));
 				techRemove(string("lair"));
+				justUpgraded = true;
 			}
 		}
 		//return; //cant do work if upgrading //TODO is this true?
@@ -77,6 +80,8 @@ void ZergHatchery::update() {
 			larvaProgress = 0; //when inject is done, there is more than 3 larvas so natural spawning resets //TODO ?
 		}
 	}
+	
+	return justUpgraded;
 }
 
 bool ZergHatchery::upgrade() {
@@ -224,7 +229,7 @@ bool ZergSpire::upgrade() {
 	}
 }
 
-void ZergSpire::update() {
+bool ZergSpire::update() {
 	if (upgrading) {
 		++upgradeProgress;
 		if (upgradeProgress == greaterSpireData.buildTime) {
@@ -233,8 +238,10 @@ void ZergSpire::update() {
 			upgradeProgress = 0;
 			techAdd(string("greater_spire"));
 			techRemove(string("spire"));
+			return true;
 		}
 	}
+	return false;
 }
 
 bool ZergSpire::busy() {

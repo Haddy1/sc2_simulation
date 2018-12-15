@@ -63,7 +63,7 @@ class ZergUpgradeableUnit : public ZergUnit {
 	int upgradeProgress;
 public:
 	ZergUpgradeableUnit(string, ResourceManager&);
-	void update();
+	bool update(); //returns true if upgrade done in this step
 	bool upgrade();
 	bool busy();
 };

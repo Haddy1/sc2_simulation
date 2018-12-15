@@ -28,7 +28,7 @@ class ZergHatchery : public ZergBuilding {//represents hatchery, lair, hive
 	int upgradeProgress;
 public:
 	ZergHatchery(string, ResourceManager&);
-	void update();
+	bool update(); //returns true if upgrade done in this step
 	bool upgrade();
 	
 	int getLarvaCount() const;
@@ -50,7 +50,7 @@ class ZergSpire : public ZergBuilding {//represents spire, greater_spire
 public:
 	ZergSpire(string, ResourceManager&);
 	bool upgrade();
-	void update();
+	bool update(); //returns true if upgrade done in this step
 	bool busy();
 };
 

@@ -1,0 +1,445 @@
+{
+	"buildlistValid": 1,
+	"game": "sc2-hots-zerg",
+	"initialUnits" : {
+		"drone" : [
+			"2",
+			"3",
+			"4",
+			"5",
+			"6",
+			"7"
+		], 
+		"hatchery" : [
+			"0"
+		], 
+		"overlord" : [
+			"1"
+		]
+	},
+	"messages": [
+		{
+			"time": 1,
+			"status": {
+				"workers": {
+					"minerals": 6,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 4,
+					"vespene": 0,
+					"supply-used": 7,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "drone"				}
+			]
+		},
+		{
+			"time": 12,
+			"status": {
+				"workers": {
+					"minerals": 6,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 0,
+					"vespene": 0,
+					"supply-used": 8,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "drone"				}
+			]
+		},
+		{
+			"time": 18,
+			"status": {
+				"workers": {
+					"minerals": 7,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 25,
+					"vespene": 0,
+					"supply-used": 8,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "drone",
+					"producerID": "8",
+					"producedIDs": [
+						"10"
+					]
+				}
+			]
+		},
+		{
+			"time": 23,
+			"status": {
+				"workers": {
+					"minerals": 7,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 0,
+					"vespene": 0,
+					"supply-used": 9,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "drone"				}
+			]
+		},
+		{
+			"time": 29,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 29,
+					"vespene": 0,
+					"supply-used": 9,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "drone",
+					"producerID": "9",
+					"producedIDs": [
+						"12"
+					]
+				}
+			]
+		},
+		{
+			"time": 40,
+			"status": {
+				"workers": {
+					"minerals": 9,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 91,
+					"vespene": 0,
+					"supply-used": 9,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "drone",
+					"producerID": "11",
+					"producedIDs": [
+						"13"
+					]
+				}
+			]
+		},
+		{
+			"time": 58,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 4,
+					"vespene": 0,
+					"supply-used": 8,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-start",
+					"name": "spawning_pool",
+					"producerID": "2"				}
+			]
+		},
+		{
+			"time": 123,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 218,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "spawning_pool",
+					"producerID": "2",
+					"producedIDs": [
+						"14"
+					]
+				},
+				{
+					"type": "build-start",
+					"name": "queen",
+					"producerID": "0"				}
+			]
+		},
+		{
+			"time": 173,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 498,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "build-end",
+					"name": "queen",
+					"producerID": "0",
+					"producedIDs": [
+						"15"
+					]
+				},
+				{
+					"type": "special",
+					"name": "injectlarvae",
+					"triggeredBy": "15",
+					"targetBuilding": "0"
+				}
+			]
+		},
+		{
+			"time": 218,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 750,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "special",
+					"name": "injectlarvae",
+					"triggeredBy": "15",
+					"targetBuilding": "0"
+				}
+			]
+		},
+		{
+			"time": 262,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 996,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "special",
+					"name": "injectlarvae",
+					"triggeredBy": "15",
+					"targetBuilding": "0"
+				}
+			]
+		},
+		{
+			"time": 307,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 1248,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "special",
+					"name": "injectlarvae",
+					"triggeredBy": "15",
+					"targetBuilding": "0"
+				}
+			]
+		},
+		{
+			"time": 351,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 1495,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "special",
+					"name": "injectlarvae",
+					"triggeredBy": "15",
+					"targetBuilding": "0"
+				}
+			]
+		},
+		{
+			"time": 396,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 1747,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "special",
+					"name": "injectlarvae",
+					"triggeredBy": "15",
+					"targetBuilding": "0"
+				}
+			]
+		},
+		{
+			"time": 440,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 1993,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "special",
+					"name": "injectlarvae",
+					"triggeredBy": "15",
+					"targetBuilding": "0"
+				}
+			]
+		},
+		{
+			"time": 485,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 2245,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "special",
+					"name": "injectlarvae",
+					"triggeredBy": "15",
+					"targetBuilding": "0"
+				}
+			]
+		},
+		{
+			"time": 529,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 2492,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "special",
+					"name": "injectlarvae",
+					"triggeredBy": "15",
+					"targetBuilding": "0"
+				}
+			]
+		},
+		{
+			"time": 573,
+			"status": {
+				"workers": {
+					"minerals": 8,
+					"vespene": 0
+				},
+				"resources": {
+					"minerals": 2738,
+					"vespene": 0,
+					"supply-used": 10,
+					"supply": 10
+				}
+			},
+			"events": [
+				{
+					"type": "special",
+					"name": "injectlarvae",
+					"triggeredBy": "15",
+					"targetBuilding": "0"
+				}
+			]
+		}
+	]
+}
