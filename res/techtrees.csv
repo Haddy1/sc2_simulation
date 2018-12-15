@@ -41,7 +41,7 @@ hydralisk,100,50,33,2,0,0,0,zerg, larva ,hydralisk_den
 drone,50,0,17,1,0,0,0,zerg, larva ,
 queen,150,0,50,2,0,25,200,zerg, hatchery/lair/hive,spawning_pool
 larva,0,0,0,0,0,0,0,zerg, hatchery/lair/hive,
-zergling,50,0,24,0.5,0,0,0,zerg, larva ,spawning_pool
+zergling,25,0,24,0.5,0,0,0,zerg, larva ,spawning_pool
 baneling,25,25,20,0.5,0,0,0,zerg, zergling ,baneling_nest
 roach,75,25,27,2,0,0,0,zerg, larva ,roach_warren
 infestor,100,150,50,2,0,0,0,zerg, larva ,infestation_pit

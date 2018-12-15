@@ -8,6 +8,7 @@
 using std::cout;
 using std::endl;
 using std::stringstream;
+using std::to_string;
 
 ZergSimulator::ZergSimulator() : logger(ZERG, resourceManager, true), timestep(1), maxTime(600), gasBuildings(0) {
 	init();
@@ -93,7 +94,7 @@ void ZergSimulator::simulate() {
 			if (b->takeQueen()) {
 				ZergQueen *queen = new ZergQueen(string("queen"), resourceManager);
 				queens.push_back(queen);
-				EventEntry *eventEntry = new EventEntry("build-end", "queen");
+				EventEntry *eventEntry = new EventEntry("build-end", "queen", b->getID(), queen->getID());
 				loggerEvents.push_back(eventEntry);
 				buildFinished = true;
 			}
@@ -107,7 +108,7 @@ void ZergSimulator::simulate() {
 			if (b->takeUnit()) {
 				ZergUnit *nydusWorm = new ZergUnit(string("nydus_worm"), resourceManager);
 				units.push_back(nydusWorm);
-				EventEntry *eventEntry = new EventEntry("build-end", "nydus_worm");
+				EventEntry *eventEntry = new EventEntry("build-end", "nydus_worm", b->getID(), nydusWorm->getID());
 				loggerEvents.push_back(eventEntry);
 				buildFinished = true;
 			}
@@ -130,19 +131,19 @@ void ZergSimulator::simulate() {
 				if (entityData->name == string("hatchery")) {
 					ZergHatchery *hatchery = new ZergHatchery(string("hatchery"), resourceManager);
 					hatcheries.push_back(hatchery);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name, drone->getID(), hatchery->getID());
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else if (entityData->name == string("spire")) {
 					ZergSpire *spire = new ZergSpire(string("spire"), resourceManager);
 					spires.push_back(spire);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name, drone->getID(), spire->getID());
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else if (entityData->name == string("nydus_network")) {
 					ZergNydusNetwork *nydusNetwork = new ZergNydusNetwork(string("nydus_network"), resourceManager);
 					nydusNetworks.push_back(nydusNetwork);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name, drone->getID(), nydusNetwork->getID());
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else {
@@ -151,7 +152,7 @@ void ZergSimulator::simulate() {
 					}
 					ZergBuilding *building = new ZergBuilding(entityData->name, resourceManager);
 					buildings.push_back(building);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name, drone->getID(), building->getID());
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				}
@@ -174,7 +175,7 @@ void ZergSimulator::simulate() {
 				if (entityData->name == string("drone")) {
 					ZergDrone *drone = new ZergDrone(string("drone"), resourceManager);
 					drones.push_back(drone);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name, larva->getID(), drone->getID());
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else if (entityData->name == string("zergling")) { //edge case: 2 zerglings are produced
@@ -182,21 +183,20 @@ void ZergSimulator::simulate() {
 					ZergUpgradeableUnit *unit2 = new ZergUpgradeableUnit(entityData->name, resourceManager);
 					upgradeableUnits.push_back(unit1);
 					upgradeableUnits.push_back(unit2);
-					EventEntry *eventEntry1 = new EventEntry("build-end", entityData->name);
-					loggerEvents.push_back(eventEntry1);
-					EventEntry *eventEntry2 = new EventEntry("build-end", entityData->name);
-					loggerEvents.push_back(eventEntry2); //TODO logger
+					vector<string> producedIDs{to_string(unit1->getID()), to_string(unit2->getID())};
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name, to_string(larva->getID()), producedIDs);
+					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else if ((entityData->name == string("overlord")) || (entityData->name == string("corruptor"))) {
 					ZergUpgradeableUnit *unit = new ZergUpgradeableUnit(entityData->name, resourceManager);
 					upgradeableUnits.push_back(unit);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData->name);
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name, larva->getID(), unit->getID());
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				} else {
 					ZergUnit *unit = new ZergUnit(entityData->name, resourceManager);
 					units.push_back(unit);
-					EventEntry *eventEntry = new EventEntry("build-end", entityData->name); // dont copy these 2 lines over and over
+					EventEntry *eventEntry = new EventEntry("build-end", entityData->name, larva->getID(), unit->getID()); // TODO ont copy these 2 lines over and over
 					loggerEvents.push_back(eventEntry);
 					buildFinished = true;
 				}
@@ -222,6 +222,10 @@ void ZergSimulator::simulate() {
 					if (hatchery->injectLarvas()) {
 						queen->injectLarvas();
 						//TODO generate event
+						int hatcheryID = hatchery->getID();
+						int queenID = queen->getID();
+						AbilityEntry *abilityEntry = new AbilityEntry("special", "injectlarvae", queenID, hatcheryID); //TODO triggeredBy:id, targetBuilding:id
+						loggerEvents.push_back(abilityEntry);
 						break;
 					}
 				}
@@ -239,12 +243,15 @@ void ZergSimulator::simulate() {
 			string nextItem = buildOrder.front();
 			EntityData& entityData = entityDataMap.at(nextItem);
 			
+			int producerID = -1;
+			
 			
 			if (nextItem == string("overseer")) { //unit upgrade
 				for (auto *u : upgradeableUnits) {
 					if (u->getName() == string("overlord")) {
 						if (u->upgrade()) {
 							buildStarted = true;
+							producerID = u->getID();
 							break;
 						}
 					}
@@ -254,6 +261,7 @@ void ZergSimulator::simulate() {
 					if (u->getName() == string("zergling")) {
 						if (u->upgrade()) {
 							buildStarted = true;
+							producerID = u->getID();
 							break;
 						}
 					}
@@ -263,6 +271,7 @@ void ZergSimulator::simulate() {
 					if (u->getName() == string("corruptor")) {
 						if (u->upgrade()) {
 							buildStarted = true;
+							producerID = u->getID();
 							break;
 						}
 					}
@@ -272,6 +281,7 @@ void ZergSimulator::simulate() {
 					if (b->getName() == string("hatchery")) {
 						if (b->upgrade()) {
 							buildStarted = true;
+							producerID = b->getID();
 							break;
 						}
 					}
@@ -281,6 +291,7 @@ void ZergSimulator::simulate() {
 					if (b->getName() == string("lair")) {
 						if (b->upgrade()) {
 							buildStarted = true;
+							producerID = b->getID();
 							break;
 						}
 					}
@@ -289,6 +300,7 @@ void ZergSimulator::simulate() {
 				for (auto *s : spires) {
 					if (s->upgrade()) {
 						buildStarted = true;
+						producerID = s->getID();
 						break;
 					}
 				}
@@ -296,6 +308,7 @@ void ZergSimulator::simulate() {
 				for (auto *n : nydusNetworks) {
 					if (n->spawn()) {
 						buildStarted = true;
+						producerID = n->getID();
 						break;
 					}
 				}
@@ -303,6 +316,7 @@ void ZergSimulator::simulate() {
 				for (auto *b : hatcheries) {
 					if (b->spawnQueen()) {
 						buildStarted = true;
+						producerID = b->getID();
 						break;
 					}
 				}
@@ -310,6 +324,7 @@ void ZergSimulator::simulate() {
 				for (auto *d : drones) {
 					if (d->morph(&entityData)) {
 						buildStarted = true;
+						producerID = d->getID();
 						break;
 					}
 				}
@@ -319,6 +334,7 @@ void ZergSimulator::simulate() {
 						ZergLarva *larva = new ZergLarva(string("larva"), resourceManager, &entityData);
 						larvas.push_back(larva);
 						buildStarted = true;
+						producerID = -1; //if larva morphs, dont give a producerID
 						break;
 					}
 				}
@@ -326,7 +342,13 @@ void ZergSimulator::simulate() {
 			
 			
 			if (buildStarted) {
-				EventEntry *eventEntry = new EventEntry("build-start", nextItem);
+				EventEntry *eventEntry;
+				if (producerID == -1) {
+					eventEntry = new EventEntry("build-start", nextItem);
+				} else {
+					eventEntry = new EventEntry("build-start", nextItem, producerID);
+				}
+				//EventEntry *eventEntry = new EventEntry("build-start", nextItem, producerID);
 				loggerEvents.push_back(eventEntry);
 				
 				buildOrder.pop();
@@ -383,8 +405,7 @@ void ZergSimulator::simulate() {
 		
 		
 		
-		//AbilityEntry c("special", "chronoboost");
-		//loggerEvents.push_back(&c);
+		
 		if (buildFinished) {
 			//TODO unused var
 		}

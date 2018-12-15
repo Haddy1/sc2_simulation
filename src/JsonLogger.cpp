@@ -105,11 +105,33 @@ void JsonLogger::printMessage(int time, vector<EventEntry*>& events) {
 	cout << string(3, ws) << "\"events\": [" << endl;
 	for(auto& event : events) {
 		if(!event->valid()) {
+			std::cerr << "invalid event in jsonlogger::printMessage" << std::endl;
 			continue;
 		}
 		cout << string(4, ws) << "{" << endl;
 		cout << string(5, ws) << "\"type\": \"" << event->first() << "\"," << endl;
-		cout << string(5, ws) << "\"name\": \"" << event->second() << "\"" << endl;
+		cout << string(5, ws) << "\"name\": \"" << event->second() << "\"";// << endl;
+		if (event->isAbilityEntry()) { //ability entry: print triggeredBy and targetBuilding
+			cout << "," << endl;
+			cout << string(5, ws) << "\"triggeredBy\": \"" << event->getID() << "\"," << endl;
+			cout << string(5, ws) << "\"targetBuilding\": \"" << event->getTarget() << "\"" << endl;
+		} else {
+			string producerID = event->getProducerID();
+			vector<string> producedIDs = event->getProducedIDs();
+			if (producerID.size() != 0) {
+				cout << "," << endl;
+				cout << string(5, ws) << "\"producerID\": \"" << producerID << "\"";// << endl;
+			}
+			if (producedIDs.size() != 0) {
+				cout << "," << endl;
+				cout << string(5, ws) << "\"producedIDs\": [" << endl;
+				for (const string& s : producedIDs) {
+					cout << string(6, ws) << "\"" << s << "\"" << (s == producedIDs.back() ? "" : ",") << endl;
+				}
+				cout << string(5, ws) << "]" << endl;
+			}
+		}
+		
 		cout << string(4, ws) << "}" << (&event != &events.back() ? "," : "") << endl;
 	}
 	cout << string(3, ws) << "]" << endl;
