@@ -19,6 +19,7 @@ class ZergHatchery : public ZergBuilding {//represents hatchery, lair, hive
 	EntityData& hiveData;
 	EntityData& queenData;
 	int larvas;
+	bool spawningLarva;
 	int larvaProgress;
 	bool spawningQueen;
 	int queenProgress;
@@ -32,7 +33,7 @@ public:
 	bool upgrade();
 	
 	int getLarvaCount() const;
-	bool takeLarva(); //dont use
+	//bool takeLarva(); //dont use
 	bool morphLarva(string); //can only take larva from hatchery by morphing
 	bool morphLarva(EntityData&);
 	

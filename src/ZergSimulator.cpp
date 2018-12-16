@@ -11,11 +11,11 @@ using std::stringstream;
 using std::to_string;
 
 ZergSimulator::ZergSimulator() : logger(ZERG, resourceManager, true), timestep(1), maxTime(1000), gasBuildings(0) {
-	init();
+	
 }
 
 ZergSimulator::ZergSimulator(queue<string> q) : logger(ZERG, resourceManager, true), buildOrder(q), timestep(1), maxTime(1000), gasBuildings(0) {
-	init();
+	
 }
 
 void ZergSimulator::init() {
@@ -220,20 +220,23 @@ void ZergSimulator::simulate() {
 		
 		
 		
-		
+		//TODO updateAbility function for hatchery?
 		/*
 		* Start/Finish Abilities
 		*/
+		bool abilityStarted = false;
+		
 		for (ZergQueen *queen : queens) {
 			if (queen->canInjectLarvas()) {
 				//search for a hatchery
 				for (ZergHatchery *hatchery : hatcheries) {
 					if (hatchery->injectLarvas()) {
 						queen->injectLarvas();
+						abilityStarted = true;
 						//TODO generate event
 						int hatcheryID = hatchery->getID();
 						int queenID = queen->getID();
-						AbilityEntry *abilityEntry = new AbilityEntry("special", "injectlarvae", queenID, hatcheryID); //TODO triggeredBy:id, targetBuilding:id
+						AbilityEntry *abilityEntry = new AbilityEntry("special", "injectlarvae", queenID, hatcheryID);
 						loggerEvents.push_back(abilityEntry);
 						break;
 					}
@@ -248,7 +251,7 @@ void ZergSimulator::simulate() {
 		//start build if possible //TODO
 		bool buildStarted = false;
 		
-		if (!buildOrder.empty()) {
+		if ((!buildOrder.empty()) && (!abilityStarted)) {
 			string nextItem = buildOrder.front();
 			EntityData& entityData = entityDataMap.at(nextItem);
 			

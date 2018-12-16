@@ -4,11 +4,11 @@
 #include <iostream>
 
 ProtossSimulator::ProtossSimulator(bool validBuildlist) : logger(PROTOSS, resourceManager, validBuildlist, "output/log.txt"), timestep(1), running(true) {
-	init();
+	
 }
 
 ProtossSimulator::ProtossSimulator(queue<string> q, bool validBuildlist) : buildOrder(q), logger(PROTOSS, resourceManager, validBuildlist, "output/log.txt"), timestep(1), running(true) {
-	init();
+	
 }
 
 void ProtossSimulator::init() {

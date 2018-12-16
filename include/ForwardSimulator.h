@@ -27,12 +27,12 @@ class ForwardSimulator {
 	int timestep;
 	bool running;
 	*/
-	virtual void init() = 0;
 	
 public:
 	ForwardSimulator() {}
 	ForwardSimulator(queue<string> q) : buildOrder(q) {}
 	virtual ~ForwardSimulator() = 0;
+	virtual void init() = 0;
 	virtual void simulate() = 0;
 };
 
@@ -47,11 +47,11 @@ class TerranSimulator : public ForwardSimulator {
 	int timestep;
 	bool running;
 	
-	void init();
 public:
 	TerranSimulator();
 	TerranSimulator(queue<string>);
 	~TerranSimulator() {}
+	void init();
 	void simulate();
 };
 
@@ -66,12 +66,11 @@ class ProtossSimulator : public ForwardSimulator {
 	int timestep;
 	bool running;
 	
-	void init();
 public:
 	ProtossSimulator(bool);
 	ProtossSimulator(queue<string>, bool);
 	~ProtossSimulator() {}
-	
+	void init();
 	void simulate();
 };
 
@@ -95,11 +94,11 @@ class ZergSimulator : public ForwardSimulator {
 	vector<ZergLarva*> larvas;
 	vector<ZergQueen*> queens;
 	
-	void init();
 public:
 	ZergSimulator();
 	ZergSimulator(queue<string>);
 	~ZergSimulator() {}
+	void init();
 	void simulate();
 };
 

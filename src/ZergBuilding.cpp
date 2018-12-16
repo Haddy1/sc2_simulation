@@ -19,7 +19,7 @@ ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(
  * Hatchery, Lair, Hive
  */
 ZergHatchery::ZergHatchery(string name, ResourceManager& r) :
-	ZergBuilding(name, r), lairData(entityDataMap.at(string("lair"))), hiveData(entityDataMap.at(string("hive"))), queenData(entityDataMap.at(string("queen"))), larvas(3), larvaProgress(0), spawningQueen(false), queenProgress(0) , injectingLarvas(false) , injectProgress(0) , upgrading(false) , upgradeProgress(0) 
+	ZergBuilding(name, r), lairData(entityDataMap.at(string("lair"))), hiveData(entityDataMap.at(string("hive"))), queenData(entityDataMap.at(string("queen"))), larvas(3), spawningLarva(false), larvaProgress(0), spawningQueen(false), queenProgress(0) , injectingLarvas(false) , injectProgress(0) , upgrading(false) , upgradeProgress(0) 
 {
 	//TODO
 }
@@ -59,6 +59,17 @@ bool ZergHatchery::update() {
 		}
 	}
 	//update regular larva spawn
+	if (spawningLarva) {
+		++larvaProgress;
+		if (larvaProgress == 15) {
+			++larvas;
+			larvaProgress = 0;
+			if (larvas >= 3) {
+				spawningLarva = false;
+			}
+		}
+	}
+	/*
 	if (larvas < 3) {
 		++larvaProgress;
 		if (larvaProgress == 15) {
@@ -66,6 +77,7 @@ bool ZergHatchery::update() {
 			larvaProgress = 0;
 		}
 	}
+	*/
 	//update special ability
 	if (injectingLarvas) {
 		//TODO
@@ -77,7 +89,7 @@ bool ZergHatchery::update() {
 			}
 			injectingLarvas = false;
 			injectProgress = 0;
-			larvaProgress = 0; //when inject is done, there is more than 3 larvas so natural spawning resets //TODO ?
+			//larvaProgress = 0; //when inject is done, there is more than 3 larvas so natural spawning resets //TODO ?
 		}
 	}
 	
@@ -85,8 +97,9 @@ bool ZergHatchery::update() {
 }
 
 bool ZergHatchery::upgrade() {
-	//cant upgrade if doing work
-	if (!upgrading && !spawningQueen && !injectingLarvas) {
+	//cant upgrade if doing work //TODO verify this
+	//if (!upgrading && !spawningQueen && !injectingLarvas) {
+	if (!upgrading) {
 		if (entityData->name == string("hatchery")) {
 			if (!dependencyFulfilled(lairData)) {
 				return false;
@@ -123,6 +136,7 @@ int ZergHatchery::getLarvaCount() const {
 	return larvas;
 }
 
+/*
 bool ZergHatchery::takeLarva() {
 	if (larvas > 0) {
 		--larvas;
@@ -131,6 +145,7 @@ bool ZergHatchery::takeLarva() {
 		return false;
 	}
 }
+*/
 
 bool ZergHatchery::morphLarva(string s) {
 	EntityData& entity = entityDataMap.at(s);
@@ -147,12 +162,20 @@ bool ZergHatchery::morphLarva(EntityData& entity) {
 		if (r.canBuild(entity, 2)) {
 			r.consumeRes(entity, 2);
 			--larvas;
+			if (!spawningLarva && larvas < 3) {
+				spawningLarva = true;
+				larvaProgress = 0;
+			}
 			return true;
 		}
 	} else {
 		if (r.canBuild(entity)) {
 			r.consumeRes(entity);
 			--larvas;
+			if (!spawningLarva && larvas < 3) {
+				spawningLarva = true;
+				larvaProgress = 0;
+			}
 			return true;
 		}
 	}
@@ -190,7 +213,7 @@ bool ZergHatchery::takeQueen() {
 
 bool ZergHatchery::injectLarvas() {
 	//TODO 4 eggs, 40sec, max 19
-	if (!injectingLarvas) {
+	if ((!injectingLarvas) && larvas < 19) {
 		injectingLarvas = true;
 		injectProgress = 0;
 		return true;

@@ -1,0 +1,7 @@
+drone
+spawning_pool
+queen
+extractor
+overlord
+lair
+spire
