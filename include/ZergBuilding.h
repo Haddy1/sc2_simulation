@@ -27,8 +27,9 @@ class ZergHatchery : public ZergBuilding {//represents hatchery, lair, hive
 	int injectProgress;
 	bool upgrading;
 	int upgradeProgress;
+	int& busyCounter;
 public:
-	ZergHatchery(string, ResourceManager&);
+	ZergHatchery(string, ResourceManager&, int&);
 	bool update(); //returns true if upgrade done in this step
 	bool upgrade();
 	
@@ -48,8 +49,9 @@ class ZergSpire : public ZergBuilding {//represents spire, greater_spire
 	EntityData& greaterSpireData;
 	bool upgrading;
 	int upgradeProgress;
+	int& busyCounter;
 public:
-	ZergSpire(string, ResourceManager&);
+	ZergSpire(string, ResourceManager&, int&);
 	bool upgrade();
 	bool update(); //returns true if upgrade done in this step
 	bool busy();
@@ -60,8 +62,9 @@ class ZergNydusNetwork : public ZergBuilding {//represents nydus_network
 	EntityData& nydusWormData;
 	bool spawningUnit;
 	int spawnProgress;
+	int& busyCounter;
 public:
-	ZergNydusNetwork(string, ResourceManager&);
+	ZergNydusNetwork(string, ResourceManager&, int&);
 	void update();
 	bool spawn();
 	bool takeUnit();

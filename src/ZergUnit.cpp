@@ -10,28 +10,26 @@ using std::endl;
  */
 ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
 	r.addSupplyMax(entityData->supplyProvided);
-	//cout << "Unit " << name << " with id=" << getID() << " created." << endl;
 }
 
 
 /*
  * Larva
  */
-ZergLarva::ZergLarva(string name, ResourceManager& r, string morphingTo) : ZergUnit(name, r), morphingToData(&entityDataMap.at(morphingTo)), morphProgress(0) {
-
+ZergLarva::ZergLarva(string name, ResourceManager& r, string morphingTo, int& busyCounter) : ZergUnit(name, r), morphingToData(&entityDataMap.at(morphingTo)), morphProgress(0), busyCounter(busyCounter) {
+	++busyCounter;
 }
 
-ZergLarva::ZergLarva(string name, ResourceManager& r, EntityData *morphingTo) : ZergUnit(name, r), morphingToData(morphingTo), morphProgress(0) {
+ZergLarva::ZergLarva(string name, ResourceManager& r, EntityData *morphingTo, int& busyCounter) : ZergUnit(name, r), morphingToData(morphingTo), morphProgress(0), busyCounter(busyCounter) {
+	++busyCounter;
+}
 
+ZergLarva::~ZergLarva() {
+	--busyCounter;
 }
 
 void ZergLarva::update() {
 	++morphProgress;
-	/*
-	if (morphProgress == morphingToData.buildTime) {
-		morphProgress = morphingToData.buildTime;
-	} // not needed with >= in isDone()
-	*/
 }
 
 bool ZergLarva::isDone() {
@@ -50,13 +48,13 @@ bool ZergLarva::busy() {
 /*
  * Drone
  */
-ZergDrone::ZergDrone(string name, ResourceManager& r) : ZergUnit(name, r), morphing(false) , morphProgress(0) , morphingToData(nullptr) {
+ZergDrone::ZergDrone(string name, ResourceManager& r, int& busyCounter) : ZergUnit(name, r), morphing(false) , morphProgress(0) , morphingToData(nullptr), busyCounter(busyCounter) {
 	
 }
 
-//void ZergDrone::setWorking(bool b) {
-	//working = b;
-//}
+ZergDrone::~ZergDrone() {
+	--busyCounter;
+}
 
 void ZergDrone::update() {
 	if (morphing) {
@@ -69,18 +67,18 @@ bool ZergDrone::morph(string s) {
 }
 
 bool ZergDrone::morph(EntityData *e) {
-	if (morphing)
+	if (morphing) {
 		return false;
+	}
 	if (!dependencyFulfilled(*e)) {
 		return false;
 	}
-	if (r.canBuild(*e)) {
-		r.consumeRes(*e);
+	if (r.consumeRes(*e)) {
 		r.decrementSupply();
 		morphing = true;
 		morphProgress = 0;
 		morphingToData = e;
-		//working = false;
+		++busyCounter;
 		return true;
 	} else {
 		return false;
@@ -92,9 +90,10 @@ bool ZergDrone::isMorphing() {
 }
 
 bool ZergDrone::morphingDone() {
-	if (!morphing)
+	if (!morphing) {
 		return false;
-	return (morphingToData->buildTime <= morphProgress);
+	}
+	return (morphProgress >= morphingToData->buildTime);
 }
 
 EntityData *ZergDrone::getBuildingData() {
@@ -109,7 +108,7 @@ bool ZergDrone::busy() {
 /*
  * Queen
  */
-ZergQueen::ZergQueen(string name, ResourceManager& r) : ZergUnit(name, r), energy(entityData->startEnergy) {
+ZergQueen::ZergQueen(string name, ResourceManager& r, int& busyCounter) : ZergUnit(name, r), energy(entityData->startEnergy), busyCounter(busyCounter) {
 	
 }
 
@@ -142,16 +141,17 @@ bool ZergQueen::busy() {
 /*
  * Upgradeable Unit: Overlord, Zergling, Corruptor
  */
-ZergUpgradeableUnit::ZergUpgradeableUnit(string name, ResourceManager& r) : ZergUnit(name, r), upgradeData(nullptr), upgrading(false), upgradeProgress(0) {
+ZergUpgradeableUnit::ZergUpgradeableUnit(string name, ResourceManager& r, int& busyCounter) : ZergUnit(name, r), upgradeData(nullptr), upgrading(false), upgradeProgress(0), busyCounter(busyCounter) {
 	
 }
 
 bool ZergUpgradeableUnit::update() {
 	if (upgrading) {
 		++upgradeProgress;
-		if (upgradeProgress == upgradeData->buildTime) {//TODO
+		if (upgradeProgress == upgradeData->buildTime) {
 			upgrading = false;
 			entityData = upgradeData;
+			--busyCounter;
 			return true;
 		}
 	}
@@ -178,10 +178,10 @@ bool ZergUpgradeableUnit::upgrade() {
 	}
 	
 	r.decreaseSupply(entityData->supplyCost); // since we are morphing, take away the supply this unit currently uses
-	if (r.canBuild(*upgradeData)) {
-		r.consumeRes(*upgradeData);
+	if (r.consumeRes(*upgradeData)) {
 		upgrading = true;
 		upgradeProgress = 0;
+		++busyCounter;
 		return true;
 	} else {
 		r.increaseSupply(entityData->supplyCost); // failed to build, put supply back
