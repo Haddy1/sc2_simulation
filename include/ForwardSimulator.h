@@ -98,7 +98,7 @@ class ZergSimulator : public ForwardSimulator {
 public:
 	ZergSimulator();
 	ZergSimulator(queue<string>);
-	~ZergSimulator() {}
+	~ZergSimulator();
 	void init();
 	void simulate();
 };
