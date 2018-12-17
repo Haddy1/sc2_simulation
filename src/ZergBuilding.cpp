@@ -71,7 +71,6 @@ bool ZergHatchery::update() {
 	}
 	//update special ability
 	if (injectingLarvas) {
-		//TODO
 		++injectProgress;
 		if (injectProgress == 40) {
 			larvas += 4;
@@ -170,7 +169,6 @@ bool ZergHatchery::takeQueen() {
 }
 
 bool ZergHatchery::injectLarvas() {
-	//TODO 4 eggs, 40sec, max 19
 	if ((!injectingLarvas) && larvas < 19) {
 		injectingLarvas = true;
 		injectProgress = 0;
@@ -209,23 +207,6 @@ bool ZergSpire::upgrade() {
 		return true;
 	}
 	return false;
-	/*
-	if (entityData->name == string("spire") && !upgrading) {
-		if (!dependencyFulfilled(greaterSpireData)) {
-			return false;
-		}
-		if (r.canBuild(greaterSpireData)) {
-			r.consumeRes(greaterSpireData);
-			upgrading = true;
-			upgradeProgress = 0;
-			return true;
-		} else {
-			return false;
-		}
-	} else {
-		return false;
-	}
-	*/
 }
 
 bool ZergSpire::update() {
@@ -276,23 +257,6 @@ bool ZergNydusNetwork::spawn() {
 		return true;
 	}
 	return false;
-	/*
-	if (!spawningUnit) {
-		if (!dependencyFulfilled(nydusWormData)) {
-			return false;
-		}
-		if (r.canBuild(nydusWormData)) {
-			r.consumeRes(nydusWormData);
-			spawningUnit = true;
-			spawnProgress = 0;
-			return true;
-		} else {
-			return false;
-		}
-	} else {
-		return false;
-	}
-	*/
 }
 
 bool ZergNydusNetwork::takeUnit() {//nydus worm
