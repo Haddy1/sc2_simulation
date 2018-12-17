@@ -5,6 +5,7 @@
 #include "../include/FixedPoint.h" //test
 #include "../include/JsonLogger.h"
 #include "../include/BuildlistValidator.h"
+#include "../include/Timer.h"
 
 #include <iostream>
 #include <cstring>
@@ -52,9 +53,9 @@ int main(int argc, char *argv[]) {
 	csvp.parse();
 	
 	//test print
-	for (auto it = entityDataMap.begin(); it != entityDataMap.end(); ++it) {
+	//for (auto it = entityDataMap.begin(); it != entityDataMap.end(); ++it) {
 		//std::cout << (*it).second << std::endl;
-	}
+	//}
 
 	//std::cout << "end test print" << std::endl;
 
@@ -146,9 +147,13 @@ int main(int argc, char *argv[]) {
 			break;
 	}
 	
+	Timer timer;
+	
+	timer.start();
 	simulator->init();
 	simulator->simulate();
 	delete simulator;
+	std::clog << timer.elapsedSec() << " s" << std::endl;
 	
 	return 0;
 }
