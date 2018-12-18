@@ -11,7 +11,7 @@ class ZergUnit : public Unit {
 protected:
 	ResourceManager& r;
 public:
-	ZergUnit(string, ResourceManager&);
+	ZergUnit(int& ID_Counter, string, ResourceManager&);
 };
 
 
@@ -20,8 +20,8 @@ class ZergLarva : public ZergUnit {
 	int morphProgress;
 	int& busyCounter;
 public:
-	ZergLarva(string name, ResourceManager& r, string morphingTo, int&);
-	ZergLarva(string name, ResourceManager& r, EntityData *morphingTo, int&);
+	ZergLarva(int& ID_Counter, string name, ResourceManager& r, string morphingTo, int&);
+	ZergLarva(int& ID_Counter, string name, ResourceManager& r, EntityData *morphingTo, int&);
 	~ZergLarva();
 	void update();
 	bool isDone();
@@ -37,7 +37,7 @@ class ZergDrone : public ZergUnit {
 	EntityData *morphingToData;
 	int& busyCounter;
 public:
-	ZergDrone(string, ResourceManager&, int&);
+	ZergDrone(int& ID_Counter, string, ResourceManager&, int&);
 	~ZergDrone();
 	//void setWorking(bool);
 	void update();
@@ -54,7 +54,7 @@ class ZergQueen : public ZergUnit {
 	FixedPoint energy;
 	int& busyCounter;
 public:
-	ZergQueen(string, ResourceManager&, int&);
+	ZergQueen(int& ID_Counter, string, ResourceManager&, int&);
 	void update();
 	bool canInjectLarvas();
 	bool injectLarvas();
@@ -68,7 +68,7 @@ class ZergUpgradeableUnit : public ZergUnit {
 	int upgradeProgress;
 	int& busyCounter;
 public:
-	ZergUpgradeableUnit(string, ResourceManager&, int&);
+	ZergUpgradeableUnit(int& ID_Counter, string, ResourceManager&, int&);
 	bool update(); //returns true if upgrade done in this step
 	bool upgrade();
 	bool busy();

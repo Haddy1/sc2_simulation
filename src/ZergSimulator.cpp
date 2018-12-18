@@ -10,11 +10,11 @@ using std::endl;
 using std::stringstream;
 using std::to_string;
 
-ZergSimulator::ZergSimulator() : logger(ZERG, resourceManager, true), timestep(1), maxTime(1000), gasBuildings(0), busyCounter(0) {
+ZergSimulator::ZergSimulator() : logger(ZERG, resourceManager, true), timestep(1), maxTime(1000), gasBuildings(0), busyCounter(0), ID_Counter(0) {
 	
 }
 
-ZergSimulator::ZergSimulator(queue<string> q) : logger(ZERG, resourceManager, true), buildOrder(q), timestep(1), maxTime(1000), gasBuildings(0), busyCounter(0) {
+ZergSimulator::ZergSimulator(queue<string> q) : logger(ZERG, resourceManager, true), buildOrder(q), timestep(1), maxTime(1000), gasBuildings(0), busyCounter(0), ID_Counter(0) {
 	
 }
 
@@ -36,18 +36,18 @@ void ZergSimulator::init() {
 	vector<int> hatcheryIDs;
 	vector<int> overlordIDs;
 	
-	ZergHatchery *hatchery = new ZergHatchery(string("hatchery"), resourceManager, busyCounter);
+	ZergHatchery *hatchery = new ZergHatchery(ID_Counter, string("hatchery"), resourceManager, busyCounter);
 	hatcheryIDs.push_back(hatchery->getID());
 	hatcheries.push_back(hatchery);
 	
-	ZergUpgradeableUnit *overlord = new ZergUpgradeableUnit(string("overlord"), resourceManager, busyCounter);
+	ZergUpgradeableUnit *overlord = new ZergUpgradeableUnit(ID_Counter, string("overlord"), resourceManager, busyCounter);
 	overlordIDs.push_back(overlord->getID());
 	upgradeableUnits.push_back(overlord);
 	
 	
 	
 	for (int i = 0; i < 6; ++i) {
-		ZergDrone *drone = new ZergDrone(string("drone"), resourceManager, busyCounter);
+		ZergDrone *drone = new ZergDrone(ID_Counter, string("drone"), resourceManager, busyCounter);
 		droneIDs.push_back(drone->getID());
 		drones.push_back(drone);
 	}
@@ -95,7 +95,7 @@ void ZergSimulator::simulate() {
 				loggerEvents.push_back(eventEntry);
 			}
 			if (b->takeQueen()) {
-				ZergQueen *queen = new ZergQueen(string("queen"), resourceManager, busyCounter);
+				ZergQueen *queen = new ZergQueen(ID_Counter, string("queen"), resourceManager, busyCounter);
 				queens.push_back(queen);
 				EventEntry *eventEntry = new EventEntry("build-end", "queen", b->getID(), queen->getID());
 				loggerEvents.push_back(eventEntry);
@@ -110,7 +110,7 @@ void ZergSimulator::simulate() {
 		for (ZergNydusNetwork *b : nydusNetworks) {
 			b->update();
 			if (b->takeUnit()) {
-				ZergUnit *nydusWorm = new ZergUnit(string("nydus_worm"), resourceManager);
+				ZergUnit *nydusWorm = new ZergUnit(ID_Counter, string("nydus_worm"), resourceManager);
 				units.push_back(nydusWorm);
 				EventEntry *eventEntry = new EventEntry("build-end", "nydus_worm", b->getID(), nydusWorm->getID());
 				loggerEvents.push_back(eventEntry);
@@ -136,22 +136,22 @@ void ZergSimulator::simulate() {
 				int producedIDs;
 				//create new unit
 				if (entityData->name == string("hatchery")) {
-					ZergHatchery *hatchery = new ZergHatchery(string("hatchery"), resourceManager, busyCounter);
+					ZergHatchery *hatchery = new ZergHatchery(ID_Counter, string("hatchery"), resourceManager, busyCounter);
 					hatcheries.push_back(hatchery);
 					producedIDs = hatchery->getID();
 				} else if (entityData->name == string("spire")) {
-					ZergSpire *spire = new ZergSpire(string("spire"), resourceManager, busyCounter);
+					ZergSpire *spire = new ZergSpire(ID_Counter, string("spire"), resourceManager, busyCounter);
 					spires.push_back(spire);
 					producedIDs = spire->getID();
 				} else if (entityData->name == string("nydus_network")) {
-					ZergNydusNetwork *nydusNetwork = new ZergNydusNetwork(string("nydus_network"), resourceManager, busyCounter);
+					ZergNydusNetwork *nydusNetwork = new ZergNydusNetwork(ID_Counter, string("nydus_network"), resourceManager, busyCounter);
 					nydusNetworks.push_back(nydusNetwork);
 					producedIDs = nydusNetwork->getID();
 				} else {
 					if (entityData->name == string("extractor")) {
 						++gasBuildings;
 					}
-					ZergBuilding *building = new ZergBuilding(entityData->name, resourceManager);
+					ZergBuilding *building = new ZergBuilding(ID_Counter, entityData->name, resourceManager);
 					buildings.push_back(building);
 					producedIDs = building->getID();
 				}
@@ -177,22 +177,22 @@ void ZergSimulator::simulate() {
 				vector<string> producedIDs;
 				//create new unit
 				if (entityData->name == string("drone")) {
-					ZergDrone *drone = new ZergDrone(string("drone"), resourceManager, busyCounter);
+					ZergDrone *drone = new ZergDrone(ID_Counter, string("drone"), resourceManager, busyCounter);
 					drones.push_back(drone);
 					producedIDs.push_back(to_string(drone->getID()));
 				} else if (entityData->name == string("zergling")) { //edge case: 2 zerglings are produced
-					ZergUpgradeableUnit *unit1 = new ZergUpgradeableUnit(entityData->name, resourceManager, busyCounter);
-					ZergUpgradeableUnit *unit2 = new ZergUpgradeableUnit(entityData->name, resourceManager, busyCounter);
+					ZergUpgradeableUnit *unit1 = new ZergUpgradeableUnit(ID_Counter, entityData->name, resourceManager, busyCounter);
+					ZergUpgradeableUnit *unit2 = new ZergUpgradeableUnit(ID_Counter, entityData->name, resourceManager, busyCounter);
 					upgradeableUnits.push_back(unit1);
 					upgradeableUnits.push_back(unit2);
 					producedIDs.push_back(to_string(unit1->getID()));
 					producedIDs.push_back(to_string(unit2->getID()));
 				} else if ((entityData->name == string("overlord")) || (entityData->name == string("corruptor"))) {
-					ZergUpgradeableUnit *unit = new ZergUpgradeableUnit(entityData->name, resourceManager, busyCounter);
+					ZergUpgradeableUnit *unit = new ZergUpgradeableUnit(ID_Counter, entityData->name, resourceManager, busyCounter);
 					upgradeableUnits.push_back(unit);
 					producedIDs.push_back(to_string(unit->getID()));
 				} else {
-					ZergUnit *unit = new ZergUnit(entityData->name, resourceManager);
+					ZergUnit *unit = new ZergUnit(ID_Counter, entityData->name, resourceManager);
 					units.push_back(unit);
 					producedIDs.push_back(to_string(unit->getID()));
 				}
@@ -332,7 +332,7 @@ void ZergSimulator::simulate() {
 			} else { //larva to unit
 				for (auto *b : hatcheries) {
 					if (b->morphLarva(entityData)) {
-						ZergLarva *larva = new ZergLarva(string("larva"), resourceManager, &entityData, busyCounter);
+						ZergLarva *larva = new ZergLarva(ID_Counter, string("larva"), resourceManager, &entityData, busyCounter);
 						larvas.push_back(larva);
 						buildStarted = true;
 						producerID = -1; //if larva morphs, dont give a producerID

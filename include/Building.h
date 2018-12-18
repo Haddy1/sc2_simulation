@@ -19,7 +19,7 @@ protected:
 	//string name;
 public:
 	Building() = delete;
-	Building(string);
+	Building(int& ID_Counter, string);
 	//virtual void update();
 	//virtual bool busy();
 	//virtual bool ability();

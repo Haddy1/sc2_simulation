@@ -8,7 +8,7 @@ using std::endl;
 /*
  * Generic Unit that cant morph
  */
-ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
+ZergUnit::ZergUnit(int& ID_Counter, string name, ResourceManager& r) : Unit(ID_Counter, name), r(r) {
 	r.addSupplyMax(entityData->supplyProvided);
 }
 
@@ -16,11 +16,11 @@ ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
 /*
  * Larva
  */
-ZergLarva::ZergLarva(string name, ResourceManager& r, string morphingTo, int& busyCounter) : ZergUnit(name, r), morphingToData(&entityDataMap.at(morphingTo)), morphProgress(0), busyCounter(busyCounter) {
+ZergLarva::ZergLarva(int& ID_Counter, string name, ResourceManager& r, string morphingTo, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphingToData(&entityDataMap.at(morphingTo)), morphProgress(0), busyCounter(busyCounter) {
 	++busyCounter;
 }
 
-ZergLarva::ZergLarva(string name, ResourceManager& r, EntityData *morphingTo, int& busyCounter) : ZergUnit(name, r), morphingToData(morphingTo), morphProgress(0), busyCounter(busyCounter) {
+ZergLarva::ZergLarva(int& ID_Counter, string name, ResourceManager& r, EntityData *morphingTo, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphingToData(morphingTo), morphProgress(0), busyCounter(busyCounter) {
 	++busyCounter;
 }
 
@@ -48,7 +48,7 @@ bool ZergLarva::busy() {
 /*
  * Drone
  */
-ZergDrone::ZergDrone(string name, ResourceManager& r, int& busyCounter) : ZergUnit(name, r), morphing(false) , morphProgress(0) , morphingToData(nullptr), busyCounter(busyCounter) {
+ZergDrone::ZergDrone(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphing(false) , morphProgress(0) , morphingToData(nullptr), busyCounter(busyCounter) {
 	
 }
 
@@ -108,7 +108,7 @@ bool ZergDrone::busy() {
 /*
  * Queen
  */
-ZergQueen::ZergQueen(string name, ResourceManager& r, int& busyCounter) : ZergUnit(name, r), energy(entityData->startEnergy), busyCounter(busyCounter) {
+ZergQueen::ZergQueen(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, name, r), energy(entityData->startEnergy), busyCounter(busyCounter) {
 	
 }
 
@@ -141,7 +141,7 @@ bool ZergQueen::busy() {
 /*
  * Upgradeable Unit: Overlord, Zergling, Corruptor
  */
-ZergUpgradeableUnit::ZergUpgradeableUnit(string name, ResourceManager& r, int& busyCounter) : ZergUnit(name, r), upgradeData(nullptr), upgrading(false), upgradeProgress(0), busyCounter(busyCounter) {
+ZergUpgradeableUnit::ZergUpgradeableUnit(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, name, r), upgradeData(nullptr), upgrading(false), upgradeProgress(0), busyCounter(busyCounter) {
 	
 }
 

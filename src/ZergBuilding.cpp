@@ -8,7 +8,7 @@ using std::endl;
 /*
  * Generic Zerg Building (tech tree only)
  */
-ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(r) {
+ZergBuilding::ZergBuilding(int& ID_Counter, string name, ResourceManager& r) : Building(ID_Counter, name), r(r) {
 	r.addSupplyMax(entityData->supplyProvided);
 	techAdd(name);
 }
@@ -17,8 +17,8 @@ ZergBuilding::ZergBuilding(string name, ResourceManager& r) : Building(name), r(
 /*
  * Hatchery, Lair, Hive
  */
-ZergHatchery::ZergHatchery(string name, ResourceManager& r, int& busyCounter) :
-	ZergBuilding(name, r), lairData(entityDataMap.at(string("lair"))), hiveData(entityDataMap.at(string("hive"))), queenData(entityDataMap.at(string("queen"))), larvas(3), spawningLarva(false), larvaProgress(0), spawningQueen(false), queenProgress(0) , injectingLarvas(false) , injectProgress(0) , upgrading(false) , upgradeProgress(0), busyCounter(busyCounter) 
+ZergHatchery::ZergHatchery(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) :
+	ZergBuilding(ID_Counter, name, r), lairData(entityDataMap.at(string("lair"))), hiveData(entityDataMap.at(string("hive"))), queenData(entityDataMap.at(string("queen"))), larvas(3), spawningLarva(false), larvaProgress(0), spawningQueen(false), queenProgress(0) , injectingLarvas(false) , injectProgress(0) , upgrading(false) , upgradeProgress(0), busyCounter(busyCounter) 
 {
 	
 }
@@ -186,7 +186,7 @@ bool ZergHatchery::busy() {
 /*
  * Spire, Greater Spire
  */
-ZergSpire::ZergSpire(string name, ResourceManager& r, int& busyCounter) : ZergBuilding(name, r), greaterSpireData(entityDataMap.at(string("greater_spire"))), upgrading(false), upgradeProgress(0), busyCounter(busyCounter) {
+ZergSpire::ZergSpire(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergBuilding(ID_Counter, name, r), greaterSpireData(entityDataMap.at(string("greater_spire"))), upgrading(false), upgradeProgress(0), busyCounter(busyCounter) {
 	
 }
 
@@ -233,7 +233,7 @@ bool ZergSpire::busy() {
 /*
  * Nydus Network
  */
-ZergNydusNetwork::ZergNydusNetwork(string name, ResourceManager& r, int& busyCounter) : ZergBuilding(name, r), nydusWormData(entityDataMap.at(string("nydus_worm"))), spawningUnit(false), spawnProgress(0), busyCounter(busyCounter) {
+ZergNydusNetwork::ZergNydusNetwork(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergBuilding(ID_Counter, name, r), nydusWormData(entityDataMap.at(string("nydus_worm"))), spawningUnit(false), spawnProgress(0), busyCounter(busyCounter) {
 	
 }
 

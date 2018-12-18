@@ -85,6 +85,7 @@ class ZergSimulator : public ForwardSimulator {
 	int maxTime;
 	int gasBuildings;
 	int busyCounter;
+	int ID_Counter;
 	
 	list<ZergBuilding*> buildings;
 	list<ZergHatchery*> hatcheries;
