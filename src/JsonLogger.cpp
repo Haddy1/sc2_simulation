@@ -128,11 +128,11 @@ void JsonLogger::printMessage(int time, vector<EventEntry*>& events) {
 				for (const string& s : producedIDs) {
 					cout << string(6, ws) << "\"" << s << "\"" << (s == producedIDs.back() ? "" : ",") << endl;
 				}
-				cout << string(5, ws) << "]" << endl;
+				cout << string(5, ws) << "]";
 			}
 		}
 		
-		cout << string(4, ws) << "}" << (&event != &events.back() ? "," : "") << endl;
+		cout << endl << string(4, ws) << "}" << (&event != &events.back() ? "," : "") << endl;
 	}
 	cout << string(3, ws) << "]" << endl;
 	cout << string(2, ws) << "}";
