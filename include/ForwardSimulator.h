@@ -11,10 +11,12 @@
 #include <vector>
 #include <queue>
 #include <string>
+#include <list>
 
 using std::vector;
 using std::queue;
 using std::string;
+using std::list;
 
 class ForwardSimulator {
 	
@@ -84,16 +86,16 @@ class ZergSimulator : public ForwardSimulator {
 	int gasBuildings;
 	int busyCounter;
 	
-	vector<ZergBuilding*> buildings;
-	vector<ZergHatchery*> hatcheries;
-	vector<ZergSpire*> spires;
-	vector<ZergNydusNetwork*> nydusNetworks;
+	list<ZergBuilding*> buildings;
+	list<ZergHatchery*> hatcheries;
+	list<ZergSpire*> spires;
+	list<ZergNydusNetwork*> nydusNetworks;
 	
-	vector<ZergUnit*> units;
-	vector<ZergUpgradeableUnit*> upgradeableUnits;
-	vector<ZergDrone*> drones;
-	vector<ZergLarva*> larvas;
-	vector<ZergQueen*> queens;
+	list<ZergUnit*> units;
+	list<ZergUpgradeableUnit*> upgradeableUnits;
+	list<ZergDrone*> drones;
+	list<ZergLarva*> larvas;
+	list<ZergQueen*> queens;
 	
 public:
 	ZergSimulator();
