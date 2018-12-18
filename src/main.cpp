@@ -52,6 +52,8 @@ int main(int argc, char *argv[]) {
 	CSVParser csvp("res/techtrees.csv");
 	csvp.parse();
 	
+	initEntityNameMap();
+	
 	//test print
 	//for (auto it = entityDataMap.begin(); it != entityDataMap.end(); ++it) {
 		//std::cout << (*it).second << std::endl;
