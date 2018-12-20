@@ -27,7 +27,7 @@ public:
 	}
 	
 	BuildStartEntry(string name, int producerID_) : name(name), producerID(to_string(producerID_)) {
-		//producerID = to_string(producerID_);
+		
 	}
 	
 	string name;
@@ -42,15 +42,15 @@ public:
 		
 	}
 	
-	BuildEndEntry(string name, string producerID, vector<string> producedIDs) : producerID(producerID), producedIDs(producedIDs) {
+	BuildEndEntry(string name, string producerID, vector<string> producedIDs) : name(name), producerID(producerID), producedIDs(producedIDs) {
 		
 	}
 	
-	BuildEndEntry(string name, int producerID_) {
+	BuildEndEntry(string name, int producerID_) : name(name) {
 		producerID = to_string(producerID_);
 	}
 	
-	BuildEndEntry(string name, int producerID_, int producedID_) {
+	BuildEndEntry(string name, int producerID_, int producedID_) : name(name) {
 		producerID = to_string(producerID_);
 		producedIDs.push_back(to_string(producedID_));
 	}
@@ -60,20 +60,20 @@ public:
 	vector<string> producedIDs;
 };
 
-struct AbilityEntry {
+struct SpecialEntry {
 public:
-	AbilityEntry() {}
+	SpecialEntry() {}
 	
-	AbilityEntry(string name, string trigger, string target = "") : name(name), triggeredBy(trigger), targetBuilding(target) {
+	SpecialEntry(string name, string trigger, string target = "") : name(name), triggeredBy(trigger), targetBuilding(target) {
 		
 	}
 	
-	AbilityEntry(string name, int trigger_) : name(name) {
+	SpecialEntry(string name, int trigger_) : name(name) {
 		triggeredBy = to_string(trigger_);
 		targetBuilding = "";
 	}
 	
-	AbilityEntry(string name, int trigger_, int target_) : name(name) {
+	SpecialEntry(string name, int trigger_, int target_) : name(name) {
 		triggeredBy = to_string(trigger_);
 		targetBuilding = to_string(target_);
 	}
@@ -95,7 +95,7 @@ public:
 	void printMessage(int);
 	void addBuildstart(BuildStartEntry b);
 	void addBuildend(BuildEndEntry b);
-	void addAbility(AbilityEntry a);
+	void addSpecial(SpecialEntry a);
 	
 private:
 	Race race;
@@ -107,8 +107,10 @@ private:
 	
 	BuildStartEntry buildstartEvent;
 	vector<BuildEndEntry> buildendEvents;
-	AbilityEntry abilityEvent;
+	SpecialEntry abilityEvent;
 	
 	bool hasBuildstart;
 	bool hasAbility;
+	
+	int messages;
 };

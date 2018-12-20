@@ -1,7 +1,7 @@
 #include "../include/JsonLoggerV2.h"
 
 // log into cout
-JsonLoggerV2::JsonLoggerV2(Race r, ResourceManager& manager, bool valid) : race(r), rm(manager), validBuildlist(valid), hasBuildstart(false), hasAbility(false) {
+JsonLoggerV2::JsonLoggerV2(Race r, ResourceManager& manager, bool valid) : race(r), rm(manager), validBuildlist(valid), hasBuildstart(false), hasAbility(false), messages(0) {
 	printBeginning();
 }
 
@@ -48,7 +48,7 @@ void JsonLoggerV2::addBuildend(BuildEndEntry b) {
 	buildendEvents.push_back(b);
 }
 
-void JsonLoggerV2::addAbility(AbilityEntry a) {
+void JsonLoggerV2::addSpecial(SpecialEntry a) {
 	abilityEvent = a;
 	hasAbility = true;
 }
@@ -70,7 +70,9 @@ void JsonLoggerV2::printMessage(int time) {
 	if (num == 0) {
 		return;
 	}
-	cout << "," << endl; // separation with previous message entry
+	if (messages != 0) {
+		cout << "," << endl; // separation with previous message entry
+	}
 	
 	cout << string(2, ws) << "{" << endl;
 	cout << string(3, ws) << "\"time\": " << time << "," << endl;
@@ -108,6 +110,7 @@ void JsonLoggerV2::printMessage(int time) {
 	}
 	
 	for (auto& entry : buildendEvents) {
+		++count;
 		cout << string(4, ws) << "{" << endl;
 		cout << string(5, ws) << "\"type\": \"" << "build-end" << "\"," << endl;
 		cout << string(5, ws) << "\"name\": \"" << entry.name << quote;
@@ -156,4 +159,6 @@ void JsonLoggerV2::printMessage(int time) {
 	hasBuildstart = false;
 	buildendEvents.clear();
 	hasAbility = false;
+	
+	++messages;
 }

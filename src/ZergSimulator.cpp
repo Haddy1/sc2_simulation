@@ -62,7 +62,7 @@ void ZergSimulator::init() {
 	initUnits.push_back(pair<string, vector<int>>(string("overlord"), overlordIDs));
 	
 	logger.printSetup(initUnits);
-	logger.printMessage(0);
+	//logger.printMessage(0);
 	
 	//cout << endl;
 }
@@ -72,7 +72,7 @@ void ZergSimulator::simulate() {
 	
 	while (continueSimulation && (timestep <= maxTime)) {
 		
-		vector<EventEntry*> loggerEvents;
+		//vector<EventEntry*> loggerEvents;
 		
 		/*
 		* Update Resources
@@ -91,20 +91,23 @@ void ZergSimulator::simulate() {
 		
 		for (ZergHatchery *b : hatcheries) {
 			if (b->update()) { //Upgrade done, generate event
-				EventEntry *eventEntry = new EventEntry("build-end", b->getName(), b->getID(), b->getID());
-				loggerEvents.push_back(eventEntry);
+				//EventEntry *eventEntry = new EventEntry("build-end", b->getName(), b->getID(), b->getID());
+				//loggerEvents.push_back(eventEntry);
+				logger.addBuildend(BuildEndEntry(b->getName(), b->getID(), b->getID()));
 			}
 			if (b->takeQueen()) {
 				ZergQueen *queen = new ZergQueen(ID_Counter, string("queen"), resourceManager, busyCounter);
 				queens.push_back(queen);
-				EventEntry *eventEntry = new EventEntry("build-end", "queen", b->getID(), queen->getID());
-				loggerEvents.push_back(eventEntry);
+				//EventEntry *eventEntry = new EventEntry("build-end", "queen", b->getID(), queen->getID());
+				//loggerEvents.push_back(eventEntry);
+				logger.addBuildend(BuildEndEntry("queen", b->getID(), queen->getID()));
 			}
 		}
 		for (ZergSpire *b : spires) {
 			if (b->update()) { //Upgrade done, generate event
-				EventEntry *eventEntry = new EventEntry("build-end", b->getName(), b->getID(), b->getID());
-				loggerEvents.push_back(eventEntry);
+				//EventEntry *eventEntry = new EventEntry("build-end", b->getName(), b->getID(), b->getID());
+				//loggerEvents.push_back(eventEntry);
+				logger.addBuildend(BuildEndEntry(b->getName(), b->getID(), b->getID()));
 			}
 		}
 		for (ZergNydusNetwork *b : nydusNetworks) {
@@ -112,16 +115,18 @@ void ZergSimulator::simulate() {
 			if (b->takeUnit()) {
 				ZergUnit *nydusWorm = new ZergUnit(ID_Counter, string("nydus_worm"), resourceManager);
 				units.push_back(nydusWorm);
-				EventEntry *eventEntry = new EventEntry("build-end", "nydus_worm", b->getID(), nydusWorm->getID());
-				loggerEvents.push_back(eventEntry);
+				//EventEntry *eventEntry = new EventEntry("build-end", "nydus_worm", b->getID(), nydusWorm->getID());
+				//loggerEvents.push_back(eventEntry);
+				logger.addBuildend(BuildEndEntry("nydus_worm", b->getID(), nydusWorm->getID()));
 			}
 		}
 		
 		//update/finish units
 		for (ZergUpgradeableUnit *u : upgradeableUnits) {
 			if (u->update()) { //Upgrade done, generate event
-				EventEntry *eventEntry = new EventEntry("build-end", u->getName(), u->getID(), u->getID());
-				loggerEvents.push_back(eventEntry);
+				//EventEntry *eventEntry = new EventEntry("build-end", u->getName(), u->getID(), u->getID());
+				//loggerEvents.push_back(eventEntry);
+				logger.addBuildend(BuildEndEntry(u->getName(), u->getID(), u->getID()));
 			}
 		}
 		
@@ -156,8 +161,9 @@ void ZergSimulator::simulate() {
 					producedIDs = building->getID();
 				}
 				
-				EventEntry *eventEntry = new EventEntry("build-end", entityData->name, producerID, producedIDs);
-				loggerEvents.push_back(eventEntry);
+				//EventEntry *eventEntry = new EventEntry("build-end", entityData->name, producerID, producedIDs);
+				//loggerEvents.push_back(eventEntry);
+				logger.addBuildend(BuildEndEntry(entityData->name, producerID, producedIDs));
 				//remove this drone
 				it2 = drones.erase(it2);
 				delete drone;
@@ -197,8 +203,9 @@ void ZergSimulator::simulate() {
 					producedIDs.push_back(to_string(unit->getID()));
 				}
 				
-				EventEntry *eventEntry = new EventEntry("build-end", entityData->name, producerID, producedIDs);
-				loggerEvents.push_back(eventEntry);
+				//EventEntry *eventEntry = new EventEntry("build-end", entityData->name, producerID, producedIDs);
+				//loggerEvents.push_back(eventEntry);
+				logger.addBuildend(BuildEndEntry(entityData->name, producerID, producedIDs));
 				//remove this larva
 				it = larvas.erase(it);
 				delete larva;
@@ -226,8 +233,9 @@ void ZergSimulator::simulate() {
 						//TODO generate event
 						int hatcheryID = hatchery->getID();
 						int queenID = queen->getID();
-						AbilityEntry *abilityEntry = new AbilityEntry("special", "injectlarvae", queenID, hatcheryID);
-						loggerEvents.push_back(abilityEntry);
+						//AbilityEntry *abilityEntry = new AbilityEntry("special", "injectlarvae", queenID, hatcheryID);
+						//loggerEvents.push_back(abilityEntry);
+						logger.addSpecial(SpecialEntry("injectlarvae", queenID, hatcheryID));
 						break;
 					}
 				}
@@ -343,14 +351,21 @@ void ZergSimulator::simulate() {
 			
 			
 			if (buildStarted) {
-				EventEntry *eventEntry;
-				if (producerID == -1) {
-					eventEntry = new EventEntry("build-start", nextItem);
-				} else {
-					eventEntry = new EventEntry("build-start", nextItem, producerID);
-				}
+				//EventEntry *eventEntry;
+				//if (producerID == -1) {
+				//	eventEntry = new EventEntry("build-start", nextItem);
+				//} else {
+				//	eventEntry = new EventEntry("build-start", nextItem, producerID);
+				//}
 				//EventEntry *eventEntry = new EventEntry("build-start", nextItem, producerID);
-				loggerEvents.push_back(eventEntry);
+				//loggerEvents.push_back(eventEntry);
+				
+				
+				if (producerID == -1) {
+					logger.addBuildstart(BuildStartEntry(nextItem));
+				} else {
+					logger.addBuildstart(BuildStartEntry(nextItem, producerID));
+				}
 				
 				buildOrder.pop();
 			}
@@ -383,10 +398,10 @@ void ZergSimulator::simulate() {
 		continueSimulation |= (busyCounter > 0);
 		
 		
-		logger.printMessage(timestep, loggerEvents);
-		for (auto it = loggerEvents.begin(); it != loggerEvents.end(); ++it) {
-			delete (*it);
-		}
+		logger.printMessage(timestep);
+		//for (auto it = loggerEvents.begin(); it != loggerEvents.end(); ++it) {
+		//	delete (*it);
+		//}
 		
 		
 		++timestep;

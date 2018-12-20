@@ -7,6 +7,7 @@
 #include "ZergUnit.h"
 #include "ResourceManager.h"
 #include "JsonLogger.h"
+#include "JsonLoggerV2.h"
 
 #include <vector>
 #include <queue>
@@ -78,7 +79,7 @@ public:
 
 
 class ZergSimulator : public ForwardSimulator {
-	JsonLogger logger;
+	JsonLoggerV2 logger;
 	ResourceManager resourceManager;
 	queue<string> buildOrder;
 	int timestep;
