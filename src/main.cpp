@@ -60,15 +60,18 @@ int main(int argc, char *argv[]) {
 	//}
 
 	//std::cout << "end test print" << std::endl;
-
+	
+	bool invalidBuildlist = false;
+	
 	// open buildlist file
 	ifstream buildListFile(argv[2]);
 	//bool invalidBuildlist = buildListFile.fail();
 	if (buildListFile.fail()) {
+		invalidBuildlist = true;
 		std::cerr << "couldn't open buildlist file" << std::endl;
 	}
 	
-	bool invalidBuildlist = false;
+	
 	
 	queue<string> buildQueue;
 	while (buildListFile.good()) {
@@ -99,6 +102,11 @@ int main(int argc, char *argv[]) {
 	
 	
 	if (invalidBuildlist) {
+		std::cout << '{' << std::endl; 
+		std::cout << '\t' << '\"' << "buildlistValid" << '\"' << ": " << 0 << ',' << std::endl; 
+		std::cout << '\t' << '\"' << "game" << '\"' << ": " << '\"' << toString(race) << '\"' << std::endl;
+		std::cout << '}' << std::endl; 
+		
 		std::cerr << "invalid buildlist" << std::endl;
 		return -1;
 	}

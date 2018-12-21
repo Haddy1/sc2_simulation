@@ -16,6 +16,8 @@ class BuildlistValidator {
 	queue<string> buildQueue;
 	Race race;
 	
+	bool gasBuildingBuilt;
+	
 	bool dependencyFulfilled(EntityData& e);
 public:
 	BuildlistValidator(Race race, queue<string> buildQueue);

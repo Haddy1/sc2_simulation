@@ -1,7 +1,7 @@
 #include "../include/BuildlistValidator.h"
 
 
-BuildlistValidator::BuildlistValidator(Race race, queue<string> buildQueue) : buildQueue(buildQueue), race(race) {
+BuildlistValidator::BuildlistValidator(Race race, queue<string> buildQueue) : buildQueue(buildQueue), race(race), gasBuildingBuilt(false) {
 	//starting conditions
 	switch (race) {
 		case TERRAN:
@@ -39,10 +39,18 @@ bool BuildlistValidator::validate() {
 	while (!buildQueue.empty()) {
 		string s = buildQueue.front();
 		buildQueue.pop();
-		if (!dependencyFulfilled(entityDataMap.at(s))) {
+		EntityData data = entityDataMap.at(s);
+		if (!dependencyFulfilled(data)) {
+			return false;
+		}
+		
+		if ((data.vespene > 0) && (!gasBuildingBuilt)) {
 			return false;
 		}
 		builtTech.insert(s);
+		if ((s == string("refinery")) || (s == string("assimilator")) || (s == string("extractor"))) {
+			gasBuildingBuilt = true;
+		}
 	}
 	return true;
 }
