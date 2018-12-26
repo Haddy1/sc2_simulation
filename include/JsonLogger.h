@@ -8,6 +8,7 @@
 #include <cassert>
 #include <utility>
 #include <string>
+#include <memory>
 
 #pragma once
 
@@ -17,14 +18,12 @@ using std::vector;
 using std::make_pair;
 using std::pair;
 using std::to_string;
+using std::shared_ptr;
+using std::make_shared;
 
 class EventEntry {
 public:
-	EventEntry(string type, string name, string producerID = "") : val(make_pair(type, name)), producerID(producerID) {
-		
-	}
-	
-	EventEntry(string type, string name, string producerID, vector<string> producedIDs) : val(make_pair(type, name)), producerID(producerID), producedIDs(producedIDs) {
+	EventEntry(string type, string name, string producerID = "", vector<string> producedIDs = vector<string>()) : val(make_pair(type, name)), producerID(producerID), producedIDs(producedIDs) {
 		
 	}
 	
@@ -76,7 +75,7 @@ private:
 
 class AbilityEntry : public EventEntry {
 public:
-	AbilityEntry(string type, string name, string id = "", string target = "") : EventEntry(type, name), triggeredBy(id), targetBuilding(target) {
+	AbilityEntry(string type, string name, string id, string target = "") : EventEntry(type, name), triggeredBy(id), targetBuilding(target) {
 		
 	}
 	
@@ -119,8 +118,9 @@ public:
 	~JsonLogger();
 	
 	void printSetup(vector<pair<string, vector<int>>>&);
-	void printMessage(int, vector<EventEntry*>&);
-	void printMessage(int);
+	//void printMessage(int, vector<EventEntry*>&);
+	void printMessage(int, vector<shared_ptr<EventEntry>>&);
+	void printMessageStart();
 	
 private:
 	Race race;

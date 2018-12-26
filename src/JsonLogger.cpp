@@ -51,11 +51,15 @@ void JsonLogger::printSetup(vector<pair<string, vector<int>>>& units) {
 			cout << string(2, ws) << "\"" << unit.first << "\" : [" << endl;
 			for(auto& id : unit.second) {
 				cout << string(3, ws) << "\"" << id << "\"";
+				cout << (id != unit.second.back() ? ",\n" : string("\n" + string(2, ws) + "]"));
+				/*
 				if (id != unit.second.back()) {
 					cout << "," << endl;
 				} else {
 					cout << endl << string(2, ws) << "]";
-				}//				<< (id != unit.second.back() ? string(1, ',') + ws : "]");
+				}
+				*/
+				//				<< (id != unit.second.back() ? string(1, ',') + ws : "]");
 			}
 			cout << (unit != units.back() ? ", " : "") << endl;
 		}
@@ -64,7 +68,7 @@ void JsonLogger::printSetup(vector<pair<string, vector<int>>>& units) {
 	undo_redirect();
 }
 
-void JsonLogger::printMessage(int time, vector<EventEntry*>& events) {
+void JsonLogger::printMessage(int time, vector<shared_ptr<EventEntry>>& events) {
 	// add messages keyword at the beginning
 	if(time == 0 && validBuildlist) {
 		if(validBuildlist) {
@@ -114,15 +118,16 @@ void JsonLogger::printMessage(int time, vector<EventEntry*>& events) {
 		if (event->isAbilityEntry()) { //ability entry: print triggeredBy and targetBuilding
 			cout << "," << endl;
 			cout << string(5, ws) << "\"triggeredBy\": \"" << event->getID() << "\"," << endl;
-			cout << string(5, ws) << "\"targetBuilding\": \"" << event->getTarget() << "\"" << endl;
+			if(!event->getTarget().empty()) // terran doesn't need to specify a target
+				cout << string(5, ws) << "\"targetBuilding\": \"" << event->getTarget() << "\"" << endl;
 		} else {
 			string producerID = event->getProducerID();
 			vector<string> producedIDs = event->getProducedIDs();
-			if (producerID.size() != 0) {
+			if (!producerID.empty()) {
 				cout << "," << endl;
 				cout << string(5, ws) << "\"producerID\": \"" << producerID << "\"";// << endl;
 			}
-			if (producedIDs.size() != 0) {
+			if (!producedIDs.empty()) {
 				cout << "," << endl;
 				cout << string(5, ws) << "\"producedIDs\": [" << endl;
 				for (const string& s : producedIDs) {
@@ -131,7 +136,6 @@ void JsonLogger::printMessage(int time, vector<EventEntry*>& events) {
 				cout << string(5, ws) << "]";
 			}
 		}
-		
 		cout << endl << string(4, ws) << "}" << (&event != &events.back() ? "," : "") << endl;
 	}
 	cout << string(3, ws) << "]" << endl;
@@ -139,13 +143,11 @@ void JsonLogger::printMessage(int time, vector<EventEntry*>& events) {
 	undo_redirect();
 }
 
-void JsonLogger::printMessage(int time) {
+void JsonLogger::printMessageStart() {
 	// add messages keyword at the beginning
-	if(time == 0 && validBuildlist) {
-		if(validBuildlist) {
-			redirect();
-			cout << ws << "\"messages\": [" << endl;
-			undo_redirect();
-		}
+	if(validBuildlist) {
+		redirect();
+		cout << ws << "\"messages\": [" << endl;
+		undo_redirect();
 	}
 }
