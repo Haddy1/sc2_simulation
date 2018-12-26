@@ -17,16 +17,16 @@ ZergUnit::ZergUnit(int& ID_Counter, string name, ResourceManager& r) : Unit(ID_C
  * Larva
  */
 ZergLarva::ZergLarva(int& ID_Counter, string name, ResourceManager& r, string morphingTo, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphingToData(&entityDataMap.at(morphingTo)), morphProgress(0), busyCounter(busyCounter) {
-	++busyCounter;
+	//++busyCounter;
 }
 
 ZergLarva::ZergLarva(int& ID_Counter, string name, ResourceManager& r, EntityData *morphingTo, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphingToData(morphingTo), morphProgress(0), busyCounter(busyCounter) {
-	++busyCounter;
+	//++busyCounter;
 }
 
-ZergLarva::~ZergLarva() {
-	--busyCounter;
-}
+//ZergLarva::~ZergLarva() {
+//	--busyCounter;
+//}
 
 void ZergLarva::update() {
 	++morphProgress;
@@ -52,9 +52,9 @@ ZergDrone::ZergDrone(int& ID_Counter, string name, ResourceManager& r, int& busy
 	
 }
 
-ZergDrone::~ZergDrone() {
-	--busyCounter;
-}
+//ZergDrone::~ZergDrone() {
+//	--busyCounter;
+//}
 
 void ZergDrone::update() {
 	if (morphing) {
@@ -78,7 +78,7 @@ bool ZergDrone::morph(EntityData *e) {
 		morphing = true;
 		morphProgress = 0;
 		morphingToData = e;
-		++busyCounter;
+		//++busyCounter;
 		return true;
 	} else {
 		return false;
@@ -108,25 +108,28 @@ bool ZergDrone::busy() {
 /*
  * Queen
  */
-ZergQueen::ZergQueen(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, name, r), energy(entityData->startEnergy), busyCounter(busyCounter) {
+FixedPoint ZergQueen::chargeRate(0.5625);
+FixedPoint ZergQueen::fixed25(25);
+
+ZergQueen::ZergQueen(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, name, r), energy(entityData->startEnergy), maxEnergy(entityData->maxEnergy), busyCounter(busyCounter) {
 	
 }
 
 void ZergQueen::update() {
-	energy += FixedPoint(0.5625);
-	FixedPoint maxEnergy(entityData->maxEnergy);
+	energy += chargeRate;
+	//FixedPoint maxEnergy(entityData->maxEnergy);
 	if (energy > maxEnergy) {
 		energy = maxEnergy;
 	}
 }
 
 bool ZergQueen::canInjectLarvas() {
-	return (energy >= FixedPoint(25));
+	return (energy >= fixed25);
 }
 
 bool ZergQueen::injectLarvas() {
-	if (energy >= FixedPoint(25)) {
-		energy -= FixedPoint(25);
+	if (energy >= fixed25) {
+		energy -= fixed25;
 		return true;
 	} else {
 		return false;
