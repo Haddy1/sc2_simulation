@@ -109,6 +109,28 @@ private:
 	string targetBuilding;
 };
 
+/*
+* Inline functions to create smart pointers for the events
+*/
+inline shared_ptr<EventEntry> create_event_ptr(string type, string name, string producerID = "", vector<string> producedIDs = vector<string>()) {
+	return make_shared<EventEntry>(EventEntry(type, name, producerID, producedIDs));
+}
+	
+inline shared_ptr<EventEntry> create_event_ptr(string type, string name, int producerID_) {
+	return make_shared<EventEntry>(EventEntry(type, name, producerID_));
+}
+	
+inline shared_ptr<EventEntry> create_event_ptr(string type, string name, int producerID_, int producedID_) {
+	return make_shared<EventEntry>(EventEntry(type, name, producerID_, producedID_));
+}
+
+inline shared_ptr<AbilityEntry> create_ability_ptr(string type, string name, string id, string target = "") {
+	return make_shared<AbilityEntry>(AbilityEntry(type, name, id, target)); 
+}
+	
+inline shared_ptr<AbilityEntry> create_ability_ptr(string type, string name, int id, int target) {
+	return make_shared<AbilityEntry>(AbilityEntry(type, name, id, target)); 
+}
 
 
 class JsonLogger {

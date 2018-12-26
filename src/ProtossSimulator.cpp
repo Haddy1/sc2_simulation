@@ -31,15 +31,9 @@ void ProtossSimulator::simulate() {
 		resourceManager.update();
 		
 		vector<shared_ptr<EventEntry>> vec;
-		/*
-		EventEntry a("build-start", "marine");
-		EventEntry b("build-end", "marine");
-		AbilityEntry c("special", "chronoboost", "some_nexus", "some_building");
-		vec.push_back(&a); vec.push_back(&b); vec.push_back(&c);
-		*/
-		vec.push_back(make_shared<EventEntry>(EventEntry("build-start", "marine", 1, 2)));
-		vec.push_back(make_shared<EventEntry>(EventEntry("build-end", "marine", 1, 2)));
-		vec.push_back(make_shared<AbilityEntry>(AbilityEntry("special", "chronoboost", "some_nexus", "some_building")));
+		vec.push_back(create_event_ptr("build-start", "marine", 123, 456));
+		vec.push_back(create_event_ptr("build-end", "marine", 111, 222));
+		vec.push_back(create_ability_ptr("special", "chronoboost", "some_nexus", "some_building"));
 		
 		logger.printMessage(timestep, vec);
 		++timestep;

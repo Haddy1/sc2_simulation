@@ -52,14 +52,6 @@ void JsonLogger::printSetup(vector<pair<string, vector<int>>>& units) {
 			for(auto& id : unit.second) {
 				cout << string(3, ws) << "\"" << id << "\"";
 				cout << (id != unit.second.back() ? ",\n" : string("\n" + string(2, ws) + "]"));
-				/*
-				if (id != unit.second.back()) {
-					cout << "," << endl;
-				} else {
-					cout << endl << string(2, ws) << "]";
-				}
-				*/
-				//				<< (id != unit.second.back() ? string(1, ',') + ws : "]");
 			}
 			cout << (unit != units.back() ? ", " : "") << endl;
 		}
