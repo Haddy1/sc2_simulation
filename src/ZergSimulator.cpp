@@ -93,6 +93,7 @@ void ZergSimulator::simulate() {
 				if (logging)
 					logger.addBuildend(BuildEndEntry("queen", b.getID(), queen.getID()));
 			}
+			std::clog << "Hatchery num larvas: " << b.getLarvaCount() << std::endl;
 		}
 		for (ZergSpire& b : spires) {
 			if (b.update()) { //Upgrade done, generate event

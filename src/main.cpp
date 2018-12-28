@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
 	
 	
 	BuildlistValidator validator(race, buildQueue);
-	invalidBuildlist |= (!validator.validate());
+	invalidBuildlist = invalidBuildlist || (!validator.validate());
 	
 	
 	
