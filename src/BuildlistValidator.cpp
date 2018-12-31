@@ -1,7 +1,7 @@
 #include "../include/BuildlistValidator.h"
 
 
-BuildlistValidator::BuildlistValidator(Race race, queue<string> buildQueue) : buildQueue(buildQueue), race(race), gasBuildingBuilt(false), supply(0.f), supplyMax(0.f) {
+BuildlistValidator::BuildlistValidator(Race race, queue<string> buildQueue) : buildQueue(buildQueue), race(race), gasBuildings(0), supply(0.f), supplyMax(0.f) {
 	//starting conditions
 	switch (race) {
 		case TERRAN:
@@ -77,7 +77,7 @@ bool BuildlistValidator::validate() {
 			return false;
 		}
 		
-		if ((data.vespene > 0) && (!gasBuildingBuilt)) {
+		if ((data.vespene > 0) && (gasBuildings == 0)) {
 			std::clog << "Buildlist Validator: no gas production, but gas needed." << std::endl;
 			return false;
 		}
@@ -93,7 +93,7 @@ bool BuildlistValidator::validate() {
 		}
 		supply += ((data.name == string("zergling")) ? (data.supplyCost * 2) : data.supplyCost);
 		supplyMax += data.supplyProvided;
-		std::clog << "Buildlist Validator: " << data.name << " " << supply << "/" << supplyMax << std::endl;
+		//std::clog << "Buildlist Validator: " << data.name << " " << supply << "/" << supplyMax << std::endl;
 		
 		if (supply > supplyMax) {
 			std::clog << "Buildlist Validator: supply > supplyMax." << std::endl;
@@ -103,7 +103,11 @@ bool BuildlistValidator::validate() {
 		//requirements met, add new tech
 		builtTech.insert(s);
 		if ((s == string("refinery")) || (s == string("assimilator")) || (s == string("extractor"))) {
-			gasBuildingBuilt = true;
+			++gasBuildings;
+			if (gasBuildings > 2) {
+				std::clog << "Buildlist Validator: third gas building." << std::endl;
+				return false;
+			}
 		}
 	}
 	return true;

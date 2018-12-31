@@ -17,7 +17,7 @@ class BuildlistValidator {
 	queue<string> buildQueue;
 	Race race;
 	
-	bool gasBuildingBuilt;
+	int gasBuildings;
 	
 	float supply;
 	float supplyMax;
