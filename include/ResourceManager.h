@@ -58,8 +58,9 @@ public:
 	void incrementMineralWorkers() { ++mineralWorkers; }
 	
 	void redistributeWorkers(int geysers) {
-		vespeneWorkers = std::min(getWorkers(), 3 * geysers);
-		mineralWorkers = getWorkers() - vespeneWorkers;
+		int numWorkers = getWorkers();
+		vespeneWorkers = std::min(numWorkers, 3 * geysers);
+		mineralWorkers = numWorkers - vespeneWorkers;
 	}
 	
 	friend std::ostream& operator<<(std::ostream& os, const ResourceManager& r) {
