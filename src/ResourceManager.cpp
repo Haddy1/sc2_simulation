@@ -36,11 +36,11 @@ int ResourceManager::getVespene() {
 	return vespene.toInt();
 }
 
-double ResourceManager::getSupply() {
+float ResourceManager::getSupply() {
 	return supply;
 }
 
-double ResourceManager::getSupplyMax() {
+float ResourceManager::getSupplyMax() {
 	return supplyMax;
 }
 
@@ -94,7 +94,7 @@ bool ResourceManager::consumeVespene(FixedPoint a) {
 	}
 }
 
-bool ResourceManager::consumeSupply(double a) {
+bool ResourceManager::consumeSupply(float a) {
 	if (supply + a <= supplyMax) {
 		supply += a;
 		return true;
@@ -112,26 +112,26 @@ bool ResourceManager::consumeVespene(int a) {
 }
 
 bool ResourceManager::consumeSupply(int a) {
-	return consumeSupply(static_cast<double>(a));
+	return consumeSupply(static_cast<float>(a));
 }
 
-void ResourceManager::addSupplyMax(double a) {
+void ResourceManager::addSupplyMax(float a) {
 	supplyMax += a;
 }
 
 void ResourceManager::addSupplyMax(int a) {
-	supplyMax += static_cast<double>(a);
+	supplyMax += static_cast<float>(a);
 }
 
 void ResourceManager::decrementSupply() {
 	supply -= 1.0;
 }
 
-void ResourceManager::decreaseSupply(double a) {
+void ResourceManager::decreaseSupply(float a) {
 	supply -= a;
 }
 
-void ResourceManager::increaseSupply(double a) {
+void ResourceManager::increaseSupply(float a) {
 	supply += a;
 }
 

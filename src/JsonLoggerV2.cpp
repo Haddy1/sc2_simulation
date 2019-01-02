@@ -2,20 +2,24 @@
 
 // log into cout
 JsonLoggerV2::JsonLoggerV2(Race r, ResourceManager& manager, bool valid) : race(r), rm(manager), validBuildlist(valid), hasBuildstart(false), hasAbility(false), messages(0) {
-	printBeginning();
+	
 }
 
 JsonLoggerV2::~JsonLoggerV2() {
-	if (validBuildlist) {
-		cout << endl << ws << ']' << endl; // ends the "messages" block
-	}
-	cout << '}' << endl;
+	
 }
 
 void JsonLoggerV2::printBeginning() {
 	cout << '{' << endl; 
 	cout << ws << quote << "buildlistValid" << quote << ": " << (int) validBuildlist << ',' << endl; 
 	cout << ws << quote << "game" << quote << ": " << quote << toString(race) << quote << (validBuildlist ? "," : "") << endl;
+}
+
+void JsonLoggerV2::printEnd() {
+	if (validBuildlist) {
+		cout << endl << ws << ']' << endl; // ends the "messages" block
+	}
+	cout << '}' << endl;
 }
 
 void JsonLoggerV2::printSetup(vector<pair<string, vector<int>>>& units) {
@@ -73,7 +77,6 @@ void JsonLoggerV2::printMessage(int time) {
 	if (messages != 0) {
 		cout << "," << endl; // separation with previous message entry
 	}
-	
 	cout << string(2, ws) << "{" << endl;
 	cout << string(3, ws) << "\"time\": " << time << "," << endl;
 	cout << string(3, ws) << "\"status\": {" << endl;

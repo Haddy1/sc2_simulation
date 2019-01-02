@@ -22,7 +22,7 @@ class ZergLarva : public ZergUnit {
 public:
 	ZergLarva(int& ID_Counter, string name, ResourceManager& r, string morphingTo, int&);
 	ZergLarva(int& ID_Counter, string name, ResourceManager& r, EntityData *morphingTo, int&);
-	~ZergLarva();
+	//~ZergLarva();
 	void update();
 	bool isDone();
 	EntityData *getUnitData();
@@ -38,7 +38,7 @@ class ZergDrone : public ZergUnit {
 	int& busyCounter;
 public:
 	ZergDrone(int& ID_Counter, string, ResourceManager&, int&);
-	~ZergDrone();
+	//~ZergDrone();
 	//void setWorking(bool);
 	void update();
 	bool morph(string);
@@ -52,6 +52,7 @@ public:
 
 class ZergQueen : public ZergUnit {
 	FixedPoint energy;
+	FixedPoint maxEnergy;
 	int& busyCounter;
 public:
 	ZergQueen(int& ID_Counter, string, ResourceManager&, int&);
@@ -59,6 +60,9 @@ public:
 	bool canInjectLarvas();
 	bool injectLarvas();
 	bool busy();
+	
+	static FixedPoint chargeRate;
+	static FixedPoint fixed25;
 };
 
 

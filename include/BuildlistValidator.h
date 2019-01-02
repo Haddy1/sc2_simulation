@@ -6,6 +6,7 @@
 #include <set>
 #include <string>
 #include <queue>
+#include <iostream>
 
 using std::set;
 using std::string;
@@ -16,7 +17,10 @@ class BuildlistValidator {
 	queue<string> buildQueue;
 	Race race;
 	
-	bool gasBuildingBuilt;
+	int gasBuildings;
+	
+	float supply;
+	float supplyMax;
 	
 	bool dependencyFulfilled(EntityData& e);
 public:

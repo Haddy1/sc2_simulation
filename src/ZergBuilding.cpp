@@ -49,8 +49,8 @@ bool ZergHatchery::update() {
 				--busyCounter;
 			}
 		}
-		//return; //cant do work if upgrading //TODO is this true?
 	}
+	
 	//update queen spawn
 	if (spawningQueen) {
 		++queenProgress;
@@ -58,6 +58,7 @@ bool ZergHatchery::update() {
 			queenProgress = queenData.buildTime;
 		}
 	}
+	
 	//update regular larva spawn
 	if (spawningLarva) {
 		++larvaProgress;
@@ -69,6 +70,7 @@ bool ZergHatchery::update() {
 			}
 		}
 	}
+	
 	//update special ability
 	if (injectingLarvas) {
 		++injectProgress;
@@ -79,6 +81,7 @@ bool ZergHatchery::update() {
 			}
 			injectingLarvas = false;
 			injectProgress = 0;
+			spawningLarva = false; // there is more than 3 larvas, so pause natural spawning
 		}
 	}
 	
@@ -86,7 +89,7 @@ bool ZergHatchery::update() {
 }
 
 bool ZergHatchery::upgrade() {
-	if (upgrading) {
+	if (upgrading || spawningQueen) {
 		return false;
 	}
 	if (entityData->name == string("hatchery")) {
@@ -142,7 +145,7 @@ bool ZergHatchery::morphLarva(EntityData& entity) {
 }
 
 bool ZergHatchery::spawnQueen() {
-	if (spawningQueen) {
+	if (upgrading || spawningQueen) {
 		return false;
 	}
 	if (!dependencyFulfilled(queenData)) {

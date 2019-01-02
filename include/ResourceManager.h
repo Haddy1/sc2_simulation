@@ -8,8 +8,8 @@
 class ResourceManager {
 	FixedPoint minerals;
 	FixedPoint vespene;
-	double supply;
-	double supplyMax;
+	float supply;
+	float supplyMax;
 	
 	int mineralWorkers;
 	int vespeneWorkers;
@@ -30,8 +30,8 @@ public:
 	
 	int getMinerals();
 	int getVespene();
-	double getSupply();
-	double getSupplyMax();
+	float getSupply();
+	float getSupplyMax();
 	int getMineralWorkers() const { return mineralWorkers; }
 	int getVespeneWorkers() const { return vespeneWorkers; }
 	int getWorkers() const { return mineralWorkers + vespeneWorkers; }
@@ -40,17 +40,17 @@ public:
 	
 	bool consumeMinerals(FixedPoint);
 	bool consumeVespene(FixedPoint);
-	bool consumeSupply(double);
+	bool consumeSupply(float);
 	bool consumeMinerals(int);
 	bool consumeVespene(int);
 	bool consumeSupply(int);
 	
-	void addSupplyMax(double);
+	void addSupplyMax(float);
 	void addSupplyMax(int);
 	
 	void decrementSupply(); //used by zerg when a drone morphs
-	void decreaseSupply(double);
-	void increaseSupply(double);
+	void decreaseSupply(float);
+	void increaseSupply(float);
 	
 	void setMineralWorkers(int a) { mineralWorkers = a; }
 	void setVespeneWorkers(int a) { vespeneWorkers = a; }

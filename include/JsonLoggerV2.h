@@ -90,6 +90,7 @@ public:
 	JsonLoggerV2(Race, ResourceManager&, bool);
 	~JsonLoggerV2();
 	
+	void printEnd();
 	void printBeginning();
 	void printSetup(vector<pair<string, vector<int>>>&);
 	void printMessage(int);
