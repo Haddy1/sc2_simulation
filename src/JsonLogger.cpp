@@ -1,4 +1,4 @@
-#include "../include/JsonLogger.h"
+#include "JsonLogger.h"
 
 // log into cout
 JsonLogger::JsonLogger(Race r, ResourceManager& manager, bool valid) : race(r), rm(manager), validBuildlist(valid)  {
@@ -42,18 +42,18 @@ void JsonLogger::printBeginning() {
 	undo_redirect();
 }
 
-void JsonLogger::printSetup(vector<pair<string, vector<int>>>& units) {
+void JsonLogger::printSetup(vector<pair<string, vector<int>>>& entities) {
 	// print initial units
 	redirect();
 	if(validBuildlist) {
 		cout << ws << "\"initialUnits\" : {" << endl;
-		for(auto& unit : units) {
+		for(auto& unit : entities) {
 			cout << string(2, ws) << "\"" << unit.first << "\" : [" << endl;
 			for(auto& id : unit.second) {
 				cout << string(3, ws) << "\"" << id << "\"";
 				cout << (id != unit.second.back() ? ",\n" : string("\n" + string(2, ws) + "]"));
 			}
-			cout << (unit != units.back() ? ", " : "") << endl;
+			cout << (unit != entities.back() ? ", " : "") << endl;
 		}
 		cout << ws << "}," << endl;
 	}
@@ -61,14 +61,6 @@ void JsonLogger::printSetup(vector<pair<string, vector<int>>>& units) {
 }
 
 void JsonLogger::printMessage(int time, vector<shared_ptr<EventEntry>>& events) {
-	// add messages keyword at the beginning
-	if(time == 0 && validBuildlist) {
-		if(validBuildlist) {
-			redirect();
-			cout << ws << "\"messages\": [" << endl;
-			undo_redirect();
-		}
-	}
 	// messages not added to log for invalid build lists
 	if(!validBuildlist || events.empty()) {
 		return;

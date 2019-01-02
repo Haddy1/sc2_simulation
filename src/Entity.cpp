@@ -17,3 +17,7 @@ const EntityData *Entity::getEntityData() const {
 const string& Entity::getName() const {
 	return entityData->name;
 }
+
+const int Entity::getBuildTime() const {
+	return entityData->buildTime;
+}

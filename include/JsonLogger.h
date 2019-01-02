@@ -21,6 +21,9 @@ using std::to_string;
 using std::shared_ptr;
 using std::make_shared;
 
+/*
+*	Entry classes to log events
+*/
 class EventEntry {
 public:
 	EventEntry(string type, string name, string producerID = "", vector<string> producedIDs = vector<string>()) : val(make_pair(type, name)), producerID(producerID), producedIDs(producedIDs) {
@@ -110,7 +113,7 @@ private:
 };
 
 /*
-* Inline functions to create smart pointers for the events
+*	Inline functions to create smart pointers for the events
 */
 inline shared_ptr<EventEntry> create_event_ptr(string type, string name, string producerID = "", vector<string> producedIDs = vector<string>()) {
 	return make_shared<EventEntry>(EventEntry(type, name, producerID, producedIDs));
@@ -132,7 +135,9 @@ inline shared_ptr<AbilityEntry> create_ability_ptr(string type, string name, int
 	return make_shared<AbilityEntry>(AbilityEntry(type, name, id, target)); 
 }
 
-
+/*
+*	Logger class
+*/
 class JsonLogger {
 public:
 	JsonLogger(Race, ResourceManager&, bool);

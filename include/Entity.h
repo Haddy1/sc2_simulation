@@ -15,4 +15,5 @@ public:
 	int getID() const;
 	const EntityData *getEntityData() const;
 	const string& getName() const;
+	const int getBuildTime() const;
 };

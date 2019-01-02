@@ -55,6 +55,13 @@ public:
 	void setMineralWorkers(int a) { mineralWorkers = a; }
 	void setVespeneWorkers(int a) { vespeneWorkers = a; }
 	
+	void incrementMineralWorkers() { ++mineralWorkers; }
+	
+	void redistributeWorkers(int geysers) {
+		vespeneWorkers = std::min(getWorkers(), 3 * geysers);
+		mineralWorkers = getWorkers() - vespeneWorkers;
+	}
+	
 	friend std::ostream& operator<<(std::ostream& os, const ResourceManager& r) {
 		os << "Resources: " << r.minerals << ", " << r.vespene << ", " << r.supply << "/" << r.supplyMax;
 		return os;

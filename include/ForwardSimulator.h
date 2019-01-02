@@ -8,16 +8,34 @@
 #include "ResourceManager.h"
 #include "JsonLogger.h"
 #include "JsonLoggerV2.h"
+#include "EntityData.h"
+#include "ProtossBuilding.h"
+#include "ProtossUnit.h"
 
 #include <vector>
 #include <queue>
 #include <string>
 #include <list>
+#include <memory>
+#include <map>
 
 using std::vector;
 using std::queue;
 using std::string;
+using std::stoi;
 using std::list;
+using std::shared_ptr;
+using std::make_shared;
+using std::unique_ptr;
+using std::make_unique;
+using std::begin;
+using std::end;
+using std::map;
+using std::multimap;
+using std::pair;
+
+typedef shared_ptr<ProtossBuilding> building_ptr;
+typedef shared_ptr<ProtossUnit> unit_ptr;
 
 class ForwardSimulator {
 	
@@ -58,23 +76,34 @@ public:
 	void simulate();
 };
 
-
 class ProtossSimulator : public ForwardSimulator {
 	queue<string> buildOrder;
-	vector<Building*> buildings;
-	vector<Unit*> units;
-	vector<Unit*> workers;
+	//vector<shared_ptr<ProtossBuilding>> buildings;
+	multimap<string, building_ptr> buildings;
+	vector<building_ptr> unfinishedBuildings;
+	vector<unit_ptr> units;
+	//vector<shared_ptr<ProtossUnit>> unfinishedUnits;
+	vector<unit_ptr> unfinishedUnits;
+	vector<shared_ptr<Gateway>> gateways;
+	shared_ptr<Nexus> nexus;
+	shared_ptr<ProtossBuilding> boosted_building;
 	ResourceManager resourceManager;
 	JsonLogger logger;
 	int timestep;
 	bool running;
-	
+	int chronoboostTimer;
+	int numEntities;
+	int numWorkers;
+	int geysers;
 public:
 	ProtossSimulator(bool);
 	ProtossSimulator(queue<string>, bool);
-	~ProtossSimulator() {}
+	~ProtossSimulator();
 	void init();
 	void simulate();
+	void update_buildProgress(vector<shared_ptr<EventEntry>>&);
+	void handle_chronoboost(vector<shared_ptr<EventEntry>>&);
+	void process_buildlist(vector<shared_ptr<EventEntry>>&);
 };
 
 
