@@ -17,10 +17,6 @@ bool ProtossBuilding::update() {
 	return false;
 }
 
-bool ProtossBuilding::isUpgradable() {
-	return false;
-}
-
 /*
 *	concrete Nexus class to manage energy/chronoboost
 */
@@ -46,18 +42,8 @@ void Nexus::consumeEnergy() {
 /*
 *	upgradable to warpgate
 */
+/*
 Gateway::Gateway(int& numEntities, string name, ResourceManager& r) : ProtossBuilding(numEntities, name, r) {
 	
 }
-
-bool Gateway::update() {
-	return true;
-}
-
-bool Gateway::isUpgradable() {
-	return curTime == getBuildTime()-1;
-}
-
-/*
-*	Mothership
 */

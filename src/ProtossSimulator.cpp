@@ -5,13 +5,13 @@ typedef multimap<string, building_ptr>::iterator MIter;
 // param. constructors
 ProtossSimulator::ProtossSimulator(bool validBuildlist) : 
 	logger(PROTOSS, resourceManager, validBuildlist, "output/log.txt"), \
-	timestep(1), running(true), chronoboostTimer(-1), numEntities(0), geysers(0) {
+	timestep(1), chronoboostTimer(-1), numEntities(0), geysers(0) {
 	// ...
 }
 
 ProtossSimulator::ProtossSimulator(queue<string> q, bool validBuildlist) : 
 	buildOrder(q), logger(PROTOSS, resourceManager, validBuildlist, "output/log.txt"), \
-	timestep(1), running(true), chronoboostTimer(-1), numEntities(0), geysers(0) {
+	timestep(1), chronoboostTimer(-1), numEntities(0), geysers(0) {
 	// ...
 }
 
@@ -79,8 +79,16 @@ void ProtossSimulator::update_buildProgress(vector<shared_ptr<EventEntry>>& even
 			if((*i)->getName().compare("assimilator") == 0) {
 				++geysers;
 			}
+			// seperate container for finished gateways
+			/*
+			if((*i)->getName().compare("gateway") == 0) {
+				gateways.push_back(make_shared<Gateway>(Gateway(numEntities, (*i)->getName(), resourceManager)));
+			} else {
+				buildings.emplace((*i)->getName(), *i);
+			}
+			*/
+			buildings.emplace((*i)->getName(), *i);
 			events.push_back(create_event_ptr("build-end", (*i)->getName(), 1, (*i)->getID()));
-			buildings.emplace((*i)->getName().c_str(), *i);
 			unfinishedBuildings.erase(i);
 		} else {
 			++i;
@@ -91,7 +99,6 @@ void ProtossSimulator::update_buildProgress(vector<shared_ptr<EventEntry>>& even
 	for(auto i = begin(unfinishedUnits); i != end(unfinishedUnits);) {
 		if((*i)->update()) {
 			if((*i)->getName().compare("probe") == 0) {
-				//nexus->busy = false;
 				resourceManager.incrementMineralWorkers(); // redistribution occurs before log
 			}
 			(*i)->getProducer()->busy = false;
@@ -105,7 +112,6 @@ void ProtossSimulator::update_buildProgress(vector<shared_ptr<EventEntry>>& even
 }
 
 void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events) {
-	// TODO
 	if(!buildOrder.empty() && chronoboostTimer < 0) {
 		string s = buildOrder.front();
 		EntityData e = entityDataMap.at(s);
@@ -114,22 +120,18 @@ void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events)
 			int producerID = -1;
 			
 			if(e.isBuilding) {
-				if(s.compare("gateway") == 0) {
-					gateways.push_back(make_shared<Gateway>(Gateway(numEntities, s, resourceManager)));
-					beginProduction = true;
-				}
-				else if(s.compare("warpgate") == 0) {
-					for(auto g = begin(gateways); g != end(gateways);) {
-						if((*g)->isUpgradable()) {
-							gateways.erase(g);
-							beginProduction = true;
-						} else {
-							++g;
-						}
+				/*
+				if(s.compare("warpgate") == 0) { // upgrade is instantaneous
+					for(auto g = begin(gateways); g != end(gateways); ++g) {
+						beginProduction = true;
+						gateways.erase(g);
+						break;
 					}
 				} else {
 					beginProduction = true;
 				}
+				*/
+				beginProduction = true;
 				producerID = 1; // always warped by same probe since it is never occupied while building (maybe TODO)
 				resourceManager.consumeRes(e);
 				unfinishedBuildings.push_back(make_shared<ProtossBuilding>(ProtossBuilding(numEntities, s, resourceManager)));
@@ -149,6 +151,7 @@ void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events)
 					}
 				}
 			}
+			// entity construction has begun -> log and remove from buildlist 
 			if(beginProduction) {
 				events.push_back(create_event_ptr("build-start", s, producerID));
 				buildOrder.pop();

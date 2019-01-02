@@ -77,20 +77,20 @@ public:
 };
 
 class ProtossSimulator : public ForwardSimulator {
-	queue<string> buildOrder;
-	//vector<shared_ptr<ProtossBuilding>> buildings;
+	// buildings
 	multimap<string, building_ptr> buildings;
 	vector<building_ptr> unfinishedBuildings;
-	vector<unit_ptr> units;
-	//vector<shared_ptr<ProtossUnit>> unfinishedUnits;
-	vector<unit_ptr> unfinishedUnits;
-	vector<shared_ptr<Gateway>> gateways;
+	//vector<shared_ptr<Gateway>> gateways;
 	shared_ptr<Nexus> nexus;
 	shared_ptr<ProtossBuilding> boosted_building;
+	// units
+	vector<unit_ptr> units;
+	vector<unit_ptr> unfinishedUnits;
+	// other members
+	queue<string> buildOrder;
 	ResourceManager resourceManager;
 	JsonLogger logger;
 	int timestep;
-	bool running;
 	int chronoboostTimer;
 	int numEntities;
 	int numWorkers;

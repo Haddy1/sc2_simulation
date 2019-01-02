@@ -10,7 +10,6 @@ class ProtossBuilding : public Building {
 public:
 	ProtossBuilding(int&, string, ResourceManager&);
 	virtual bool update();
-	virtual bool isUpgradable();
 	bool busy;
 protected:
 	ResourceManager& r;
@@ -30,6 +29,4 @@ private:
 class Gateway : public ProtossBuilding {
 public:
 	Gateway(int&, string, ResourceManager&);
-	bool update();
-	bool isUpgradable();
 };
