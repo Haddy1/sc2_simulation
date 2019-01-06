@@ -6,7 +6,7 @@
 const FixedPoint ResourceManager::mineralsPerWorkerSecond(0.7);
 const FixedPoint ResourceManager::vespenePerWorkerSecond(0.35);
 
-ResourceManager::ResourceManager() : minerals(50), vespene(0), supply(0), supplyMax(0), mineralWorkers(0), vespeneWorkers(0) {
+ResourceManager::ResourceManager() : minerals(50), vespene(0), supply(0), supplyMax(0), mineralWorkers(0), vespeneWorkers(0), geysers(0) {
 	
 }
 

@@ -1,19 +1,34 @@
 #pragma once
+#ifndef PBUILD_H
+#define PBUILD_H
+
 #include "Building.h"
 #include "FixedPoint.h"
 #include "ResourceManager.h"
+#include "ProtossUnit.h"
 #include "Tech.h"
+#include <memory>
 #include <iostream>
 #include <cmath>
+
+class ProtossUnit;
+
+using std::shared_ptr;
+typedef shared_ptr<ProtossUnit> u_ptr;
 
 class ProtossBuilding : public Building {
 public:
 	ProtossBuilding(int&, string, ResourceManager&);
 	virtual bool update();
-	bool busy;
+	bool isBusy();
+	bool produceUnit(u_ptr);
+	u_ptr getProducedUnit();
+	void finishUnit();
 protected:
-	ResourceManager& r;
+	bool busy;
+	ResourceManager& rm;
 	int curTime;
+	u_ptr toProduce;
 };
 
 class Nexus : public ProtossBuilding {
@@ -26,7 +41,4 @@ private:
 	FixedPoint energy;
 };
 
-class Gateway : public ProtossBuilding {
-public:
-	Gateway(int&, string, ResourceManager&);
-};
+#endif

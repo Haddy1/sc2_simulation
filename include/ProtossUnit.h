@@ -1,17 +1,25 @@
 #pragma once
+#ifndef PUNIT_H
+#define PUNIT_H
 #include "Unit.h"
-#include "ResourceManager.h"
 #include "ProtossBuilding.h"
+#include "ResourceManager.h"
 #include <memory>
 
+class ProtossBuilding;
+
 using std::shared_ptr;
+typedef shared_ptr<ProtossBuilding> b_ptr;
 
 class ProtossUnit : public Unit {
 public:
-	ProtossUnit(int&, string, shared_ptr<ProtossBuilding>);
-	virtual bool update();
-	shared_ptr<ProtossBuilding> getProducer();
+	ProtossUnit(int&, string, b_ptr, ResourceManager&);
+	bool update();
+	b_ptr getProducer();
 private:
 	int curTime;
-	shared_ptr<ProtossBuilding> producer;
+	b_ptr producer;
+	ResourceManager& rm;
 };
+
+#endif

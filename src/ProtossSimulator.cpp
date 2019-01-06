@@ -5,13 +5,13 @@ typedef multimap<string, building_ptr>::iterator MIter;
 // param. constructors
 ProtossSimulator::ProtossSimulator(bool validBuildlist) : 
 	logger(PROTOSS, resourceManager, validBuildlist, "output/log.txt"), \
-	timestep(1), chronoboostTimer(-1), numEntities(0), geysers(0) {
+	timestep(1), chronoboostTimer(-1), numEntities(0) {
 	// ...
 }
 
 ProtossSimulator::ProtossSimulator(queue<string> q, bool validBuildlist) : 
 	buildOrder(q), logger(PROTOSS, resourceManager, validBuildlist, "output/log.txt"), \
-	timestep(1), chronoboostTimer(-1), numEntities(0), geysers(0) {
+	timestep(1), chronoboostTimer(-1), numEntities(0) {
 	// ...
 }
 
@@ -25,7 +25,7 @@ void ProtossSimulator::init() {
 	nexus = make_shared<Nexus>(Nexus(numEntities, "nexus", resourceManager));
 	buildings.emplace("nexus", nexus);
 	for(int i = 0; i < 6; ++i) {
-		units.push_back(make_shared<ProtossUnit>(ProtossUnit(numEntities, "probe", nexus)));
+		units.push_back(make_shared<ProtossUnit>(ProtossUnit(numEntities, "probe", nexus, resourceManager)));
 	}
 	resourceManager.setMineralWorkers(6);
 	resourceManager.consumeSupply(6);
@@ -45,10 +45,10 @@ void ProtossSimulator::handle_chronoboost(vector<shared_ptr<EventEntry>>& events
 	// select building to boost if possible
 	if(nexus->getEnergy() >= FixedPoint(25) && chronoboostTimer == -1) {
 		for(auto i = begin(buildings); i != end(buildings); ++i) {
-			if((*i).second->busy) {
+			if((*i).second->isBusy()) {
+				boosted_building = (*i).second;
 				chronoboostTimer = 0;
 				nexus->consumeEnergy();
-				boosted_building = (*i).second;
 				break;
 			}
 		}
@@ -59,34 +59,26 @@ void ProtossSimulator::handle_chronoboost(vector<shared_ptr<EventEntry>>& events
 	}
 	// chronoboost already active
 	if(chronoboostTimer >= 0) {
-		if(chronoboostTimer >= 19) {
-			chronoboostTimer = -1; // reset
-			return;
-		}
-		if(boosted_building != nullptr && chronoboostTimer % 2) {
-			if(boosted_building->update()) { // increase update rate by 50%
-				chronoboostTimer = -1;
+		unit_ptr u = boosted_building->getProducedUnit();
+		if(boosted_building != nullptr && u != nullptr) {
+			if(chronoboostTimer % 2) {
+				if(u->update()) { // production complete
+					events.push_back(create_event_ptr("build-end", u->getName(), boosted_building->getID(), u->getID()));
+					units.push_back(u);
+					unfinishedUnits.erase(std::remove(unfinishedUnits.begin(), unfinishedUnits.end(), u), unfinishedUnits.end()); // remove unit
+				}
 			}
 		}
 		++chronoboostTimer;
 	}
+	// reset timer
+	chronoboostTimer = (chronoboostTimer >= 20) ? -1 : chronoboostTimer;
 }
 
 void ProtossSimulator::update_buildProgress(vector<shared_ptr<EventEntry>>& events) {
 	// Advance/finish buildings 
 	for(auto i = begin(unfinishedBuildings); i != end(unfinishedBuildings);) {
 		if((*i)->update()) {
-			if((*i)->getName().compare("assimilator") == 0) {
-				++geysers;
-			}
-			// seperate container for finished gateways
-			/*
-			if((*i)->getName().compare("gateway") == 0) {
-				gateways.push_back(make_shared<Gateway>(Gateway(numEntities, (*i)->getName(), resourceManager)));
-			} else {
-				buildings.emplace((*i)->getName(), *i);
-			}
-			*/
 			buildings.emplace((*i)->getName(), *i);
 			events.push_back(create_event_ptr("build-end", (*i)->getName(), 1, (*i)->getID()));
 			unfinishedBuildings.erase(i);
@@ -98,10 +90,6 @@ void ProtossSimulator::update_buildProgress(vector<shared_ptr<EventEntry>>& even
 	// Advance/finish units
 	for(auto i = begin(unfinishedUnits); i != end(unfinishedUnits);) {
 		if((*i)->update()) {
-			if((*i)->getName().compare("probe") == 0) {
-				resourceManager.incrementMineralWorkers(); // redistribution occurs before log
-			}
-			(*i)->getProducer()->busy = false;
 			events.push_back(create_event_ptr("build-end", (*i)->getName(), (*i)->getProducer()->getID(), (*i)->getID()));
 			units.push_back(*i);
 			unfinishedUnits.erase(i);
@@ -120,32 +108,20 @@ void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events)
 			int producerID = -1;
 			
 			if(e.isBuilding) {
-				/*
-				if(s.compare("warpgate") == 0) { // upgrade is instantaneous
-					for(auto g = begin(gateways); g != end(gateways); ++g) {
-						beginProduction = true;
-						gateways.erase(g);
-						break;
-					}
-				} else {
-					beginProduction = true;
-				}
-				*/
 				beginProduction = true;
 				producerID = 1; // always warped by same probe since it is never occupied while building (maybe TODO)
-				resourceManager.consumeRes(e);
 				unfinishedBuildings.push_back(make_shared<ProtossBuilding>(ProtossBuilding(numEntities, s, resourceManager)));
 			} else {
 				// find available producer building
 				pair<MIter, MIter> mapIter = buildings.equal_range(e.producedBy.front());
 				for(auto i = mapIter.first; i != mapIter.second;) {
 					building_ptr building = (*i).second;
-					if(!building->busy) {
-						unfinishedUnits.push_back(make_shared<ProtossUnit>(ProtossUnit(numEntities, s, building)));
-						building->busy = true;
-						beginProduction = true;
-						resourceManager.consumeRes(e);
+					if(!building->isBusy()) {
+						unit_ptr u = make_shared<ProtossUnit>(ProtossUnit(numEntities, s, building, resourceManager));
+						beginProduction = building->produceUnit(u);
+						unfinishedUnits.push_back(u);
 						producerID = building->getID();
+						break;
 					} else {
 						++i;
 					}
@@ -153,6 +129,7 @@ void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events)
 			}
 			// entity construction has begun -> log and remove from buildlist 
 			if(beginProduction) {
+				resourceManager.consumeRes(e);
 				events.push_back(create_event_ptr("build-start", s, producerID));
 				buildOrder.pop();
 			}
@@ -171,7 +148,7 @@ void ProtossSimulator::simulate() {
 		
 		process_buildlist(vec);
 		
-		resourceManager.redistributeWorkers(geysers);
+		resourceManager.redistributeWorkers();
 		
 		logger.printMessage(timestep, vec);
 		

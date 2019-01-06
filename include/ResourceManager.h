@@ -14,6 +14,7 @@ class ResourceManager {
 	int mineralWorkers;
 	int vespeneWorkers;
 	
+	int geysers;
 public:
 	static const FixedPoint mineralsPerWorkerSecond;
 	static const FixedPoint vespenePerWorkerSecond;
@@ -56,8 +57,9 @@ public:
 	void setVespeneWorkers(int a) { vespeneWorkers = a; }
 	
 	void incrementMineralWorkers() { ++mineralWorkers; }
+	void incrementGeysers() { ++geysers; }
 	
-	void redistributeWorkers(int geysers) {
+	void redistributeWorkers() {
 		int numWorkers = getWorkers();
 		vespeneWorkers = std::min(numWorkers, 3 * geysers);
 		mineralWorkers = numWorkers - vespeneWorkers;

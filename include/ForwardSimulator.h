@@ -12,6 +12,7 @@
 #include "ProtossBuilding.h"
 #include "ProtossUnit.h"
 
+#include <algorithm>
 #include <vector>
 #include <queue>
 #include <string>
@@ -34,8 +35,6 @@ using std::map;
 using std::multimap;
 using std::pair;
 
-typedef shared_ptr<ProtossBuilding> building_ptr;
-typedef shared_ptr<ProtossUnit> unit_ptr;
 
 class ForwardSimulator {
 	
@@ -76,11 +75,13 @@ public:
 	void simulate();
 };
 
+typedef shared_ptr<ProtossBuilding> building_ptr;
+typedef shared_ptr<ProtossUnit> unit_ptr;
+
 class ProtossSimulator : public ForwardSimulator {
 	// buildings
 	multimap<string, building_ptr> buildings;
 	vector<building_ptr> unfinishedBuildings;
-	//vector<shared_ptr<Gateway>> gateways;
 	shared_ptr<Nexus> nexus;
 	shared_ptr<ProtossBuilding> boosted_building;
 	// units
@@ -94,7 +95,6 @@ class ProtossSimulator : public ForwardSimulator {
 	int chronoboostTimer;
 	int numEntities;
 	int numWorkers;
-	int geysers;
 public:
 	ProtossSimulator(bool);
 	ProtossSimulator(queue<string>, bool);

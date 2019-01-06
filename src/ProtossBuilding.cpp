@@ -3,13 +3,18 @@
 /*
 *	ProtossBuildings
 */
-ProtossBuilding::ProtossBuilding(int& numEntities, string name, ResourceManager& r) : Building(numEntities, name), busy(false), r(r), curTime(0) {
+
+ProtossBuilding::ProtossBuilding(int& numEntities, string name, ResourceManager& r) : Building(numEntities, name), busy(false), rm(r), curTime(0), toProduce(nullptr) {
 	
 }
 
 bool ProtossBuilding::update() {
 	if(curTime == getBuildTime()-1) {
-		r.addSupplyMax(entityData->supplyProvided);
+		// special case: assimilator
+		if(getName().compare("assimilator") == 0) {
+			rm.incrementGeysers();
+		}
+		rm.addSupplyMax(entityData->supplyProvided);
 		techAdd(getName());
 		return true;
 	}
@@ -17,11 +22,31 @@ bool ProtossBuilding::update() {
 	return false;
 }
 
+bool ProtossBuilding::isBusy() {
+	return busy;
+}
+
+bool ProtossBuilding::produceUnit(u_ptr newUnit) {
+	toProduce = newUnit;
+	busy = true;
+	return true;
+}
+
+void ProtossBuilding::finishUnit() {
+	toProduce = nullptr;
+	busy = false;
+}
+
+
+u_ptr ProtossBuilding::getProducedUnit() {
+	return toProduce;
+}
+
 /*
-*	concrete Nexus class to manage energy/chronoboost
+*	Nexus class to manage energy/chronoboost
 */
 Nexus::Nexus(int& numEntities, string name, ResourceManager& r) : ProtossBuilding(numEntities, name, r), energy(0) {
-	r.addSupplyMax(entityData->supplyProvided);
+	rm.addSupplyMax(entityData->supplyProvided);
 	techAdd(getName());
 }
 
@@ -38,12 +63,3 @@ FixedPoint Nexus::getEnergy() {
 void Nexus::consumeEnergy() {
 	energy -= 25;
 }
-
-/*
-*	upgradable to warpgate
-*/
-/*
-Gateway::Gateway(int& numEntities, string name, ResourceManager& r) : ProtossBuilding(numEntities, name, r) {
-	
-}
-*/
