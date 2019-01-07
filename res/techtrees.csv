@@ -31,7 +31,6 @@ fleet_beacon,300,200,60,0,0,0,0,protoss, probe ,stargate
 assimilator,75,0,30,0,0,0,0,protoss, probe ,
 forge,150,0,45,0,0,0,0,protoss, probe ,pylon
 photon_cannon,150,0,40,0,0,0,0,protoss, probe ,forge
-#warpgate,0,0,0,0,0,0,0,protoss,probe,gateway
 #,,,,,,,,,,
 ##########,,,,,,,,,,
 #  Zerg  #,,,,,,,,,,
