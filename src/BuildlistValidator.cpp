@@ -73,12 +73,12 @@ bool BuildlistValidator::validate() {
 		EntityData& data = entityDataMap.at(s);
 		
 		if (!dependencyFulfilled(data)) {
-			std::clog << "Buildlist Validator: dependency not fulfilled." << std::endl;
+			//std::clog << "Buildlist Validator: dependency not fulfilled." << std::endl;
 			return false;
 		}
 		
 		if ((data.vespene > 0) && (gasBuildings == 0)) {
-			std::clog << "Buildlist Validator: no gas production, but gas needed." << std::endl;
+			//std::clog << "Buildlist Validator: no gas production, but gas needed." << std::endl;
 			return false;
 		}
 		
@@ -96,7 +96,7 @@ bool BuildlistValidator::validate() {
 		//std::clog << "Buildlist Validator: " << data.name << " " << supply << "/" << supplyMax << std::endl;
 		
 		if (supply > supplyMax) {
-			std::clog << "Buildlist Validator: supply > supplyMax." << std::endl;
+			//std::clog << "Buildlist Validator: supply > supplyMax." << std::endl;
 			return false;
 		}
 		
@@ -105,7 +105,7 @@ bool BuildlistValidator::validate() {
 		if ((s == string("refinery")) || (s == string("assimilator")) || (s == string("extractor"))) {
 			++gasBuildings;
 			if (gasBuildings > 2) {
-				std::clog << "Buildlist Validator: third gas building." << std::endl;
+				//std::clog << "Buildlist Validator: third gas building." << std::endl;
 				return false;
 			}
 		}
