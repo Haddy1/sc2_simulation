@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 		std::cout << '\t' << '\"' << "game" << '\"' << ": " << '\"' << toString(race) << '\"' << std::endl;
 		std::cout << '}' << std::endl; 
 		
-		std::cerr << "invalid buildlist" << std::endl;
+		//std::cerr << "invalid buildlist" << std::endl;
 		return 0;
 	}
 
@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
 	simulator->init();
 	simulator->simulate();
 	delete simulator;
-	std::clog << timer.elapsedSec() << " s" << std::endl;
+	//std::clog << timer.elapsedSec() << " s" << std::endl;
 	
 	return 0;
 }
