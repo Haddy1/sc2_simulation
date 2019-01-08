@@ -12,59 +12,36 @@
 #include <fstream>
 #include <queue>
 #include <cassert>
+#include <string>
 
 using std::ifstream;
 using std::queue;
 using std::vector;
 using std::pair;
 using std::make_pair;
+using std::string;
 
+Race race;
 
 void usage(char *arg) {
 	std::cerr << "usage: " << arg << " <race> <buildListFile>" << std::endl;
 }
 
-int main(int argc, char *argv[]) {
-	
-	if (argc != 3) { //TODO 4 args with optimizer
-		usage(argv[0]);
-		return -1;
-	}
-	
-	Race race;
-	
-	if (strcmp("sc2-hots-terran", argv[1]) == 0 || strcmp("terran", argv[1]) == 0) {
-		race = Race::TERRAN;
-	} else if (strcmp("sc2-hots-protoss", argv[1]) == 0 || strcmp("protoss", argv[1]) == 0) {
-		race = Race::PROTOSS;
-	} else if (strcmp("sc2-hots-zerg", argv[1]) == 0 || strcmp("zerg", argv[1]) == 0) {
-		race = Race::ZERG;
-	} else if (strcmp("rush", argv[1]) == 0) {
-		//TODO
-		return 0;
-	} else if (strcmp("push", argv[1]) == 0) {
-		//TODO
-		return 0;
-	} else {
-		usage(argv[0]);
-		return -1;
-	}
+void optimize(bool rush, string unitname, int number) {
+	std::clog << (rush ? "rush" : "push") << std::endl;
+	std::clog << unitname << ", " << number << std::endl;
+	if (!entityExists(unitname))
+		return;
+	EntityData& entityData = entityDataMap.at(unitname);
+	race = entityData.race;
+	std::clog << toString(race) << std::endl;
+}
 
-	// read csv
-	CSVParser csvp("res/techtrees.csv");
-	csvp.parse();
-	
-	initEntityNameMap();
-	
-	/*
-	for (auto it = entityDataMap.begin(); it != entityDataMap.end(); ++it) {
-		std::cout << (*it).second << std::endl;
-	} */
-	
+void forwardSimulate(char *filename) {
 	bool invalidBuildlist = false;
 	
 	// open buildlist file
-	ifstream buildListFile(argv[2]);
+	ifstream buildListFile(filename);
 	
 	if (buildListFile.fail()) {
 		invalidBuildlist = true;
@@ -106,41 +83,8 @@ int main(int argc, char *argv[]) {
 		std::cout << '\t' << '\"' << "buildlistValid" << '\"' << ": " << 0 << ',' << std::endl; 
 		std::cout << '\t' << '\"' << "game" << '\"' << ": " << '\"' << toString(race) << '\"' << std::endl;
 		std::cout << '}' << std::endl; 
-		
-		//std::cerr << "invalid buildlist" << std::endl;
-		return 0;
+		return;
 	}
-
-	/*
-	FixedPoint a(0.01);
-	FixedPoint b(0.35);
-	FixedPoint c(0.7);
-	std::cout << "a: "  << a << std::endl;
-	std::cout << "b: "  << b << std::endl;
-	std::cout << "c: "  << c << std::endl;
-	std::cout << "a*b: "  << a*b << std::endl;
-	std::cout << "a*c: "  << a*c << std::endl;
-	std::cout << "b*c: "  << b*c << std::endl;
-	std::cout << "a+b: "  << a+b << std::endl;
-	std::cout << "a+c: "  << a+c << std::endl;
-	std::cout << "b+c: "  << b+c << std::endl;
-	FixedPoint d = a*b;
-	std::cout << "d=a*b: "  << d << std::endl;
-	a+= b*FixedPoint(6);
-	std::cout << "a+= b*6: " << a << std::endl;
-	*/
-	/*
-	FixedPoint a(0.0);
-	FixedPoint b(1.0);
-	FixedPoint c(2.0);
-	FixedPoint d(1.1);
-	FixedPoint e(2.9);
-	std::cout << "FP test: " << (a*2) << std::endl;
-	std::cout << "FP test: " << (b*2) << std::endl;
-	std::cout << "FP test: " << (c*2) << std::endl;
-	std::cout << "FP test: " << (d*2) << std::endl;
-	std::cout << "FP test: " << (e*2) << std::endl;
-	*/
 	
 	ForwardSimulator *simulator;
 	
@@ -165,6 +109,45 @@ int main(int argc, char *argv[]) {
 	simulator->simulate();
 	delete simulator;
 	//std::clog << timer.elapsedSec() << " s" << std::endl;
+}
+
+int main(int argc, char *argv[]) {
+	
+	if (argc < 3 || argc > 4) {
+		usage(argv[0]);
+		return -1;
+	}
+	
+	bool opt = false;
+	bool rush = false;
+	
+	if (strcmp("sc2-hots-terran", argv[1]) == 0 || strcmp("terran", argv[1]) == 0) {
+		race = Race::TERRAN;
+	} else if (strcmp("sc2-hots-protoss", argv[1]) == 0 || strcmp("protoss", argv[1]) == 0) {
+		race = Race::PROTOSS;
+	} else if (strcmp("sc2-hots-zerg", argv[1]) == 0 || strcmp("zerg", argv[1]) == 0) {
+		race = Race::ZERG;
+	} else if (strcmp("rush", argv[1]) == 0) {
+		opt = true;
+		rush = true;
+	} else if (strcmp("push", argv[1]) == 0) {
+		opt = true;
+	} else {
+		usage(argv[0]);
+		return -1;
+	}
+
+	// read csv
+	CSVParser csvp("res/techtrees.csv");
+	csvp.parse();
+	
+	initEntityNameMap();
+	
+	if (opt) {
+		optimize(rush, string(argv[2]), atoi(argv[3]));
+	} else {
+		forwardSimulate(argv[2]);
+	}
 	
 	return 0;
 }

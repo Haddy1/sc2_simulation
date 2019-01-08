@@ -10,11 +10,11 @@ using std::endl;
 using std::stringstream;
 using std::to_string;
 
-ZergSimulator::ZergSimulator(bool logging) : logger(ZERG, resourceManager, true), timestep(1), maxTime(1000), gasBuildings(0), busyCounter(0), ID_Counter(0), logging(logging) {
+ZergSimulator::ZergSimulator(bool logging, int maxTime) : logger(ZERG, resourceManager, true), timestep(1), maxTime(maxTime), gasBuildings(0), busyCounter(0), ID_Counter(0), logging(logging), timedOut(false) {
 	
 }
 
-ZergSimulator::ZergSimulator(queue<string> q, bool logging) : logger(ZERG, resourceManager, true), buildOrder(q), timestep(1), maxTime(1000), gasBuildings(0), busyCounter(0), ID_Counter(0), logging(logging) {
+ZergSimulator::ZergSimulator(queue<string> q, bool logging, int maxTime) : logger(ZERG, resourceManager, true), buildOrder(q), timestep(1), maxTime(maxTime), gasBuildings(0), busyCounter(0), ID_Counter(0), logging(logging), timedOut(false) {
 	
 }
 
@@ -392,15 +392,31 @@ void ZergSimulator::simulate() {
 	if (logging)
 		logger.printEnd();
 	
-	/*
-	if (!continueSimulation) {
-		std::clog << "EVERYTHING IDLE at t = " << timestep << std::endl;
-	}
-	if (timestep >= maxTime) {
-		std::clog << "TIMEOUT" << std::endl;
-	}
-	*/
 	
+	
+	//if (!continueSimulation) {
+	//	std::clog << "EVERYTHING IDLE at t = " << timestep << std::endl;
+	//}
+	if (timestep > maxTime) {
+		timedOut = true;
+	}
+	
+	
+}
+
+int ZergSimulator::numberOfUnits(string unitname) {
+	//TODO
+	return 0;
+}
+
+int ZergSimulator::numberOfWorkers() {
+	//TODO
+	return 0;
+}
+
+int ZergSimulator::numberOfProductionStructures() {
+	//TODO
+	return 0;
 }
 
 

@@ -111,7 +111,6 @@ class ZergSimulator : public ForwardSimulator {
 	JsonLoggerV2 logger;
 	ResourceManager resourceManager;
 	queue<string> buildOrder;
-	int timestep;
 	int maxTime;
 	int gasBuildings;
 	int busyCounter;
@@ -130,11 +129,17 @@ class ZergSimulator : public ForwardSimulator {
 	list<ZergQueen> queens;
 	
 public:
-	ZergSimulator(bool);
-	ZergSimulator(queue<string>, bool);
+	ZergSimulator(bool logging, int maxTime = 1000);
+	ZergSimulator(queue<string>, bool logging, int maxTime = 1000);
 	~ZergSimulator();
 	void init();
 	void simulate();
+	int numberOfUnits(string unitname);
+	int numberOfWorkers();
+	int numberOfProductionStructures();
+	
+	int timestep;
+	bool timedOut;
 };
 
 
