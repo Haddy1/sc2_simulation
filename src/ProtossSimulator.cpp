@@ -4,13 +4,13 @@ typedef multimap<string, building_ptr>::iterator MIter;
 
 // param. constructors
 ProtossSimulator::ProtossSimulator(bool validBuildlist) : 
-	logger(PROTOSS, resourceManager, validBuildlist, "output/log.txt"), \
+	logger(PROTOSS, resourceManager, validBuildlist), \
 	timestep(1), chronoboostTimer(-1), numEntities(0) {
 	// ...
 }
 
 ProtossSimulator::ProtossSimulator(queue<string> q, bool validBuildlist) : 
-	buildOrder(q), logger(PROTOSS, resourceManager, validBuildlist, "output/log.txt"), \
+	buildOrder(q), logger(PROTOSS, resourceManager, validBuildlist), \
 	timestep(1), chronoboostTimer(-1), numEntities(0) {
 	// ...
 }
@@ -42,21 +42,28 @@ void ProtossSimulator::init() {
 void ProtossSimulator::handle_chronoboost(vector<shared_ptr<EventEntry>>& events) {
 	// update current energy
 	nexus->update();
+	
 	// select building to boost if possible
 	if(nexus->getEnergy() >= FixedPoint(25) && chronoboostTimer == -1) {
+		if(nexus->isBusy()) {
+			boosted_building = nexus;
+			chronoboostTimer = 0;
+			nexus->consumeEnergy();
+			events.push_back(create_ability_ptr("special", "chronoboost", boosted_building->getID(), nexus->getID()));
+		}
+		/*
 		for(auto i = begin(buildings); i != end(buildings); ++i) {
 			if((*i).second->isBusy()) {
 				boosted_building = (*i).second;
 				chronoboostTimer = 0;
 				nexus->consumeEnergy();
+				events.push_back(create_ability_ptr("special", "chronoboost", boosted_building->getID(), nexus->getID()));
 				break;
 			}
 		}
+		*/
 	}
-	// log
-	if(chronoboostTimer == 0) {
-		events.push_back(create_ability_ptr("special", "chronoboost", boosted_building->getID(), nexus->getID()));
-	}
+	
 	// chronoboost already active
 	if(chronoboostTimer >= 0) {
 		unit_ptr u = boosted_building->getProducedUnit();
@@ -100,7 +107,7 @@ void ProtossSimulator::update_buildProgress(vector<shared_ptr<EventEntry>>& even
 }
 
 void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events) {
-	if(!buildOrder.empty() && chronoboostTimer < 0) {
+	if(!buildOrder.empty() && chronoboostTimer != 1) {
 		string s = buildOrder.front();
 		EntityData e = entityDataMap.at(s);
 		if(resourceManager.canBuild(e) && dependencyFulfilled(e)) {
@@ -138,13 +145,13 @@ void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events)
 }
 
 void ProtossSimulator::simulate() {
-	while(timestep < 100000) {
+	while(timestep < 1000) {
 		vector<shared_ptr<EventEntry>> vec;
 		resourceManager.update();
 		
 		update_buildProgress(vec);
 		
-		//handle_chronoboost(vec);
+		handle_chronoboost(vec);
 		
 		process_buildlist(vec);
 		
