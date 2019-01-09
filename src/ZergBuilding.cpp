@@ -8,17 +8,17 @@ using std::endl;
 /*
  * Generic Zerg Building (tech tree only)
  */
-ZergBuilding::ZergBuilding(int& ID_Counter, string name, ResourceManager& r) : Building(ID_Counter, name), r(r) {
+ZergBuilding::ZergBuilding(int& ID_Counter, string name, ResourceManager& r, Tech& tech) : Building(ID_Counter, name), r(r), tech(tech) {
 	r.addSupplyMax(entityData->supplyProvided);
-	techAdd(name);
+	tech.add(name);
 }
 
 
 /*
  * Hatchery, Lair, Hive
  */
-ZergHatchery::ZergHatchery(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) :
-	ZergBuilding(ID_Counter, name, r), lairData(entityDataMap.at(string("lair"))), hiveData(entityDataMap.at(string("hive"))), queenData(entityDataMap.at(string("queen"))), larvas(3), spawningLarva(false), larvaProgress(0), spawningQueen(false), queenProgress(0) , injectingLarvas(false) , injectProgress(0) , upgrading(false) , upgradeProgress(0), busyCounter(busyCounter) 
+ZergHatchery::ZergHatchery(int& ID_Counter, string name, ResourceManager& r, Tech& tech, int& busyCounter) :
+	ZergBuilding(ID_Counter, name, r, tech), lairData(entityDataMap.at(string("lair"))), hiveData(entityDataMap.at(string("hive"))), queenData(entityDataMap.at(string("queen"))), larvas(3), spawningLarva(false), larvaProgress(0), spawningQueen(false), queenProgress(0) , injectingLarvas(false) , injectProgress(0) , upgrading(false) , upgradeProgress(0), busyCounter(busyCounter) 
 {
 	
 }
@@ -33,8 +33,8 @@ bool ZergHatchery::update() {
 				upgrading = false;
 				upgradeProgress = 0;
 				entityData = &lairData;
-				techAdd(string("lair"));
-				techRemove(string("hatchery"));
+				tech.add(string("lair"));
+				tech.remove(string("hatchery"));
 				justUpgraded = true;
 				--busyCounter;
 			}
@@ -43,8 +43,8 @@ bool ZergHatchery::update() {
 				upgrading = false;
 				upgradeProgress = 0;
 				entityData = &hiveData;
-				techAdd(string("hive"));
-				techRemove(string("lair"));
+				tech.add(string("hive"));
+				tech.remove(string("lair"));
 				justUpgraded = true;
 				--busyCounter;
 			}
@@ -93,7 +93,7 @@ bool ZergHatchery::upgrade() {
 		return false;
 	}
 	if (entityData->name == string("hatchery")) {
-		if (!dependencyFulfilled(lairData)) {
+		if (!tech.dependencyFulfilled(lairData)) {
 			return false;
 		}
 		if (r.consumeRes(lairData)) {
@@ -103,7 +103,7 @@ bool ZergHatchery::upgrade() {
 			return true;
 		}
 	} else if (entityData->name == string("lair")) {
-		if (!dependencyFulfilled(hiveData)) {
+		if (!tech.dependencyFulfilled(hiveData)) {
 			return false;
 		}
 		if (r.consumeRes(hiveData)) {
@@ -129,7 +129,7 @@ bool ZergHatchery::morphLarva(string s) {
 bool ZergHatchery::morphLarva(EntityData& entity) {
 	if (larvas == 0)
 		return false;
-	if (!dependencyFulfilled(entity)) {
+	if (!tech.dependencyFulfilled(entity)) {
 		return false;
 	}
 	int num = (entity.name == string("zergling") ? 2 : 1);
@@ -148,7 +148,7 @@ bool ZergHatchery::spawnQueen() {
 	if (upgrading || spawningQueen) {
 		return false;
 	}
-	if (!dependencyFulfilled(queenData)) {
+	if (!tech.dependencyFulfilled(queenData)) {
 		return false;
 	}
 	if (r.consumeRes(queenData)) {
@@ -189,7 +189,7 @@ bool ZergHatchery::busy() {
 /*
  * Spire, Greater Spire
  */
-ZergSpire::ZergSpire(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergBuilding(ID_Counter, name, r), greaterSpireData(entityDataMap.at(string("greater_spire"))), upgrading(false), upgradeProgress(0), busyCounter(busyCounter) {
+ZergSpire::ZergSpire(int& ID_Counter, string name, ResourceManager& r, Tech& tech, int& busyCounter) : ZergBuilding(ID_Counter, name, r, tech), greaterSpireData(entityDataMap.at(string("greater_spire"))), upgrading(false), upgradeProgress(0), busyCounter(busyCounter) {
 	
 }
 
@@ -200,7 +200,7 @@ bool ZergSpire::upgrade() {
 	if (entityData->name != string("spire")) {
 		return false;
 	}
-	if (!dependencyFulfilled(greaterSpireData)) {
+	if (!tech.dependencyFulfilled(greaterSpireData)) {
 		return false;
 	}
 	if (r.consumeRes(greaterSpireData)) {
@@ -219,8 +219,8 @@ bool ZergSpire::update() {
 			entityData = &greaterSpireData;
 			upgrading = false;
 			upgradeProgress = 0;
-			techAdd(string("greater_spire"));
-			techRemove(string("spire"));
+			tech.add(string("greater_spire"));
+			tech.remove(string("spire"));
 			--busyCounter;
 			return true;
 		}
@@ -236,7 +236,7 @@ bool ZergSpire::busy() {
 /*
  * Nydus Network
  */
-ZergNydusNetwork::ZergNydusNetwork(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergBuilding(ID_Counter, name, r), nydusWormData(entityDataMap.at(string("nydus_worm"))), spawningUnit(false), spawnProgress(0), busyCounter(busyCounter) {
+ZergNydusNetwork::ZergNydusNetwork(int& ID_Counter, string name, ResourceManager& r, Tech& tech, int& busyCounter) : ZergBuilding(ID_Counter, name, r, tech), nydusWormData(entityDataMap.at(string("nydus_worm"))), spawningUnit(false), spawnProgress(0), busyCounter(busyCounter) {
 	
 }
 
@@ -250,7 +250,7 @@ bool ZergNydusNetwork::spawn() {
 	if (spawningUnit) {
 		return false;
 	}
-	if (!dependencyFulfilled(nydusWormData)) {
+	if (!tech.dependencyFulfilled(nydusWormData)) {
 		return false;
 	}
 	if (r.consumeRes(nydusWormData)) {

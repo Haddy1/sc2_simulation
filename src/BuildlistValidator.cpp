@@ -9,12 +9,12 @@ BuildlistValidator::BuildlistValidator(Race race, queue<string> buildQueue) : bu
 			EntityData& data1 = entityDataMap.at(string("command_center"));
 			supply += data1.supplyCost;
 			supplyMax += data1.supplyProvided;
-			builtTech.insert(string("command_center"));
+			tech.add(string("command_center"));
 			
 			EntityData& data2 = entityDataMap.at(string("scv"));
 			supply += data2.supplyCost * 6;
 			supplyMax += data2.supplyProvided * 6;
-			builtTech.insert(string("scv"));
+			tech.add(string("scv"));
 			}
 			break;
 		case PROTOSS:
@@ -22,12 +22,12 @@ BuildlistValidator::BuildlistValidator(Race race, queue<string> buildQueue) : bu
 			EntityData& data3 = entityDataMap.at(string("nexus"));
 			supply += data3.supplyCost;
 			supplyMax += data3.supplyProvided;
-			builtTech.insert(string("nexus"));
+			tech.add(string("nexus"));
 			
 			EntityData& data4 = entityDataMap.at(string("probe"));
 			supply += data4.supplyCost * 6;
 			supplyMax += data4.supplyProvided * 6;
-			builtTech.insert(string("probe"));
+			tech.add(string("probe"));
 			}
 			break;
 		case ZERG:
@@ -35,34 +35,22 @@ BuildlistValidator::BuildlistValidator(Race race, queue<string> buildQueue) : bu
 			EntityData& data5 = entityDataMap.at(string("hatchery"));
 			supply += data5.supplyCost;
 			supplyMax += data5.supplyProvided;
-			builtTech.insert(string("hatchery"));
+			tech.add(string("hatchery"));
 			
 			EntityData& data6 = entityDataMap.at(string("drone"));
 			supply += data6.supplyCost * 6;
 			supplyMax += data6.supplyProvided * 6;
-			builtTech.insert(string("drone"));
+			tech.add(string("drone"));
 			
 			EntityData& data7 = entityDataMap.at(string("overlord"));
 			supply += data7.supplyCost;
 			supplyMax += data7.supplyProvided;
-			builtTech.insert(string("overlord"));
+			tech.add(string("overlord"));
 			}
 			break;
 		default:
 			break;
 	}
-}
-
-bool BuildlistValidator::dependencyFulfilled(EntityData& e) {
-	if (e.dependencies.size() == 0) {
-		return true;
-	}
-	for (string& dep : e.dependencies) {
-		if (builtTech.find(dep) != builtTech.end()) {
-			return true;
-		}
-	}
-	return false;
 }
 	
 bool BuildlistValidator::validate() {
@@ -72,7 +60,7 @@ bool BuildlistValidator::validate() {
 		buildQueue.pop();
 		EntityData& data = entityDataMap.at(s);
 		
-		if (!dependencyFulfilled(data)) {
+		if (!tech.dependencyFulfilled(data)) {
 			//std::clog << "Buildlist Validator: dependency not fulfilled." << std::endl;
 			return false;
 		}
@@ -101,7 +89,7 @@ bool BuildlistValidator::validate() {
 		}
 		
 		//requirements met, add new tech
-		builtTech.insert(s);
+		tech.add(s);
 		if ((s == string("refinery")) || (s == string("assimilator")) || (s == string("extractor"))) {
 			++gasBuildings;
 			if (gasBuildings > 2) {

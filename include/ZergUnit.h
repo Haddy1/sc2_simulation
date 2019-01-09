@@ -36,8 +36,9 @@ class ZergDrone : public ZergUnit {
 	int morphProgress;
 	EntityData *morphingToData;
 	int& busyCounter;
+	Tech& tech;
 public:
-	ZergDrone(int& ID_Counter, string, ResourceManager&, int&);
+	ZergDrone(int& ID_Counter, string, ResourceManager&, Tech&, int&);
 	//~ZergDrone();
 	//void setWorking(bool);
 	void update();
@@ -71,8 +72,9 @@ class ZergUpgradeableUnit : public ZergUnit {
 	bool upgrading;
 	int upgradeProgress;
 	int& busyCounter;
+	Tech& tech;
 public:
-	ZergUpgradeableUnit(int& ID_Counter, string, ResourceManager&, int&);
+	ZergUpgradeableUnit(int& ID_Counter, string, ResourceManager&, Tech&, int&);
 	bool update(); //returns true if upgrade done in this step
 	bool upgrade();
 	bool busy();

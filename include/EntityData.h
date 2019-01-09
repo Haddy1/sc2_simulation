@@ -45,10 +45,12 @@ bool entityExists(string s);
 
 enum EntityType {
 	none = 0,
-	//todo optional: add terran and protoss units/buildings
+	//TODO: add terran and protoss units/buildings
 	
-	overlord = 38, //values oriented at .csv file row number (starting at 1 not 0)
-	overseer, //has value 39
+	//ZERG
+	zerg_start = 100,
+	overlord = zerg_start,
+	overseer,
 	hydralisk,
 	drone,
 	queen,
@@ -62,8 +64,8 @@ enum EntityType {
 	brood_lord,
 	corruptor,
 	mutalisk,
-	
-	hatchery = 54,
+	//buildings
+	hatchery,
 	evolution_chamber,
 	spore_crawler,
 	lair,
@@ -78,7 +80,15 @@ enum EntityType {
 	nydus_network,
 	ultralisk_cavern,
 	greater_spire,
-	spire
+	spire,
+	zerg_end,
+	
+	//TERRAN
+	terran_start = 200,
+	terran_end,
+	//PROTOSS
+	protoss_start = 300,
+	protoss_end
 };
 
 extern unordered_map<int, string> entityNameMap;

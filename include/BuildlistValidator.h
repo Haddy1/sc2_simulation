@@ -2,6 +2,7 @@
 
 #include "Race.h"
 #include "EntityData.h"
+#include "Tech.h"
 
 #include <set>
 #include <string>
@@ -13,7 +14,7 @@ using std::string;
 using std::queue;
 
 class BuildlistValidator {
-	set<string> builtTech;
+	Tech tech;
 	queue<string> buildQueue;
 	Race race;
 	
@@ -22,7 +23,6 @@ class BuildlistValidator {
 	float supply;
 	float supplyMax;
 	
-	bool dependencyFulfilled(EntityData& e);
 public:
 	BuildlistValidator(Race race, queue<string> buildQueue);
 	bool validate();

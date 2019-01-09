@@ -48,7 +48,7 @@ bool ZergLarva::busy() {
 /*
  * Drone
  */
-ZergDrone::ZergDrone(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphing(false) , morphProgress(0) , morphingToData(nullptr), busyCounter(busyCounter) {
+ZergDrone::ZergDrone(int& ID_Counter, string name, ResourceManager& r, Tech& tech, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphing(false) , morphProgress(0) , morphingToData(nullptr), busyCounter(busyCounter), tech(tech) {
 	
 }
 
@@ -70,7 +70,7 @@ bool ZergDrone::morph(EntityData *e) {
 	if (morphing) {
 		return false;
 	}
-	if (!dependencyFulfilled(*e)) {
+	if (!tech.dependencyFulfilled(*e)) {
 		return false;
 	}
 	if (r.consumeRes(*e)) {
@@ -144,7 +144,7 @@ bool ZergQueen::busy() {
 /*
  * Upgradeable Unit: Overlord, Zergling, Corruptor
  */
-ZergUpgradeableUnit::ZergUpgradeableUnit(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, name, r), upgradeData(nullptr), upgrading(false), upgradeProgress(0), busyCounter(busyCounter) {
+ZergUpgradeableUnit::ZergUpgradeableUnit(int& ID_Counter, string name, ResourceManager& r, Tech& tech, int& busyCounter) : ZergUnit(ID_Counter, name, r), upgradeData(nullptr), upgrading(false), upgradeProgress(0), busyCounter(busyCounter), tech(tech) {
 	
 }
 
@@ -176,7 +176,7 @@ bool ZergUpgradeableUnit::upgrade() {
 		return false;
 	}
 	
-	if (!dependencyFulfilled(*upgradeData)) {
+	if (!tech.dependencyFulfilled(*upgradeData)) {
 		return false;
 	}
 	

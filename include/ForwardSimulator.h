@@ -110,6 +110,7 @@ public:
 class ZergSimulator : public ForwardSimulator {
 	JsonLoggerV2 logger;
 	ResourceManager resourceManager;
+	Tech tech;
 	queue<string> buildOrder;
 	int maxTime;
 	int gasBuildings;
