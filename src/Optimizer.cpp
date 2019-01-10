@@ -2,6 +2,9 @@
 #include "../include/Timer.h"
 #include "../include/EntityData.h"
 #include "../include/BuildlistValidator.h"
+#include "../include/ForwardSimulator.h"
+#include "../include/Race.h"
+
 
 #include <algorithm>
 #include <cstdlib>

@@ -15,7 +15,7 @@ bool ProtossBuilding::update() {
 			rm.incrementGeysers();
 		}
 		rm.addSupplyMax(entityData->supplyProvided);
-		techAdd(getName());
+		//techAdd(getName());
 		return true;
 	}
 	++curTime;
@@ -47,7 +47,7 @@ u_ptr ProtossBuilding::getProducedUnit() {
 */
 Nexus::Nexus(int& numEntities, string name, ResourceManager& r) : ProtossBuilding(numEntities, name, r), energy(0) {
 	rm.addSupplyMax(entityData->supplyProvided);
-	techAdd(getName());
+	//techAdd(getName());
 }
 
 bool Nexus::update() {

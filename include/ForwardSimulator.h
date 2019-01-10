@@ -89,6 +89,7 @@ class ProtossSimulator : public ForwardSimulator {
 	vector<unit_ptr> unfinishedUnits;
 	// other members
 	queue<string> buildOrder;
+	Tech tech;
 	ResourceManager resourceManager;
 	JsonLogger logger;
 	int timestep;
