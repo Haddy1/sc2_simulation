@@ -14,9 +14,9 @@ struct Individual {
 	int fitness;
 	queue<string> list;
 	
-	Individual();
+	Individual() {}
 	Individual(queue<string> q) : list(q) {}
-	void calcFitness();
+	void calcFitness(Race race);
 };
 
 class Optimizer {

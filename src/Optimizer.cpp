@@ -3,7 +3,6 @@
 #include "../include/EntityData.h"
 #include "../include/BuildlistValidator.h"
 #include "../include/ForwardSimulator.h"
-#include "../include/Race.h"
 
 
 #include <algorithm>
@@ -114,21 +113,27 @@ queue<string> createGenome(Race race, int size) {
 	return buildList;
 }
 
-void Individual::calcFitness() {
+void Individual::calcFitness(Race race) {
 	//TODO
 	//fitness = x;
 	switch(race) {
 	case TERRAN:
+	{
 		TerranSimulator sim();//TODO
 		break;
+	}
 	case PROTOSS:
-		ProtossSimulator sim();//TODO
+	{
+		ProtossSimulator sim(list, false);//TODO
 		break;
+	}
 	case ZERG:
+	{
 		ZergSimulator sim(list, false); //TODO correct timeout for push/rush
 		sim.simulate();
 		fitness = sim.timestep;
 		break;
+	}
 	default:
 		break;
 	}
@@ -168,7 +173,7 @@ void Optimizer::optimize() {
 	
 	while (!found) {
 		for (auto it = population.begin(); it != population.end(); ++it) {
-			it->calcFitness();
+			it->calcFitness(race);
 		}
 		
 		sort(population.begin(), population.end());

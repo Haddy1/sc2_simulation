@@ -10,11 +10,11 @@ using std::endl;
 using std::stringstream;
 using std::to_string;
 
-ZergSimulator::ZergSimulator(bool logging, int maxTime) : logger(ZERG, resourceManager, true), timestep(1), maxTime(maxTime), gasBuildings(0), busyCounter(0), ID_Counter(0), logging(logging), timedOut(false) {
+ZergSimulator::ZergSimulator(bool logging, int maxTime) : logger(ZERG, resourceManager, true), maxTime(maxTime), gasBuildings(0), busyCounter(0), ID_Counter(0), logging(logging), timestep(1), timedOut(false) {
 	
 }
 
-ZergSimulator::ZergSimulator(queue<string> q, bool logging, int maxTime) : logger(ZERG, resourceManager, true), buildOrder(q), timestep(1), maxTime(maxTime), gasBuildings(0), busyCounter(0), ID_Counter(0), logging(logging), timedOut(false) {
+ZergSimulator::ZergSimulator(queue<string> q, bool logging, int maxTime) : logger(ZERG, resourceManager, true), buildOrder(q), maxTime(maxTime), gasBuildings(0), busyCounter(0), ID_Counter(0), logging(logging), timestep(1), timedOut(false) {
 	
 }
 

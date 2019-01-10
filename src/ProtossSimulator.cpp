@@ -24,7 +24,7 @@ void ProtossSimulator::init() {
 	// setup: 1 Nexus, 6 probes
 	nexus = make_shared<Nexus>(Nexus(numEntities, "nexus", resourceManager));
 	buildings.emplace("nexus", nexus);
-	tech.techAdd("nexus");
+	tech.add("nexus");
 	for(int i = 0; i < 6; ++i) {
 		units.push_back(make_shared<ProtossUnit>(ProtossUnit(numEntities, "probe", nexus, resourceManager)));
 	}
@@ -118,7 +118,7 @@ void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events)
 			if(e.isBuilding) {
 				beginProduction = true;
 				producerID = 1; // always warped by same probe since it is never occupied while building (maybe TODO)
-				tech.techAdd(s);
+				tech.add(s);
 				unfinishedBuildings.push_back(make_shared<ProtossBuilding>(ProtossBuilding(numEntities, s, resourceManager)));
 			} else {
 				// find available producer building
