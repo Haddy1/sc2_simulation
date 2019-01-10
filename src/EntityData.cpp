@@ -16,7 +16,7 @@ void initEntityNameMap() {
 	entityNameMap.emplace(hydralisk, string("hydralisk"));
 	entityNameMap.emplace(drone, string("drone"));
 	entityNameMap.emplace(queen, string("queen"));
-	entityNameMap.emplace(larva, string("larva"));
+	//entityNameMap.emplace(larva, string("larva"));
 	entityNameMap.emplace(zergling, string("zergling"));
 	entityNameMap.emplace(baneling, string("baneling"));
 	entityNameMap.emplace(roach, string("roach"));

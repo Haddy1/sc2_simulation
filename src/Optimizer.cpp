@@ -146,7 +146,7 @@ Individual mate(Individual& a, Individual& b) {
 	return Individual(a.list);
 }
 
-void Optimizer::optimize() {
+queue<string> Optimizer::optimize() {
 	Timer timer;
 	timer.start();
 	//timer.elapsedMilli(); // end algorithm when just under 180 sec
@@ -212,6 +212,8 @@ void Optimizer::optimize() {
 		
 		++generation;
 	}
+	
+	return population[0].list;
 }
 
 

@@ -23,7 +23,7 @@ class Optimizer {
 	Race race;
 public:
 	Optimizer(Race race);
-	void optimize();
+	queue<string> optimize();
 	
 };
 

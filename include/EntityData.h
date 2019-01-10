@@ -54,7 +54,7 @@ enum EntityType {
 	hydralisk,
 	drone,
 	queen,
-	larva,
+	//larva,
 	zergling,
 	baneling,
 	roach,

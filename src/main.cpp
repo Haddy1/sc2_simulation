@@ -6,6 +6,7 @@
 #include "../include/JsonLogger.h"
 #include "../include/BuildlistValidator.h"
 #include "../include/Timer.h"
+#include "../include/Optimizer.h"
 
 #include <iostream>
 #include <cstring>
@@ -35,6 +36,28 @@ void optimize(bool rush, string unitname, int number) {
 	EntityData& entityData = entityDataMap.at(unitname);
 	race = entityData.race;
 	std::clog << toString(race) << std::endl;
+	
+	Optimizer opt(race);
+	queue<string> result = opt.optimize();
+	
+	ForwardSimulator *simulator;
+	switch (race) {
+		case TERRAN:
+			simulator = new TerranSimulator(result);
+			break;
+		case PROTOSS:
+			simulator = new ProtossSimulator(result, true);
+			break;
+		case ZERG:
+			simulator = new ZergSimulator(result, true);
+			break;
+		default:
+			break;
+	}
+	
+	simulator->init();
+	simulator->simulate();
+	delete simulator;
 }
 
 void forwardSimulate(char *filename) {
