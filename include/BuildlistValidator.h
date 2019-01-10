@@ -24,6 +24,7 @@ class BuildlistValidator {
 	float supplyMax;
 	
 public:
+	BuildlistValidator(Race race);
 	BuildlistValidator(Race race, queue<string> buildQueue);
 	bool validate(); // validates whole given list
 	bool validateNext(string s); // validates next

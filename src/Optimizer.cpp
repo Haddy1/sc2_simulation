@@ -64,13 +64,13 @@ bool operator<(const Individual& i, const Individual& j) {
 	return i.fitness < j.fitness;
 }
 
-string getRandomValidGene(const queue<string>& buildList, Race race, int start, int end) {
-	BuildlistValidator v(race, buildList);
-	v.validate();
+string getRandomValidGene(const queue<string>& buildList, BuildlistValidator& validator, Race race, int start, int end) {
+	//BuildlistValidator v(race, buildList);
+	//validator.validate();
 	vector<string> validChoices;
 	for (int i = start; i < end; ++i) {
 		const string& entityName = entityNameMap.at(i);
-		if (v.checkNext(entityName)) {
+		if (validator.checkNext(entityName)) {
 			validChoices.push_back(entityName);
 		}
 	}
@@ -78,33 +78,34 @@ string getRandomValidGene(const queue<string>& buildList, Race race, int start, 
 }
 
 queue<string> createGenome(Race race, int size) {
-	//TODO
 	//generate at random and make sure the buildlist is valid
 	queue<string> buildList;
 	
 	int start = 0;
 	int end = 0;
 	switch(race) {
-		case TERRAN:
+	case TERRAN:
 		start = EntityType::terran_start;
 		end = EntityType::terran_end;
 		break;
-		case PROTOSS:
+	case PROTOSS:
 		start = EntityType::protoss_start;
 		end = EntityType::protoss_end;
 		break;
-		case ZERG:
+	case ZERG:
 		start = EntityType::zerg_start;
 		end = EntityType::zerg_end;
 		break;
-		default:
+	default:
 		break;
 	}
 	//int range = end - start;
 	//int randIndex = (rand() % range) + start;
+	BuildlistValidator validator(race);
 	for (int i = 0; i < size; ++i) {
-		string nextGene = getRandomValidGene(buildList, race, start, end);
+		string nextGene = getRandomValidGene(buildList, validator, race, start, end);
 		buildList.push(nextGene);
+		validator.validateNext(nextGene);
 	}
 	
 	return buildList;
@@ -112,7 +113,24 @@ queue<string> createGenome(Race race, int size) {
 
 void Individual::calcFitness() {
 	//TODO
-	//this->fitness = x;
+	//fitness = x;
+	switch(race) {
+	case TERRAN:
+		TerranSimulator sim();//TODO
+		break;
+	case PROTOSS:
+		ProtossSimulator sim();//TODO
+		break;
+	case ZERG:
+		ZergSimulator sim(list, false); //TODO correct timeout for push/rush
+		sim.simulate();
+		fitness = sim.timestep;
+		break;
+	default:
+		break;
+	}
+	
+	
 }
 
 Individual mate(Individual& a, Individual& b) {
@@ -123,7 +141,7 @@ Individual mate(Individual& a, Individual& b) {
 void Optimizer::optimize() {
 	Timer timer;
 	timer.start();
-	timer.elapsedMilli(); // end algorithm when just under 180 sec
+	//timer.elapsedMilli(); // end algorithm when just under 180 sec
 	
 	
 	
@@ -131,10 +149,12 @@ void Optimizer::optimize() {
 	//rand() between 0 and RAND_MAX
 	bool found = false;
 	int generation = 0;
+	int maxGeneration = 50;
 	int populationSize = 1000;
 	int numSelect = populationSize/10;
 	int matingPoolSize = populationSize/10;
 	int buildListSize = 20;
+	long timeout = 179000;
 	
 	vector<Individual> population;
 	
@@ -151,12 +171,12 @@ void Optimizer::optimize() {
 		sort(population.begin(), population.end());
 		
 		//condition for loop end
-		/*
-		if () {
-			found = true;
+		
+		if (generation > maxGeneration || timer.elapsedMilli() > timeout) {
+			//found = true;
 			break;
 		}
-		*/
+		
 		
 		//Selection
 		//TODO: select the individuals with -most workers, -most ... as in pdf
@@ -177,7 +197,7 @@ void Optimizer::optimize() {
 		}
 		
 		//Mutation
-		
+		//TODO
 		
 		
 		population = nextPopulation;

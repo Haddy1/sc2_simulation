@@ -1,6 +1,58 @@
 #include "../include/BuildlistValidator.h"
 
 
+BuildlistValidator::BuildlistValidator(Race race) : race(race), gasBuildings(0), supply(0.f), supplyMax(0.f) {
+	//starting conditions
+	switch (race) {
+		case TERRAN:
+			{
+			EntityData& data1 = entityDataMap.at(string("command_center"));
+			supply += data1.supplyCost;
+			supplyMax += data1.supplyProvided;
+			tech.add(string("command_center"));
+			
+			EntityData& data2 = entityDataMap.at(string("scv"));
+			supply += data2.supplyCost * 6;
+			supplyMax += data2.supplyProvided * 6;
+			tech.add(string("scv"));
+			}
+			break;
+		case PROTOSS:
+			{
+			EntityData& data3 = entityDataMap.at(string("nexus"));
+			supply += data3.supplyCost;
+			supplyMax += data3.supplyProvided;
+			tech.add(string("nexus"));
+			
+			EntityData& data4 = entityDataMap.at(string("probe"));
+			supply += data4.supplyCost * 6;
+			supplyMax += data4.supplyProvided * 6;
+			tech.add(string("probe"));
+			}
+			break;
+		case ZERG:
+			{
+			EntityData& data5 = entityDataMap.at(string("hatchery"));
+			supply += data5.supplyCost;
+			supplyMax += data5.supplyProvided;
+			tech.add(string("hatchery"));
+			
+			EntityData& data6 = entityDataMap.at(string("drone"));
+			supply += data6.supplyCost * 6;
+			supplyMax += data6.supplyProvided * 6;
+			tech.add(string("drone"));
+			
+			EntityData& data7 = entityDataMap.at(string("overlord"));
+			supply += data7.supplyCost;
+			supplyMax += data7.supplyProvided;
+			tech.add(string("overlord"));
+			}
+			break;
+		default:
+			break;
+	}
+}
+
 BuildlistValidator::BuildlistValidator(Race race, queue<string> buildQueue) : buildQueue(buildQueue), race(race), gasBuildings(0), supply(0.f), supplyMax(0.f) {
 	//starting conditions
 	switch (race) {
