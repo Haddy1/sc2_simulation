@@ -52,52 +52,86 @@ BuildlistValidator::BuildlistValidator(Race race, queue<string> buildQueue) : bu
 			break;
 	}
 }
-	
+
 bool BuildlistValidator::validate() {
 	//Check if each entry has its dependencies fulfilled by previous entries
 	while (!buildQueue.empty()) {
 		string s = buildQueue.front();
 		buildQueue.pop();
-		EntityData& data = entityDataMap.at(s);
-		
-		if (!tech.dependencyFulfilled(data)) {
-			//std::clog << "Buildlist Validator: dependency not fulfilled." << std::endl;
+		if (!validateNext(s)) {
 			return false;
-		}
-		
-		if ((data.vespene > 0) && (gasBuildings == 0)) {
-			//std::clog << "Buildlist Validator: no gas production, but gas needed." << std::endl;
-			return false;
-		}
-		
-		//update supply
-		if (data.producedBy.size() == 1) {
-			EntityData& producedByData = entityDataMap.at(data.producedBy.at(0));
-			if (!producedByData.isBuilding) {
-				//producer is a unit: morphing
-				supply -= producedByData.supplyCost;
-				supplyMax -= producedByData.supplyProvided;
-			}
-		}
-		supply += ((data.name == string("zergling")) ? (data.supplyCost * 2) : data.supplyCost);
-		supplyMax += data.supplyProvided;
-		//std::clog << "Buildlist Validator: " << data.name << " " << supply << "/" << supplyMax << std::endl;
-		
-		if (supply > supplyMax) {
-			//std::clog << "Buildlist Validator: supply > supplyMax." << std::endl;
-			return false;
-		}
-		
-		//requirements met, add new tech
-		tech.add(s);
-		if ((s == string("refinery")) || (s == string("assimilator")) || (s == string("extractor"))) {
-			++gasBuildings;
-			if (gasBuildings > 2) {
-				//std::clog << "Buildlist Validator: third gas building." << std::endl;
-				return false;
-			}
 		}
 	}
+	return true;
+}
+
+bool BuildlistValidator::validateNext(string s) {
+	EntityData& data = entityDataMap.at(s);
+	
+	if (!tech.dependencyFulfilled(data)) {
+		return false;
+	}
+	
+	if ((data.vespene > 0) && (gasBuildings == 0)) {
+		return false;
+	}
+	
+	//update supply
+	if (data.producedBy.size() == 1) {
+		EntityData& producedByData = entityDataMap.at(data.producedBy.at(0));
+		if (!producedByData.isBuilding) {
+			//producer is a unit: morphing
+			supply -= producedByData.supplyCost;
+			supplyMax -= producedByData.supplyProvided;
+		}
+	}
+	supply += ((data.name == string("zergling")) ? (data.supplyCost * 2) : data.supplyCost);
+	supplyMax += data.supplyProvided;
+		
+	if (supply > supplyMax) {
+		return false;
+	}
+	
+	//requirements met, add new tech
+	tech.add(s);
+	if ((s == string("refinery")) || (s == string("assimilator")) || (s == string("extractor"))) {
+		++gasBuildings;
+		if (gasBuildings > 2) {
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+bool BuildlistValidator::checkNext(string s) {
+	EntityData& data = entityDataMap.at(s);
+	
+	if (!tech.dependencyFulfilled(data)) {
+		return false;
+	}
+	
+	if ((data.vespene > 0) && (gasBuildings == 0)) {
+		return false;
+	}
+	
+	float supplyChange = ((data.name == string("zergling")) ? (data.supplyCost * 2) : data.supplyCost);
+	float supplyMaxChange = data.supplyProvided;
+	
+	if (data.producedBy.size() == 1) {
+		EntityData& producedByData = entityDataMap.at(data.producedBy.at(0));
+		if (!producedByData.isBuilding) {
+			//producer is a unit: morphing
+			supplyChange -= producedByData.supplyCost;
+			supplyMaxChange -= producedByData.supplyProvided;
+		}
+	}
+	
+		
+	if ((supply + supplyChange) > (supplyMax + supplyMaxChange)) {
+		return false;
+	}
+	
 	return true;
 }
 

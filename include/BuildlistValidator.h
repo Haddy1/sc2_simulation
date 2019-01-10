@@ -25,8 +25,9 @@ class BuildlistValidator {
 	
 public:
 	BuildlistValidator(Race race, queue<string> buildQueue);
-	bool validate();
-	
+	bool validate(); // validates whole given list
+	bool validateNext(string s); // validates next
+	bool checkNext(string s); // validates next but does not change state of validator
 };
 
 

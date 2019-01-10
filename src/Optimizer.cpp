@@ -1,12 +1,17 @@
 #include "../include/Optimizer.h"
 #include "../include/Timer.h"
 #include "../include/EntityData.h"
+#include "../include/BuildlistValidator.h"
 
 #include <algorithm>
 #include <cstdlib>
+#include <set>
+#include <vector>
 
 using std::max;
 using std::sort;
+using std::set;
+using std::vector;
 
 Optimizer::Optimizer(Race race) : race(race) {
 	
@@ -59,7 +64,20 @@ bool operator<(const Individual& i, const Individual& j) {
 	return i.fitness < j.fitness;
 }
 
-queue<string> createGenome(Race race) {
+string getRandomValidGene(const queue<string>& buildList, Race race, int start, int end) {
+	BuildlistValidator v(race, buildList);
+	v.validate();
+	vector<string> validChoices;
+	for (int i = start; i < end; ++i) {
+		const string& entityName = entityNameMap.at(i);
+		if (v.checkNext(entityName)) {
+			validChoices.push_back(entityName);
+		}
+	}
+	return validChoices[rand() % validChoices.size()];
+}
+
+queue<string> createGenome(Race race, int size) {
 	//TODO
 	//generate at random and make sure the buildlist is valid
 	queue<string> buildList;
@@ -82,19 +100,13 @@ queue<string> createGenome(Race race) {
 		default:
 		break;
 	}
-	int range = end - start;
-	int randIndex = (rand() % range) + start;
+	//int range = end - start;
+	//int randIndex = (rand() % range) + start;
+	for (int i = 0; i < size; ++i) {
+		string nextGene = getRandomValidGene(buildList, race, start, end);
+		buildList.push(nextGene);
+	}
 	
-	const string& entityName = entityNameMap.at(randIndex);
-	
-	//check if valid choice
-	//...
-	
-	
-	buildList.push(entityName);
-	
-	//BuildlistValidator validator(race, buildList);
-	//validator.validate();
 	return buildList;
 }
 
@@ -122,11 +134,12 @@ void Optimizer::optimize() {
 	int populationSize = 1000;
 	int numSelect = populationSize/10;
 	int matingPoolSize = populationSize/10;
+	int buildListSize = 20;
 	
 	vector<Individual> population;
 	
 	for (int i = 0; i < populationSize; ++i) {
-		queue<string> genome = createGenome(race);
+		queue<string> genome = createGenome(race, buildListSize);
 		population.push_back(Individual(genome));
 	}
 	
