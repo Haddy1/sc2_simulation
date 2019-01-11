@@ -54,6 +54,10 @@ public:
 	virtual ~ForwardSimulator() = 0;
 	virtual void init() = 0;
 	virtual void simulate() = 0;
+	
+	virtual int numberOfUnits(string unitname) {return 0;}
+	virtual int numberOfWorkers() {return 0;}
+	virtual int numberOfProductionStructures() {return 0;}
 };
 
 inline ForwardSimulator::~ForwardSimulator() {}

@@ -31,13 +31,15 @@ void usage(char *arg) {
 void optimize(bool rush, string unitname, int number) {
 	std::clog << (rush ? "rush" : "push") << std::endl;
 	std::clog << unitname << ", " << number << std::endl;
-	if (!entityExists(unitname))
+	if (!entityExists(unitname)) {
+		std::cerr << "invalid unit name" << std::endl;
 		return;
+	}
 	EntityData& entityData = entityDataMap.at(unitname);
 	race = entityData.race;
 	std::clog << toString(race) << std::endl;
 	
-	Optimizer opt(race);
+	Optimizer opt(rush, unitname, number, race);
 	queue<string> result = opt.optimize();
 	
 	ForwardSimulator *simulator;
@@ -130,6 +132,7 @@ void forwardSimulate(char *filename) {
 	timer.start();
 	simulator->init();
 	simulator->simulate();
+	
 	delete simulator;
 	//std::clog << timer.elapsedSec() << " s" << std::endl;
 }

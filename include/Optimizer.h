@@ -16,13 +16,17 @@ struct Individual {
 	
 	Individual() {}
 	Individual(queue<string> q) : list(q) {}
-	void calcFitness(Race race);
+	void calcFitness(bool rush, string target, int num, Race race);
+	void printList();
 };
 
 class Optimizer {
+	bool rush;
+	string target;
+	int num;
 	Race race;
 public:
-	Optimizer(Race race);
+	Optimizer(bool rush, string target, int num, Race race);
 	queue<string> optimize();
 	
 };

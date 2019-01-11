@@ -406,12 +406,60 @@ void ZergSimulator::simulate() {
 
 int ZergSimulator::numberOfUnits(string unitname) {
 	//TODO
-	return 0;
+	//EntityData& entityData = entityDataMap.at(unitname);
+	int count = 0;
+	
+	for (auto& x : units) {
+		if ((x.getEntityData())->name == unitname) {
+			++count;
+		}
+	}
+	for (auto& x : upgradeableUnits) {
+		if ((x.getEntityData())->name == unitname) {
+			++count;
+		}
+	}
+	for (auto& x : drones) {
+		if ((x.getEntityData())->name == unitname) {
+			++count;
+		}
+	}
+	for (auto& x : queens) {
+		if ((x.getEntityData())->name == unitname) {
+			++count;
+		}
+	}
+	
+	if (count > 0) {
+		return count;
+	}
+	
+	for (auto& x : buildings) {
+		if ((x.getEntityData())->name == unitname) {
+			++count;
+		}
+	}
+	for (auto& x : hatcheries) {
+		if ((x.getEntityData())->name == unitname) {
+			++count;
+		}
+	}
+	for (auto& x : spires) {
+		if ((x.getEntityData())->name == unitname) {
+			++count;
+		}
+	}
+	for (auto& x : nydusNetworks) {
+		if ((x.getEntityData())->name == unitname) {
+			++count;
+		}
+	}
+	
+	return count;
 }
 
 int ZergSimulator::numberOfWorkers() {
-	//TODO
-	return 0;
+	return drones.size();
 }
 
 int ZergSimulator::numberOfProductionStructures() {
