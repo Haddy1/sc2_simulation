@@ -67,7 +67,6 @@ void ZergSimulator::simulate() {
 	
 	while (continueSimulation && (timestep <= maxTime)) {
 		
-		
 		/*
 		* Update Resources
 		*/

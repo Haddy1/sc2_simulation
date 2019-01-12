@@ -144,7 +144,8 @@ void Individual::calcFitness(bool rush, string target, int num, Race race) {
 		int targetUnits = sim.numberOfUnits(target);
 		
 		if (rush) {
-			if (targetUnits == 0) {
+			//if (targetUnits == 0) {
+			if (targetUnits == 0 || sim.timedOut) {
 				fitness = 2000000;
 			} else {
 				fitness = 100000/targetUnits;
@@ -276,8 +277,6 @@ Individual mutateInsert(const Individual& a, Race race) {
 queue<string> Optimizer::optimize() {
 	Timer timer;
 	timer.start();
-	//timer.elapsedMilli(); // end algorithm when just under 180 sec
-	
 	
 	srand(0);
 	//rand() between 0 and RAND_MAX
@@ -286,34 +285,18 @@ queue<string> Optimizer::optimize() {
 	int maxGeneration = 50;
 	int populationSize = 10000;
 	int numSelect = populationSize/10;
+	int numMate = 8*populationSize/10;
 	int matingPoolSize = populationSize/10;
-	int buildListSize = 20;
+	int buildListSize = 10;
 	long timeout = 179000;
 	
 	vector<Individual> population;
 	
 	for (int i = 0; i < populationSize; ++i) {
-		int listSizeVariation = rand() % 10;
+		int listSizeVariation = rand() % 20;
 		queue<string> genome = createGenome(race, buildListSize + listSizeVariation);
 		population.push_back(Individual(genome));
 	}
-	
-	/*
-	//test prints
-	for (int i = 0; i < 2; ++i) {
-		population[i].printList();
-		std::clog << std::endl;
-	
-		ZergSimulator sim(population[i].list, true, 360);
-		sim.init();
-		sim.simulate();
-		int targetUnits = sim.numberOfUnits(target);
-		if (targetUnits != 0) {
-			std::clog << targetUnits << std::endl;
-		}
-	}
-	*/
-	
 	
 	while (!found) {
 		for (auto it = population.begin(); it != population.end(); ++it) {
@@ -323,10 +306,10 @@ queue<string> Optimizer::optimize() {
 		sort(population.begin(), population.end());
 		
 	
-		std::clog << population[0].fitness << std::endl;
-		std::clog << population[9999].fitness << std::endl;
-		std::clog << population[0].list.size() << std::endl;
-		std::clog << population[9999].list.size() << std::endl;
+		std::clog << "best fitness: " << population[0].fitness << std::endl;
+		std::clog << "worst fitness: " << population[9999].fitness << std::endl;
+		//std::clog << population[0].list.size() << std::endl;
+		//std::clog << population[9999].list.size() << std::endl;
 		//condition for loop end
 		
 		if (generation > maxGeneration || timer.elapsedMilli() > timeout) {
@@ -343,7 +326,7 @@ queue<string> Optimizer::optimize() {
 		}
 		
 		//Reproduction
-		for (int i = numSelect; i < populationSize; ++i) {
+		for (int i = numSelect; i < numMate + numSelect; ++i) {
 			Individual parents[4];
 			for (int j = 0; j < 4; ++j) {
 				int r = rand() % matingPoolSize;
@@ -354,18 +337,16 @@ queue<string> Optimizer::optimize() {
 		}
 		
 		//Mutation
-		//TODO
-		//mutate random genomes instead of the offspring by inserting/deleting random genes
-		/*
-		for (int i = 0; i < 500; ++i) {
-			int r = rand() % populationSize;
-			nextPopulation[r] = mutateDelete(nextPopulation[r], race);
+		//mutate copies of best genomes instead of the offspring by inserting/deleting random genes
+		for (int i = numMate + numSelect; i < 95*populationSize/100; ++i) {
+			int r = rand() % numSelect;
+			nextPopulation.push_back(mutateDelete(population[r], race));
 		}
-		for (int i = 0; i < 500; ++i) {
-			int r = rand() % populationSize;
-			nextPopulation[r] = mutateInsert(nextPopulation[r], race);
+		for (int i = 95*populationSize/100; i < populationSize; ++i) {
+			int r = rand() % numSelect;
+			nextPopulation.push_back(mutateInsert(population[r], race));
 		}
-		*/
+		
 		
 		population = nextPopulation;
 		
