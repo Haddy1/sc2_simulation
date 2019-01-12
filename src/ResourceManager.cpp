@@ -114,6 +114,11 @@ bool ResourceManager::consumeVespene(int a) {
 bool ResourceManager::consumeSupply(int a) {
 	return consumeSupply(static_cast<double>(a));
 }
+/*
+void ResourceManager::addMinerals(double a) {
+    minerals += a;
+}
+*/
 
 void ResourceManager::addSupplyMax(double a) {
 	supplyMax += a;

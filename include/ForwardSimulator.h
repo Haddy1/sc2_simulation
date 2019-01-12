@@ -11,6 +11,7 @@
 #include <vector>
 #include <queue>
 #include <string>
+#include <list>
 
 using std::vector;
 using std::queue;
@@ -40,12 +41,11 @@ inline ForwardSimulator::~ForwardSimulator() {}
 
 class TerranSimulator : public ForwardSimulator {
 	queue<string> buildOrder;
-	vector<Building*> buildings;
-	vector<Unit*> units;
-	vector<Unit*> workers;
-	ResourceManager resourceManager;
+    vector<EventEntry> eventList_;
+	ResourceManager rm;
 	int timestep;
 	bool running;
+    JsonLogger logger;
 	
 public:
 	TerranSimulator();

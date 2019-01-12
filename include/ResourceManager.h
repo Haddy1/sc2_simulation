@@ -43,8 +43,8 @@ public:
 	bool consumeSupply(double);
 	bool consumeMinerals(int);
 	bool consumeVespene(int);
-	bool consumeSupply(int);
-	
+    bool consumeSupply(int);
+
 	void addSupplyMax(double);
 	void addSupplyMax(int);
 	
