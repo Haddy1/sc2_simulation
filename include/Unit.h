@@ -17,7 +17,7 @@ protected:
 	//string name;
 public:
 	Unit() = delete;
-	Unit(string);
+	Unit(int& ID_Counter, string);
 	//~Unit();
 	//bool busy();
 	//bool assign();

@@ -5,22 +5,32 @@
 FixedPoint::FixedPoint():
     value_(0) {}
 
-FixedPoint::FixedPoint(long long intValue)
+
+FixedPoint::FixedPoint(long intValue)
 {
     // Add digits after decimal point
     value_ = intValue * multiplier_;
 }
 
+
 FixedPoint::FixedPoint(int intValue)
 {
     // Add digits after decimal point
-    value_ = static_cast<long>(intValue * multiplier_);
+    value_ = (intValue * multiplier_);
 }
+
 FixedPoint::FixedPoint(double fValue)
 {
     // Add digits after decimal point
-    value_ = static_cast<long long>(fValue * multiplier_);
+    value_ = static_cast<long>(fValue * multiplier_);
 }
+
+FixedPoint::FixedPoint(float fValue)
+{
+    // Add digits after decimal point
+    value_ = static_cast<long>(fValue * multiplier_);
+}
+
 FixedPoint::FixedPoint(const FixedPoint& other):
     value_(other.value_) {}
 
@@ -36,6 +46,7 @@ FixedPoint& FixedPoint::operator=( const FixedPoint& other)
     value_ = other.value_;
     return *this;
 }
+
 FixedPoint& FixedPoint::operator=( FixedPoint&& other)
 {
     value_ = other.value_;
@@ -138,7 +149,7 @@ bool FixedPoint::operator<=( const FixedPoint& other)
 }
 
 int FixedPoint::toInt() const {
-	return static_cast<int>(value_ / multiplier_);
+	return (value_ / multiplier_);
 }
 
 std::ostream& operator<<(std::ostream& os, const FixedPoint& number)

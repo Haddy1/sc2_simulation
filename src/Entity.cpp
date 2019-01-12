@@ -1,8 +1,8 @@
 #include "../include/Entity.h"
 
-static int ID_Counter = 0;
+//static int ID_Counter = 0;
 
-Entity::Entity(string name) : entityData(&entityDataMap.at(name)) {
+Entity::Entity(int& ID_Counter, string name) : entityData(&entityDataMap.at(name)) {
 	id = ID_Counter++;
 }
 
@@ -16,4 +16,8 @@ const EntityData *Entity::getEntityData() const {
 
 const string& Entity::getName() const {
 	return entityData->name;
+}
+
+const int Entity::getBuildTime() const {
+	return entityData->buildTime;
 }

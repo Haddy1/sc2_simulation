@@ -1,6 +1,6 @@
 #include "../include/Unit.h"
 
-Unit::Unit(string name) : Entity(name) {
+Unit::Unit(int& ID_Counter, string name) : Entity(ID_Counter, name) {
 	
 }
 

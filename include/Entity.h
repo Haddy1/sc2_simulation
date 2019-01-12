@@ -11,8 +11,9 @@ protected:
 	int id;
 	EntityData *entityData;
 public:
-	Entity(string name);
+	Entity(int& ID_Counter, string name);
 	int getID() const;
 	const EntityData *getEntityData() const;
 	const string& getName() const;
+	const int getBuildTime() const;
 };
