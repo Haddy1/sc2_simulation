@@ -4,20 +4,18 @@
 
 class FixedPoint {
     private:
-        long value_ = 0;
-        static const unsigned short decPlaces_ = 5;                    // Nr of decimal places stored
-        static const int multiplier_ = 100000;//pow(10,decPlaces_);     // Multiplier used to 'shift' decimal point
+        long long value_ = 0;
+        const size_t decPlaces_ = 5;                    // Nr of decimal places stored
+        const int multiplier_ = pow(10,decPlaces_);     // Multiplier used to 'shift' decimal point
 
     public:
         FixedPoint();
 
-        FixedPoint(long intValue);
+        FixedPoint(long long intValue);
 
         FixedPoint(int intValue);
 
         FixedPoint(double fValue);
-		
-		FixedPoint(float fValue);
 
         FixedPoint(const FixedPoint& other);
 

@@ -8,28 +8,30 @@ using std::endl;
 /*
  * Generic Unit that cant morph
  */
-ZergUnit::ZergUnit(int& ID_Counter, string name, ResourceManager& r) : Unit(ID_Counter, name), r(r) {
+ZergUnit::ZergUnit(string name, ResourceManager& r) : Unit(name), r(r) {
 	r.addSupplyMax(entityData->supplyProvided);
+	//cout << "Unit " << name << " with id=" << getID() << " created." << endl;
 }
 
 
 /*
  * Larva
  */
-ZergLarva::ZergLarva(int& ID_Counter, string name, ResourceManager& r, string morphingTo, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphingToData(&entityDataMap.at(morphingTo)), morphProgress(0), busyCounter(busyCounter) {
-	//++busyCounter;
+ZergLarva::ZergLarva(string name, ResourceManager& r, string morphingTo) : ZergUnit(name, r), morphingToData(&entityDataMap.at(morphingTo)), morphProgress(0) {
+
 }
 
-ZergLarva::ZergLarva(int& ID_Counter, string name, ResourceManager& r, EntityData *morphingTo, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphingToData(morphingTo), morphProgress(0), busyCounter(busyCounter) {
-	//++busyCounter;
-}
+ZergLarva::ZergLarva(string name, ResourceManager& r, EntityData *morphingTo) : ZergUnit(name, r), morphingToData(morphingTo), morphProgress(0) {
 
-//ZergLarva::~ZergLarva() {
-//	--busyCounter;
-//}
+}
 
 void ZergLarva::update() {
 	++morphProgress;
+	/*
+	if (morphProgress == morphingToData.buildTime) {
+		morphProgress = morphingToData.buildTime;
+	} // not needed with >= in isDone()
+	*/
 }
 
 bool ZergLarva::isDone() {
@@ -48,12 +50,12 @@ bool ZergLarva::busy() {
 /*
  * Drone
  */
-ZergDrone::ZergDrone(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphing(false) , morphProgress(0) , morphingToData(nullptr), busyCounter(busyCounter) {
+ZergDrone::ZergDrone(string name, ResourceManager& r) : ZergUnit(name, r), morphing(false) , morphProgress(0) , morphingToData(nullptr) {
 	
 }
 
-//ZergDrone::~ZergDrone() {
-//	--busyCounter;
+//void ZergDrone::setWorking(bool b) {
+	//working = b;
 //}
 
 void ZergDrone::update() {
@@ -67,18 +69,18 @@ bool ZergDrone::morph(string s) {
 }
 
 bool ZergDrone::morph(EntityData *e) {
-	if (morphing) {
+	if (morphing)
 		return false;
-	}
 	if (!dependencyFulfilled(*e)) {
 		return false;
 	}
-	if (r.consumeRes(*e)) {
+	if (r.canBuild(*e)) {
+		r.consumeRes(*e);
 		r.decrementSupply();
 		morphing = true;
 		morphProgress = 0;
 		morphingToData = e;
-		//++busyCounter;
+		//working = false;
 		return true;
 	} else {
 		return false;
@@ -90,10 +92,9 @@ bool ZergDrone::isMorphing() {
 }
 
 bool ZergDrone::morphingDone() {
-	if (!morphing) {
+	if (!morphing)
 		return false;
-	}
-	return (morphProgress >= morphingToData->buildTime);
+	return (morphingToData->buildTime <= morphProgress);
 }
 
 EntityData *ZergDrone::getBuildingData() {
@@ -108,28 +109,25 @@ bool ZergDrone::busy() {
 /*
  * Queen
  */
-FixedPoint ZergQueen::chargeRate(0.5625);
-FixedPoint ZergQueen::fixed25(25);
-
-ZergQueen::ZergQueen(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, name, r), energy(entityData->startEnergy), maxEnergy(entityData->maxEnergy), busyCounter(busyCounter) {
+ZergQueen::ZergQueen(string name, ResourceManager& r) : ZergUnit(name, r), energy(entityData->startEnergy) {
 	
 }
 
 void ZergQueen::update() {
-	energy += chargeRate;
-	//FixedPoint maxEnergy(entityData->maxEnergy);
+	energy += FixedPoint(0.5625);
+	FixedPoint maxEnergy(entityData->maxEnergy);
 	if (energy > maxEnergy) {
 		energy = maxEnergy;
 	}
 }
 
 bool ZergQueen::canInjectLarvas() {
-	return (energy >= fixed25);
+	return (energy >= FixedPoint(25));
 }
 
 bool ZergQueen::injectLarvas() {
-	if (energy >= fixed25) {
-		energy -= fixed25;
+	if (energy >= FixedPoint(25)) {
+		energy -= FixedPoint(25);
 		return true;
 	} else {
 		return false;
@@ -144,17 +142,16 @@ bool ZergQueen::busy() {
 /*
  * Upgradeable Unit: Overlord, Zergling, Corruptor
  */
-ZergUpgradeableUnit::ZergUpgradeableUnit(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, name, r), upgradeData(nullptr), upgrading(false), upgradeProgress(0), busyCounter(busyCounter) {
+ZergUpgradeableUnit::ZergUpgradeableUnit(string name, ResourceManager& r) : ZergUnit(name, r), upgradeData(nullptr), upgrading(false), upgradeProgress(0) {
 	
 }
 
 bool ZergUpgradeableUnit::update() {
 	if (upgrading) {
 		++upgradeProgress;
-		if (upgradeProgress == upgradeData->buildTime) {
+		if (upgradeProgress == upgradeData->buildTime) {//TODO
 			upgrading = false;
 			entityData = upgradeData;
-			--busyCounter;
 			return true;
 		}
 	}
@@ -181,10 +178,10 @@ bool ZergUpgradeableUnit::upgrade() {
 	}
 	
 	r.decreaseSupply(entityData->supplyCost); // since we are morphing, take away the supply this unit currently uses
-	if (r.consumeRes(*upgradeData)) {
+	if (r.canBuild(*upgradeData)) {
+		r.consumeRes(*upgradeData);
 		upgrading = true;
 		upgradeProgress = 0;
-		++busyCounter;
 		return true;
 	} else {
 		r.increaseSupply(entityData->supplyCost); // failed to build, put supply back

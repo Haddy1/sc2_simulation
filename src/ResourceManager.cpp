@@ -6,7 +6,7 @@
 const FixedPoint ResourceManager::mineralsPerWorkerSecond(0.7);
 const FixedPoint ResourceManager::vespenePerWorkerSecond(0.35);
 
-ResourceManager::ResourceManager() : minerals(50), vespene(0), supply(0), supplyMax(0), mineralWorkers(0), vespeneWorkers(0), geysers(0) {
+ResourceManager::ResourceManager() : minerals(50), vespene(0), supply(0), supplyMax(0), mineralWorkers(0), vespeneWorkers(0) {
 	
 }
 
@@ -36,11 +36,11 @@ int ResourceManager::getVespene() {
 	return vespene.toInt();
 }
 
-float ResourceManager::getSupply() {
+double ResourceManager::getSupply() {
 	return supply;
 }
 
-float ResourceManager::getSupplyMax() {
+double ResourceManager::getSupplyMax() {
 	return supplyMax;
 }
 
@@ -94,7 +94,7 @@ bool ResourceManager::consumeVespene(FixedPoint a) {
 	}
 }
 
-bool ResourceManager::consumeSupply(float a) {
+bool ResourceManager::consumeSupply(double a) {
 	if (supply + a <= supplyMax) {
 		supply += a;
 		return true;
@@ -112,7 +112,7 @@ bool ResourceManager::consumeVespene(int a) {
 }
 
 bool ResourceManager::consumeSupply(int a) {
-	return consumeSupply(static_cast<float>(a));
+	return consumeSupply(static_cast<double>(a));
 }
 /*
 void ResourceManager::addMinerals(double a) {
@@ -120,23 +120,23 @@ void ResourceManager::addMinerals(double a) {
 }
 */
 
-void ResourceManager::addSupplyMax(float a) {
+void ResourceManager::addSupplyMax(double a) {
 	supplyMax += a;
 }
 
 void ResourceManager::addSupplyMax(int a) {
-	supplyMax += static_cast<float>(a);
+	supplyMax += static_cast<double>(a);
 }
 
 void ResourceManager::decrementSupply() {
 	supply -= 1.0;
 }
 
-void ResourceManager::decreaseSupply(float a) {
+void ResourceManager::decreaseSupply(double a) {
 	supply -= a;
 }
 
-void ResourceManager::increaseSupply(float a) {
+void ResourceManager::increaseSupply(double a) {
 	supply += a;
 }
 

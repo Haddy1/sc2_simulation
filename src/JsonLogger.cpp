@@ -1,4 +1,4 @@
-#include "JsonLogger.h"
+#include "../include/JsonLogger.h"
 
 // log into cout
 JsonLogger::JsonLogger(Race r, ResourceManager& manager, bool valid) : race(r), rm(manager), validBuildlist(valid)  {
@@ -42,25 +42,37 @@ void JsonLogger::printBeginning() {
 	undo_redirect();
 }
 
-void JsonLogger::printSetup(vector<pair<string, vector<int>>>& entities) {
+void JsonLogger::printSetup(vector<pair<string, vector<int>>>& units) {
 	// print initial units
 	redirect();
 	if(validBuildlist) {
 		cout << ws << "\"initialUnits\" : {" << endl;
-		for(auto& unit : entities) {
+		for(auto& unit : units) {
 			cout << string(2, ws) << "\"" << unit.first << "\" : [" << endl;
 			for(auto& id : unit.second) {
 				cout << string(3, ws) << "\"" << id << "\"";
-				cout << (id != unit.second.back() ? ",\n" : string("\n" + string(2, ws) + "]"));
+				if (id != unit.second.back()) {
+					cout << "," << endl;
+				} else {
+					cout << endl << string(2, ws) << "]";
+				}//				<< (id != unit.second.back() ? string(1, ',') + ws : "]");
 			}
-			cout << (unit != entities.back() ? ", " : "") << endl;
+			cout << (unit != units.back() ? ", " : "") << endl;
 		}
 		cout << ws << "}," << endl;
 	}
 	undo_redirect();
 }
 
-void JsonLogger::printMessage(int time, vector<shared_ptr<EventEntry>>& events) {
+void JsonLogger::printMessage(int time, vector<EventEntry*>& events) {
+	// add messages keyword at the beginning
+	if(time == 0 && validBuildlist) {
+		if(validBuildlist) {
+			redirect();
+			cout << ws << "\"messages\": [" << endl;
+			undo_redirect();
+		}
+	}
 	// messages not added to log for invalid build lists
 	if(!validBuildlist || events.empty()) {
 		return;
@@ -102,36 +114,38 @@ void JsonLogger::printMessage(int time, vector<shared_ptr<EventEntry>>& events) 
 		if (event->isAbilityEntry()) { //ability entry: print triggeredBy and targetBuilding
 			cout << "," << endl;
 			cout << string(5, ws) << "\"triggeredBy\": \"" << event->getID() << "\"," << endl;
-			if(!event->getTarget().empty()) // terran doesn't need to specify a target
-				cout << string(5, ws) << "\"targetBuilding\": \"" << event->getTarget() << "\"" << endl;
+			cout << string(5, ws) << "\"targetBuilding\": \"" << event->getTarget() << "\"" << endl;
 		} else {
 			string producerID = event->getProducerID();
 			vector<string> producedIDs = event->getProducedIDs();
-			if (!producerID.empty()) {
+			if (producerID.size() != 0) {
 				cout << "," << endl;
 				cout << string(5, ws) << "\"producerID\": \"" << producerID << "\"";// << endl;
 			}
-			if (!producedIDs.empty()) {
+			if (producedIDs.size() != 0) {
 				cout << "," << endl;
 				cout << string(5, ws) << "\"producedIDs\": [" << endl;
 				for (const string& s : producedIDs) {
 					cout << string(6, ws) << "\"" << s << "\"" << (s == producedIDs.back() ? "" : ",") << endl;
 				}
-				cout << string(5, ws) << "]";
+				cout << string(5, ws) << "]" << endl;
 			}
 		}
-		cout << endl << string(4, ws) << "}" << (&event != &events.back() ? "," : "") << endl;
+		
+		cout << string(4, ws) << "}" << (&event != &events.back() ? "," : "") << endl;
 	}
 	cout << string(3, ws) << "]" << endl;
 	cout << string(2, ws) << "}";
 	undo_redirect();
 }
 
-void JsonLogger::printMessageStart() {
+void JsonLogger::printMessage(int time) {
 	// add messages keyword at the beginning
-	if(validBuildlist) {
-		redirect();
-		cout << ws << "\"messages\": [" << endl;
-		undo_redirect();
+	if(time == 0 && validBuildlist) {
+		if(validBuildlist) {
+			redirect();
+			cout << ws << "\"messages\": [" << endl;
+			undo_redirect();
+		}
 	}
 }
