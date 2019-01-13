@@ -40,6 +40,7 @@ void optimize(bool rush, string unitname, int number) {
 	std::clog << toString(race) << std::endl;
 	
 	Optimizer opt(rush, unitname, number, race);
+	opt.init();
 	queue<string> result = opt.optimize();
 	
 	ForwardSimulator *simulator;

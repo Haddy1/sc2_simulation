@@ -1,15 +1,4 @@
 #include "../include/Optimizer.h"
-#include "../include/Timer.h"
-#include "../include/EntityData.h"
-#include "../include/BuildlistValidator.h"
-#include "../include/ForwardSimulator.h"
-
-
-#include <algorithm>
-#include <cstdlib>
-#include <set>
-#include <vector>
-#include <iostream>
 
 using std::max;
 using std::min;
@@ -17,106 +6,9 @@ using std::sort;
 using std::set;
 using std::vector;
 
-Optimizer::Optimizer(bool rush, string target, int num, Race race) : rush(rush), target(target), num(num), race(race) {
-	
-}
+using Individual = Optimizer::Individual;
 
-//TODO use vectors
-template<typename T>
-int calcDistance(queue<T> a, queue<T> b) {
-	int n = min(a.size(), b.size());
-	int d = 0;
-	for (int i = 0; i < n; ++i) {
-		T ai = a.front();
-		a.pop();
-		T bi = b.front();
-		b.pop();
-		if (ai != bi) {
-			d += (n - (i + 1));
-		}
-	}
-	return d;
-}
-
-pair<int, int> pairLargestDistance(Individual inds[4]) {
-	int d[6];
-	d[0] = calcDistance(inds[0].list, inds[1].list);
-	d[1] = calcDistance(inds[0].list, inds[2].list);
-	d[2] = calcDistance(inds[0].list, inds[3].list);
-	d[3] = calcDistance(inds[1].list, inds[2].list);
-	d[4] = calcDistance(inds[1].list, inds[3].list);
-	d[5] = calcDistance(inds[2].list, inds[3].list);
-	int m = 0;
-	int mindex = 0;
-	for (int i = 0; i < 6; ++i) {
-		if (d[i] > m) {
-			m = d[i];
-			mindex = i;
-		}
-	}
-	switch(mindex) {
-		case 0: return pair<int, int>(0,1);
-		case 1: return pair<int, int>(0,2);
-		case 2: return pair<int, int>(0,3);
-		case 3: return pair<int, int>(1,2);
-		case 4: return pair<int, int>(1,3);
-		default: return pair<int, int>(2,3);
-	}
-}
-
-bool operator<(const Individual& i, const Individual& j) {
-	return i.fitness < j.fitness;
-}
-
-string getRandomValidGene(const queue<string>& buildList, BuildlistValidator& validator, Race race) {
-	//TODO precompute start, end.
-	int start = 0;
-	int end = 0;
-	switch(race) {
-	case TERRAN:
-		start = EntityType::terran_start;
-		end = EntityType::terran_end;
-		break;
-	case PROTOSS:
-		start = EntityType::protoss_start;
-		end = EntityType::protoss_end;
-		break;
-	case ZERG:
-		start = EntityType::zerg_start;
-		end = EntityType::zerg_end;
-		break;
-	default:
-		break;
-	}
-	//BuildlistValidator v(race, buildList);
-	//validator.validate();
-	vector<string> validChoices;
-	for (int i = start; i < end; ++i) {
-		const string& entityName = entityNameMap.at(i);
-		if (validator.checkNext(entityName)) {
-			validChoices.push_back(entityName);
-		}
-	}
-	return validChoices[rand() % validChoices.size()];
-}
-
-queue<string> createGenome(Race race, int size) {
-	//generate at random and make sure the buildlist is valid
-	queue<string> buildList;
-	
-	//int range = end - start;
-	//int randIndex = (rand() % range) + start;
-	BuildlistValidator validator(race);
-	for (int i = 0; i < size; ++i) {
-		string nextGene = getRandomValidGene(buildList, validator, race);
-		buildList.push(nextGene);
-		validator.validateNext(nextGene);
-	}
-	
-	return buildList;
-}
-
-void Individual::calcFitness(bool rush, string target, int num, Race race) {
+void Optimizer::Individual::calcFitness(bool rush, string target, int num, Race race) {
 	//TODO need good fitness function
 	switch(race) {
 	case TERRAN:
@@ -166,7 +58,7 @@ void Individual::calcFitness(bool rush, string target, int num, Race race) {
 	
 }
 
-void Individual::printList() {
+void Optimizer::Individual::printList() {
 	queue<string> x = list;
 	unsigned int size = x.size();
 	for (unsigned int i = 0; i < size; ++i) {
@@ -175,7 +67,79 @@ void Individual::printList() {
 	}
 }
 
-Individual mate(const Individual& a, const Individual& b, Race race) {
+//TODO use vectors
+template<typename T>
+int Optimizer::calcDistance(queue<T> a, queue<T> b) {
+	int n = min(a.size(), b.size());
+	int d = 0;
+	for (int i = 0; i < n; ++i) {
+		T ai = a.front();
+		a.pop();
+		T bi = b.front();
+		b.pop();
+		if (ai != bi) {
+			d += (n - (i + 1));
+		}
+	}
+	return d;
+}
+
+pair<int, int> Optimizer::pairLargestDistance(Individual inds[4]) {
+	int d[6];
+	d[0] = calcDistance(inds[0].list, inds[1].list);
+	d[1] = calcDistance(inds[0].list, inds[2].list);
+	d[2] = calcDistance(inds[0].list, inds[3].list);
+	d[3] = calcDistance(inds[1].list, inds[2].list);
+	d[4] = calcDistance(inds[1].list, inds[3].list);
+	d[5] = calcDistance(inds[2].list, inds[3].list);
+	int m = 0;
+	int mindex = 0;
+	for (int i = 0; i < 6; ++i) {
+		if (d[i] > m) {
+			m = d[i];
+			mindex = i;
+		}
+	}
+	switch(mindex) {
+		case 0: return pair<int, int>(0,1);
+		case 1: return pair<int, int>(0,2);
+		case 2: return pair<int, int>(0,3);
+		case 3: return pair<int, int>(1,2);
+		case 4: return pair<int, int>(1,3);
+		default: return pair<int, int>(2,3);
+	}
+}
+
+string Optimizer::getRandomValidGene(const queue<string>& buildList, BuildlistValidator& validator, Race race) {
+	//BuildlistValidator v(race, buildList);
+	//validator.validate();
+	vector<string> validChoices;
+	for (int i = startIndex; i < endIndex; ++i) {
+		const string& entityName = entityNameMap.at(i);
+		if (validator.checkNext(entityName)) {
+			validChoices.push_back(entityName);
+		}
+	}
+	return validChoices[rand() % validChoices.size()];
+}
+
+queue<string> Optimizer::createGenome(Race race, int size) {
+	//generate at random and make sure the buildlist is valid
+	queue<string> buildList;
+	
+	//int range = end - start;
+	//int randIndex = (rand() % range) + start;
+	BuildlistValidator validator(race);
+	for (int i = 0; i < size; ++i) {
+		string nextGene = getRandomValidGene(buildList, validator, race);
+		buildList.push(nextGene);
+		validator.validateNext(nextGene);
+	}
+	
+	return buildList;
+}
+
+Individual Optimizer::mate(const Individual& a, const Individual& b, Race race) {
 	
 	
 	// make both parent lists same length
@@ -235,7 +199,7 @@ Individual mate(const Individual& a, const Individual& b, Race race) {
 	return Individual(buildList);
 }
 
-Individual mutateDelete(const Individual& a, Race race) {
+Individual Optimizer::mutateDelete(const Individual& a, Race race) {
 	int size = a.list.size();
 	int r = rand() % size;
 	queue<string> copyList = a.list;
@@ -255,7 +219,7 @@ Individual mutateDelete(const Individual& a, Race race) {
 	}
 }
 
-Individual mutateInsert(const Individual& a, Race race) {
+Individual Optimizer::mutateInsert(const Individual& a, Race race) {
 	int size = a.list.size();
 	int r = rand() % size;
 	queue<string> copyList = a.list;
@@ -272,6 +236,53 @@ Individual mutateInsert(const Individual& a, Race race) {
 		copyList.pop();
 	}
 	return newBuildList;
+}
+
+bool operator<(const Individual& i, const Individual& j) {
+	return i.fitness < j.fitness;
+}
+
+Optimizer::Optimizer(bool rush, string target, int num, Race race) : rush(rush), target(target), num(num), race(race) {
+	
+}
+
+void Optimizer::addToSetRec(const string& entityName) {
+	if (searchSpace.find(entityName) != searchSpace.end()) { //already in set
+		return;
+	}
+	const EntityData& entityData = entityDataMap.at(entityName);
+	//if (entityExists(entityName) { //avoid adding larva
+	//	searchSpace.insert(entityName);
+	//}
+	searchSpace.insert(entityName);
+	for (const string& s : entityData.dependencies) {
+		addToSetRec(s);
+	}
+	for (const string& s : entityData.producedBy) {
+		addToSetRec(s);
+	}
+}
+
+void Optimizer::init() {
+	switch(race) {
+	case TERRAN:
+		startIndex = EntityType::terran_start;
+		endIndex = EntityType::terran_end;
+		break;
+	case PROTOSS:
+		startIndex = EntityType::protoss_start;
+		endIndex = EntityType::protoss_end;
+		break;
+	case ZERG:
+		startIndex = EntityType::zerg_start;
+		endIndex = EntityType::zerg_end;
+		break;
+	default:
+		break;
+	}
+	
+	
+	addToSetRec(target);
 }
 
 queue<string> Optimizer::optimize() {
