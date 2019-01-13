@@ -24,8 +24,10 @@ TerranSimulator::TerranSimulator(queue<string> q) :
 
 
 void TerranSimulator::init() {
+    logger.printBeginning();
     CommandCenter cCenter(ID_Counter, "command_center", &rm, &logger);
     CommandCenter::cCenterList.push_back(cCenter);
+    vector<int> initCCenterId = {cCenter.getID()};
     rm.addSupplyMax(entityDataMap.at("command_center").supplyProvided);
 
     vector<int> initWorkerIds;
@@ -38,7 +40,7 @@ void TerranSimulator::init() {
     rm.setMineralWorkers(6);
 
     vector<pair<string, vector<int>>> initUnits;
-    initUnits.emplace_back("command_center", cCenter.getID());
+    initUnits.emplace_back("command_center", initCCenterId);
     initUnits.emplace_back("scv", initWorkerIds);
     logger.printSetup(initUnits);
 
@@ -49,6 +51,7 @@ void TerranSimulator::simulate() {
     bool buildingsIdle = true;
     while(running and timestep < maxTime){
         rm.update();
+//std::cout << rm.getMinerals() << std::endl;
 
         buildingsIdle = true;
         // Update all regular buildings
@@ -76,22 +79,27 @@ void TerranSimulator::simulate() {
             if (CommandCenter::cCenterList[i].busy())
                 buildingsIdle = false;
         }
-
         for ( size_t i = 0; i < CommandCenter::cCenterList.size(); ++i){
             CommandCenter::cCenterList[i].callMule();
         }
 
-        for (MULE mule : MULE::muleList){
-            mule.update();
+        for ( size_t i = 0; i < MULE::muleList.size(); ++i){
+            MULE::muleList[i].update();
         }
 
 
         if (! buildOrder.empty()){
             string buildName = buildOrder.front();
+            EntityData item = entityDataMap.at(buildName);
 
-            string producer = entityDataMap.at(buildName).producedBy[0];
+            string producer = item.producedBy[0];
+            size_t pos = producer.find("with_tech_lab");
+            if (pos != string::npos){
+                producer.erase(pos, producer.length());
+            }
 
-            if (rm.canBuild(entityDataMap.at(buildName))){
+            if (dependencyFulfilled(item) && rm.canBuild(item)){
+                buildingsIdle = false;
 
                 if (buildName == "scv") {
                     for ( size_t i = 0; i < CommandCenter::cCenterList.size(); ++i){
@@ -146,13 +154,16 @@ void TerranSimulator::simulate() {
             if (! SCV::workerList[i].busy)
                 freeWorkers += 1;
         }
-
-        int nrRefineries = TerranBuilding::buildingList.at("refinery").size();
+        
+        int nrRefineries = 0;
+        for (size_t i = 0; i < TerranBuilding::buildingList.at("refinery").size(); i++){
+            if (! TerranBuilding::buildingList.at("refinery")[i]->isUnderConstruction())
+                nrRefineries += 1;
+        }
         int vespeneWorkers = std::min(freeWorkers, 3 * nrRefineries);
         rm.setVespeneWorkers(vespeneWorkers);
         freeWorkers -= vespeneWorkers;
-        int nrMules = MULE::muleList.size();
-        rm.setMineralWorkers(4 * nrMules + freeWorkers);
+        rm.setMineralWorkers(freeWorkers);
 
 
         logger.printMessage(timestep);

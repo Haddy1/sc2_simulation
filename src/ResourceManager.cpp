@@ -44,6 +44,10 @@ float ResourceManager::getSupplyMax() {
 	return supplyMax;
 }
 
+void ResourceManager::addMinerals(FixedPoint a){
+    minerals += a;
+}
+
 int ResourceManager::getSupplyInt() {
 	return static_cast<int>(std::ceil(supply));
 }

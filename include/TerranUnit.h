@@ -45,6 +45,7 @@ class MULE
     private:
         ResourceManager* rm;
         JsonLoggerV2* logger_;
+        int initLifeTime = 90;
         int lifeTime = 90;
 
 public:

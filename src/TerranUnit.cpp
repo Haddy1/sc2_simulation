@@ -63,18 +63,21 @@ bool SCV::construct(int& ID_Counter, string buildingName, ResourceManager* rm){
 MULE::MULE(ResourceManager* resourceManager, JsonLoggerV2* eventList):
     rm(resourceManager)
     , logger_(eventList)
-{
-    rm->setMineralWorkers(rm->getMineralWorkers() + 4);
-}
+{}
 MULE::~MULE(){
 }
 
 void MULE::update(){
-    if (lifeTime > 0)
+    if (lifeTime >= 0){
+        if (lifeTime < initLifeTime) {
+            rm->addMinerals(rm->mineralsPerWorkerSecond);
+            rm->addMinerals(rm->mineralsPerWorkerSecond);
+            rm->addMinerals(rm->mineralsPerWorkerSecond);
+            rm->addMinerals(rm->mineralsPerWorkerSecond);
+        }
         --lifeTime;
+    }
     else {
-        assert (rm->getMineralWorkers() >= 4 && "MULE removed with less than 4 minerals workers remaining");
-        rm->setMineralWorkers(rm->getMineralWorkers() - 4);
         MULE::muleList.pop_back();
         delete this;
     }

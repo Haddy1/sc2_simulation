@@ -16,12 +16,12 @@ unordered_map<string, vector<shared_ptr<FactoryBuilding>>> FactoryBuilding::fact
                 {{"barracks", vector<shared_ptr<FactoryBuilding>>()}
                 ,{"factory", vector<shared_ptr<FactoryBuilding>>()}
                 ,{"starport", vector<shared_ptr<FactoryBuilding>>()}
-                ,{"barracks_with_reactor", vector<shared_ptr<FactoryBuilding>>()}
-                ,{"barracks_with_tech_lab", vector<shared_ptr<FactoryBuilding>>()}
-                ,{"factory_with_reactor", vector<shared_ptr<FactoryBuilding>>()}
-                ,{"factory_with_tech_lab", vector<shared_ptr<FactoryBuilding>>()}
-                ,{"starport_with_reactor", vector<shared_ptr<FactoryBuilding>>()}
-                ,{"starport_with_tech_lab", vector<shared_ptr<FactoryBuilding>>()}
+//                ,{"barracks_with_reactor", vector<shared_ptr<FactoryBuilding>>()}
+//                ,{"barracks_with_tech_lab", vector<shared_ptr<FactoryBuilding>>()}
+//                ,{"factory_with_reactor", vector<shared_ptr<FactoryBuilding>>()}
+//                ,{"factory_with_tech_lab", vector<shared_ptr<FactoryBuilding>>()}
+//                ,{"starport_with_reactor", vector<shared_ptr<FactoryBuilding>>()}
+//                ,{"starport_with_tech_lab", vector<shared_ptr<FactoryBuilding>>()}
 };
 
 vector<CommandCenter> CommandCenter::cCenterList = vector<CommandCenter>();
@@ -61,6 +61,9 @@ void TerranBuilding::update(){
             constrWorker_->busy = false;
             logger_->addBuildend(BuildEndEntry(name_, constrWorker_->getID(), id));
             rm->addSupplyMax(getEntityData()->supplyProvided);
+            techAdd(name_);
+            if (name_ == "refinery")
+                rm->incrementGeysers();
         }
     }
 }
@@ -93,9 +96,11 @@ void FactoryBuilding::update(int& ID_Counter){
             constrWorker_->busy = false;
             if (addon_ == noAddon){
                 logger_->addBuildend(BuildEndEntry(name_, constrWorker_->getID(), id));
+                techAdd(name_);
             }
             else {
                 logger_->addBuildend(BuildEndEntry(name_, id, id));
+                techAdd(addonName_);
             }
         }
     }
@@ -143,7 +148,8 @@ bool FactoryBuilding::createUnit(string unitName){
     else
     {
         EntityData unit = entityDataMap.at(unitName);
-        if ( std::find(unit.producedBy.begin(), unit.producedBy.end(), name_) != unit.producedBy.end() && rm->canBuild(unit))
+                if(rm->canBuild(unit)){
+        if ( std::find(unit.producedBy.begin(), unit.producedBy.end(), name_) != unit.producedBy.end() || std::find(unit.producedBy.begin(), unit.producedBy.end(), addonName_) != unit.producedBy.end())
         {
             rm->consumeMinerals(unit.minerals);
             rm->consumeVespene(unit.vespene);
@@ -162,6 +168,7 @@ bool FactoryBuilding::createUnit(string unitName){
             logger_->addBuildstart(BuildStartEntry(unitName, id));
             return true;
         }
+                }
         else
         {
             return false;
@@ -193,12 +200,6 @@ bool FactoryBuilding::buildAddon(string addonName){
         underConstruction = true;
         constrTimeRemaining = addonEntity.buildTime;
 
-        // We cannot safely create a new shared_ptr from this -> use the shared_ptr in the factory list
-        for (std::shared_ptr<FactoryBuilding>& factory : factoryList.at(name_)){
-            if (factory->getID() == id){
-                factoryList.at(newName).push_back(shared_ptr<FactoryBuilding>(shared_ptr<FactoryBuilding>(factory)));
-            }
-        }
         logger_->addBuildstart(BuildStartEntry(addonName, id));
         return true;
     }
@@ -223,6 +224,12 @@ bool CommandCenter::busy(){
 }
 
 void CommandCenter::update(int& ID_Counter){
+    if (!underConstruction && upgradeConstructed == "orbital_command" && energy < maxEnergy){
+        energy += energyRegen;
+        if (energy > maxEnergy){
+            energy = maxEnergy;
+        }
+    }
     if (underConstruction)
     {
         if (constrTimeRemaining > 0)
@@ -233,11 +240,13 @@ void CommandCenter::update(int& ID_Counter){
                 constrWorker_->busy = false;
                 logger_->addBuildend(BuildEndEntry(name_, constrWorker_->getID(), id));
                 rm->addSupplyMax(getEntityData()->supplyProvided);
+                techAdd("command_center");
             }
             else{
                 energy = entityDataMap.at("orbital_command").startEnergy;
                 logger_->addBuildend(BuildEndEntry(upgradeConstructed, id, id));
                 name_ = upgradeConstructed;
+                techAdd(upgradeConstructed);
             }
         }
     }
@@ -255,12 +264,6 @@ void CommandCenter::update(int& ID_Counter){
         }
     }
 
-    if (energy < maxEnergy){
-        energy += energyRegen;
-        if (energy > maxEnergy){
-            energy = maxEnergy;
-        }
-    }
 
 }
 

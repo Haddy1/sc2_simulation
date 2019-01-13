@@ -39,6 +39,7 @@ public:
     ~TerranBuilding();
     void update();
     bool busy();
+    bool isUnderConstruction() {return underConstruction;}
     string getName() {return name_; }
 };
 
@@ -65,6 +66,7 @@ class FactoryBuilding : public TerranBuilding{
         int workTimeRemaining = 0;
         int workTimeRemaining_reactor = 0;
         AddonType addon_ = noAddon;
+        string addonName_ = "";
         bool producing = false;
         bool producing_reactor = false;
 
