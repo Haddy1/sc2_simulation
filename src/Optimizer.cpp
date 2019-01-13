@@ -111,11 +111,19 @@ pair<int, int> Optimizer::pairLargestDistance(Individual inds[4]) {
 }
 
 string Optimizer::getRandomValidGene(const queue<string>& buildList, BuildlistValidator& validator, Race race) {
-	//BuildlistValidator v(race, buildList);
-	//validator.validate();
+	/*
 	vector<string> validChoices;
 	for (int i = startIndex; i < endIndex; ++i) {
 		const string& entityName = entityNameMap.at(i);
+		if (validator.checkNext(entityName)) {
+			validChoices.push_back(entityName);
+		}
+	}
+	return validChoices[rand() % validChoices.size()];
+	*/
+	vector<string> validChoices;
+	for (auto it = searchSpace.begin(); it != searchSpace.end(); ++it) {
+		const string& entityName = *it;
 		if (validator.checkNext(entityName)) {
 			validChoices.push_back(entityName);
 		}
@@ -231,11 +239,15 @@ Individual Optimizer::mutateInsert(const Individual& a, Race race) {
 			newBuildList.push(randGene);
 			validator.validateNext(randGene);
 		}
-		newBuildList.push(copyList.front());
-		validator.validateNext(copyList.front());
-		copyList.pop();
+		
+		if (validator.validateNext(copyList.front())) {
+			newBuildList.push(copyList.front());
+			copyList.pop();
+		} else { //random insert led to rest of buildlist being invalid (eg. due to supply)
+			return a;
+		}
 	}
-	return newBuildList;
+	return Individual(newBuildList);
 }
 
 bool operator<(const Individual& i, const Individual& j) {
@@ -251,10 +263,12 @@ void Optimizer::addToSetRec(const string& entityName) {
 		return;
 	}
 	const EntityData& entityData = entityDataMap.at(entityName);
-	//if (entityExists(entityName) { //avoid adding larva
-	//	searchSpace.insert(entityName);
-	//}
-	searchSpace.insert(entityName);
+	
+	if (entityName != string("larva")) { //avoid adding larva //TODO dont hardcode
+		searchSpace.insert(entityName);
+	}
+	//searchSpace.insert(entityName);
+	
 	for (const string& s : entityData.dependencies) {
 		addToSetRec(s);
 	}
@@ -281,8 +295,34 @@ void Optimizer::init() {
 		break;
 	}
 	
+	//TODO
+	//Race specific units which should always be considered to be built
+	switch(race) {
+	case TERRAN:
+		
+		break;
+	case PROTOSS:
+		
+		break;
+	case ZERG:
+		searchSpace.insert(string("drone"));
+		searchSpace.insert(string("overlord"));
+		searchSpace.insert(string("queen"));
+		searchSpace.insert(string("extractor"));
+		searchSpace.insert(string("hatchery"));
+		break;
+	default:
+		break;
+	}
 	
 	addToSetRec(target);
+	
+	
+	std::clog << "search space: " << std::endl;
+	for (auto it = searchSpace.begin(); it != searchSpace.end(); ++it) {
+		std::clog << (*it) << std::endl;
+	}
+	std::clog << std::endl;
 }
 
 queue<string> Optimizer::optimize() {
@@ -308,6 +348,8 @@ queue<string> Optimizer::optimize() {
 		queue<string> genome = createGenome(race, buildListSize + listSizeVariation);
 		population.push_back(Individual(genome));
 	}
+	
+	//population[0].printList();
 	
 	while (!found) {
 		for (auto it = population.begin(); it != population.end(); ++it) {
