@@ -34,7 +34,7 @@ public:
     static vector<SCV> workerList;
     SCV(string name, vector<EventEntry>* eventList);
     ~SCV();
-    bool construct(string building, ResourceManager* resourceManager);
+    bool construct(string building, ResourceManager* rm);
     bool busy = false;
 };
 

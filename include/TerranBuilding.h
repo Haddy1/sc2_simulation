@@ -27,14 +27,15 @@ class TerranBuilding : public Building
 public:
 protected:
     string name_;
+    ResourceManager* rm;
+    vector<EventEntry>* eventList_;
+    SCV* constrWorker_;
     bool underConstruction;
     int constrTimeRemaining;
-    SCV* constrWorker_;
-    vector<EventEntry>* eventList_;
 
 public:
-    TerranBuilding(string name, vector<EventEntry>* eventList, SCV* constrWorker);
-    TerranBuilding(string name, vector<EventEntry>* eventList);
+    TerranBuilding(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList, SCV* constrWorker);
+    TerranBuilding(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList);
     ~TerranBuilding();
     void update();
     bool busy();
@@ -50,8 +51,8 @@ class FactoryBuilding : public TerranBuilding{
     public: 
     static unordered_map<string,vector<shared_ptr<FactoryBuilding>>> factoryList;
 
-    FactoryBuilding(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager, SCV* constrWorker);
-    FactoryBuilding(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager);
+    FactoryBuilding(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList, SCV* constrWorker);
+    FactoryBuilding(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList);
     ~FactoryBuilding();
     bool createUnit(string unitName);
     bool buildAddon(string addon);
@@ -61,8 +62,8 @@ class FactoryBuilding : public TerranBuilding{
         ResourceManager* rm;
         string workName = "";
         string workName_reactor = "";
-        int workTimeRemaining = 0;
-        int workTimeRemaining_reactor = 0;
+        int workTimeRemaining = -1;
+        int workTimeRemaining_reactor = -1;
         AddonType addon_ = noAddon;
         
 
@@ -74,8 +75,8 @@ public:
     static vector<CommandCenter> cCenterList;
     static vector<string> upgrades;
 
-    CommandCenter(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager, SCV* constrWorker);
-    CommandCenter(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager);
+    CommandCenter(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList, SCV* constrWorker);
+    CommandCenter(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList);
     ~CommandCenter();
     bool busy();
     bool createUnit(string unitName);
@@ -85,7 +86,7 @@ public:
 
 private:
     ResourceManager* rm;
-    int workTimeRemaining = 0;
+    int workTimeRemaining = -1;
     FixedPoint energy = 0;
     const FixedPoint energyRegen = 0.625;
     FixedPoint maxEnergy = 200;

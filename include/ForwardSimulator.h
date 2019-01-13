@@ -43,6 +43,7 @@ class TerranSimulator : public ForwardSimulator {
 	queue<string> buildOrder;
     vector<EventEntry> eventList_;
 	ResourceManager rm;
+	int maxTime = 1000;
 	int timestep;
 	bool running;
     JsonLogger logger;

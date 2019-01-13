@@ -28,22 +28,24 @@ vector<CommandCenter> CommandCenter::cCenterList = vector<CommandCenter>();
 vector<string> CommandCenter::upgrades = {"command_center", "orbital_command", "planetary_fortress"};
 vector<MULE> MULE::muleList = vector<MULE>();
 
-TerranBuilding::TerranBuilding(string name, vector<EventEntry>* eventList, SCV* constrWorker):
+TerranBuilding::TerranBuilding(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList, SCV* constrWorker):
     Building(name)
     , name_(name)
+    , rm(resourceManager)
+    , eventList_(eventList)
+    , constrWorker_(constrWorker)
     , underConstruction(true)
     , constrTimeRemaining(entityDataMap.at(name).buildTime)
-    , constrWorker_(std::move(constrWorker))
-    , eventList_(eventList)
 {}
 
-TerranBuilding::TerranBuilding(string name, vector<EventEntry>* eventList):
+TerranBuilding::TerranBuilding(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList):
     Building(name)
     , name_(name)
+    , rm(resourceManager)
+    , eventList_(eventList)
+    , constrWorker_(nullptr)
     , underConstruction(false)
     , constrTimeRemaining(0)
-    , constrWorker_(nullptr)
-    , eventList_(eventList)
 {}
 
 TerranBuilding::~TerranBuilding(){}
@@ -58,6 +60,7 @@ void TerranBuilding::update(){
             underConstruction = false;
             constrWorker_->busy = false;
             eventList_->emplace_back("build-end", name_,  constrWorker_->getID(), id);
+            rm->addSupplyMax(getEntityData()->supplyProvided);
         }
     }
 }
@@ -67,13 +70,13 @@ bool TerranBuilding::busy(){
     else return false;
 }
 
-FactoryBuilding::FactoryBuilding(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager, SCV* constrWorker):
-    TerranBuilding(name, eventList, constrWorker)
+FactoryBuilding::FactoryBuilding(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList, SCV* constrWorker):
+    TerranBuilding(name, resourceManager, eventList, constrWorker)
     , rm(resourceManager)
 {}
 
-FactoryBuilding::FactoryBuilding(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager):
-    TerranBuilding(name, eventList)
+FactoryBuilding::FactoryBuilding(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList):
+    TerranBuilding(name, resourceManager, eventList)
     , rm(resourceManager)
 {}
 
@@ -100,20 +103,24 @@ void FactoryBuilding::update(){
     {
         --workTimeRemaining;
     }
-    else if (workTimeRemaining <= 0)
+    else if (workTimeRemaining == 0)
     {
         TerranUnit newUnit(workName);
         TerranUnit::unitList.push_back(newUnit);
+        rm->consumeSupply(newUnit.getEntityData()->supplyCost);
         eventList_->emplace_back("build-end", workName, id, getID());
+        workTimeRemaining = -1;
     }
     if (addon_ == reactor){
         if (workTimeRemaining_reactor > 0){
             --workTimeRemaining_reactor;
         }
-        else if (workTimeRemaining_reactor <= 0){
+        else if (workTimeRemaining_reactor == 0){
             TerranUnit newUnit(workName_reactor);
             TerranUnit::unitList.push_back(newUnit);
+            rm->consumeSupply(newUnit.getEntityData()->supplyCost);
             eventList_->emplace_back("build-end", workName_reactor, id, newUnit.getID());
+            workTimeRemaining_reactor = -1;
         }
     }
 }
@@ -131,15 +138,19 @@ bool FactoryBuilding::createUnit(string unitName){
     else
     {
         EntityData unit = entityDataMap.at(unitName);
-        if ( std::find(unit.producedBy.begin(), unit.producedBy.end(), name_) != unit.producedBy.end()
-             && dependencyFulfilled(unit) && rm->canBuild(unit))
+        if ( std::find(unit.producedBy.begin(), unit.producedBy.end(), name_) != unit.producedBy.end() && rm->canBuild(unit))
         {
             rm->consumeMinerals(unit.minerals);
             rm->consumeVespene(unit.vespene);
-            rm->consumeSupply(unit.supplyCost);
-            workTimeRemaining = entityDataMap.at(unitName).buildTime;
+
+            if (workTimeRemaining == 0){
+                workTimeRemaining = unit.buildTime;
+            }
+            else{
+                workTimeRemaining_reactor = unit.buildTime;
+            }
             creationStarted = true;
-            eventList_->emplace_back("build-start", workName, id);
+            eventList_->emplace_back("build-start", unitName, id);
         }
         else
         {
@@ -180,11 +191,11 @@ bool FactoryBuilding::buildAddon(string addonName){
 
 }
 
-CommandCenter::CommandCenter(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager, SCV* constrWorker):
-    TerranBuilding(name, eventList, constrWorker)
+CommandCenter::CommandCenter(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList, SCV* constrWorker):
+    TerranBuilding(name, resourceManager, eventList, constrWorker)
     ,rm(resourceManager) {}
-CommandCenter::CommandCenter(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager):
-    TerranBuilding(name, eventList)
+CommandCenter::CommandCenter(string name, ResourceManager* resourceManager, vector<EventEntry>* eventList):
+    TerranBuilding(name, resourceManager, eventList)
     ,rm(resourceManager) {}
 
 CommandCenter::~CommandCenter() {
@@ -196,28 +207,33 @@ bool CommandCenter::busy(){
 }
 
 void CommandCenter::update(){
-    if (underConstruction && constrTimeRemaining > 0 )
+    if (underConstruction)
     {
-        --constrTimeRemaining;
-    }
-    else if (underConstruction && constrTimeRemaining <= 0)
-    {
-        underConstruction = false;
-        constrWorker_->busy = false;
-        if (name_ == "CommandCenter"){
-            rm->addSupplyMax(entityDataMap.at("command_center").supplyProvided);
-            eventList_->emplace_back("build-end", name_, constrWorker_->getID(), id);
+        if (constrTimeRemaining > 0)
+            --constrTimeRemaining;
+        else 
+        {
+            underConstruction = false;
+            constrWorker_->busy = false;
+            if (name_ == "command_center"){
+                eventList_->emplace_back("build-end", name_, constrWorker_->getID(), id);
+                rm->addSupplyMax(getEntityData()->supplyProvided);
+            }
+            else
+                eventList_->emplace_back("build-end", name_, id, id);
         }
-        else
-            eventList_->emplace_back("build-end", name_, id, id);
     }
     else if (workTimeRemaining > 0)
     {
         --workTimeRemaining;
     }
-    else if (workTimeRemaining <= 0)
+    else if (workTimeRemaining == 0)
     {
-        SCV::workerList.emplace_back("scv", eventList_);
+        SCV newWorker("scv", eventList_);
+        SCV::workerList.push_back(newWorker);
+        rm->consumeSupply(newWorker.getEntityData()->supplyCost);
+        eventList_->emplace_back("build-end", "scv", id, newWorker.getID());
+        workTimeRemaining = -1;
     }
 
     if (energy < maxEnergy){
@@ -240,8 +256,7 @@ bool CommandCenter::createUnit(string unitName){
         {
             rm->consumeMinerals(unit.minerals);
             rm->consumeVespene(unit.vespene);
-            rm->consumeSupply(unit.supplyCost);
-            workTimeRemaining = entityDataMap.at(unitName).buildTime;
+            workTimeRemaining = unit.buildTime;
             creationStarted = true;
             eventList_->emplace_back("build-start", unitName, id);
         }

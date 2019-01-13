@@ -7,87 +7,98 @@
 
 TerranSimulator::TerranSimulator() :
     rm()
-    ,timestep(0)
+    ,timestep(1)
     ,running(true) 
     ,logger(Race::TERRAN, rm, true)
 {}
 
 TerranSimulator::TerranSimulator(queue<string> q) : buildOrder(q)
     ,rm()
-    ,timestep(0)
+    ,timestep(1)
     ,running(true) 
     ,logger(Race::TERRAN, rm, true)
 {}
 
 
 void TerranSimulator::init() {
-    rm.setMineralWorkers(6);
-    vector<int> initWorkerIds = {0,1,2,3,4,5};
+    CommandCenter cCenter("command_center", &rm, &eventList_);
+    CommandCenter::cCenterList.push_back(cCenter);
+    rm.addSupplyMax(entityDataMap.at("command_center").supplyProvided);
+
+    vector<int> initWorkerIds;
     for (int i = 0; i < 6; i++){
         SCV newWorker("scv", &eventList_);
-        SCV::workerList.emplace_back("scv", &eventList_);
-        rm.consumeSupply(entityDataMap.at("scv").supplyCost);
+        SCV::workerList.push_back(newWorker);
+        rm.consumeSupply(newWorker.getEntityData()->supplyCost);
+        initWorkerIds.push_back(newWorker.getID());
     }
-    CommandCenter cCenter("command_center", &eventList_, &rm);
-    CommandCenter::cCenterList.push_back(cCenter);
-    rm.addSupplyMax(entityDataMap.at("command_center").supplyProvided); 
-    vector<int> cCenterId = {0};
+    rm.setMineralWorkers(6);
 
     vector<pair<string, vector<int>>> initUnits;
-    initUnits.emplace_back("drone", initWorkerIds);
-    initUnits.emplace_back("command_center", cCenterId);
+    initUnits.emplace_back("command_center", cCenter.getID());
+    initUnits.emplace_back("scv", initWorkerIds);
     logger.printSetup(initUnits);
 
 }
 
 void TerranSimulator::simulate() {
-    while(running and timestep < 1000){
+    running = true;
+    bool buildingsIdle = true;
+    while(running and timestep < maxTime){
+        rm.update();
         
+        buildingsIdle = true;
         // Update all regular buildings
         std::unordered_map<string, vector<std::shared_ptr<TerranBuilding>>>::iterator itBuilding;
         for ( itBuilding = TerranBuilding::buildingList.begin(); itBuilding != TerranBuilding::buildingList.end(); ++itBuilding){
-            for (std::shared_ptr<TerranBuilding> building : itBuilding->second)
+            for (std::shared_ptr<TerranBuilding> building : itBuilding->second){
                 building->update();
+                if (building->busy()) 
+                    buildingsIdle = false;
+            }
         }
         // Update all producing buildings
         std::unordered_map<string, vector<std::shared_ptr<FactoryBuilding>>>::iterator itFactory;
         for ( itFactory = FactoryBuilding::factoryList.begin(); itFactory != FactoryBuilding::factoryList.end(); ++itFactory){
-            for (std::shared_ptr<FactoryBuilding> factory : itFactory->second)
+            for (std::shared_ptr<FactoryBuilding> factory : itFactory->second){
                 factory->update();
+                if (factory->busy()) 
+                    buildingsIdle = false;
+            }
         }
 
-        for ( CommandCenter CCenter : CommandCenter::cCenterList){
-            CCenter.update();
+        // Update cCenter construction
+        for ( size_t i = 0; i < CommandCenter::cCenterList.size(); ++i){
+            CommandCenter::cCenterList[i].update();
+            if (CommandCenter::cCenterList[i].busy())
+                buildingsIdle = false;
         }
 
-        for ( CommandCenter CCenter : CommandCenter::cCenterList){
-            CCenter.callMule();
+        for ( size_t i = 0; i < CommandCenter::cCenterList.size(); ++i){
+            CommandCenter::cCenterList[i].callMule();
         }
 
         for (MULE mule : MULE::muleList){
             mule.update();
         }
 
+
+        if (! buildOrder.empty()){
         string buildName = buildOrder.front();
 
         string producer = entityDataMap.at(buildName).producedBy[0];
 
-        if (! dependencyFulfilled(entityDataMap.at(buildName))){
-        }
-        else if (rm.canBuild(entityDataMap.at(buildName))){
-
-            if (buildName == "scv") {
-                for ( CommandCenter CCenter : CommandCenter::cCenterList){
-                    if (CCenter.createUnit(buildName)){
-                        buildOrder.pop();
-                        break;
-                    }
+        if (buildName == "scv") {
+            for ( size_t i = 0; i < CommandCenter::cCenterList.size(); ++i){
+                if (CommandCenter::cCenterList[i].createUnit(buildName)){
+                    buildOrder.pop();
+                    break;
                 }
             }
         }
         else if (producer == "scv"){
-            for (SCV scv : SCV::workerList){
-                if (scv.construct(buildName, &rm)){
+            for ( size_t i = 0; i < SCV::workerList.size(); ++i){
+                if (SCV::workerList[i].construct(buildName, &rm)){
                     buildOrder.pop();
                     break;
                 }
@@ -112,40 +123,42 @@ void TerranSimulator::simulate() {
             }
         }
         else if (buildName == "orbital_command" || buildName == "planetary_fortress"){
-            for ( CommandCenter CCenter : CommandCenter::cCenterList){
-                if (CCenter.upgrade(buildName)){
+            for ( CommandCenter cCenter : CommandCenter::cCenterList){
+                if (cCenter.upgrade(buildName)){
                     buildOrder.pop();
                     break;
                 }
             }
         }
         else {
-            running = false;
+            std::cerr << buildName << " could not be handled!" << std::endl;
+        }
         }
 
         int freeWorkers = 0;
-        for (SCV scv : SCV::workerList){
-            if (! scv.busy){
+        for (size_t i = 0; i < SCV::workerList.size(); ++i){
+            if (! SCV::workerList[i].busy)
                 freeWorkers += 1;
-            }
         }
 
         int nrRefineries = TerranBuilding::buildingList.at("refinery").size();
-        int vespeneWorkers = freeWorkers - 3 * nrRefineries;
-        if (vespeneWorkers < 0) vespeneWorkers = freeWorkers;
+        int vespeneWorkers = std::min(freeWorkers, 3 * nrRefineries);
         rm.setVespeneWorkers(vespeneWorkers);
         freeWorkers -= vespeneWorkers;
         int nrMules = MULE::muleList.size();
         rm.setMineralWorkers(4 * nrMules + freeWorkers);
         
         vector<EventEntry*> eventPointers;
-        for (EventEntry event : eventList_){
-            eventPointers.push_back(&event);
+        for (size_t i = 0; i < eventList_.size(); ++i){
+            eventPointers.push_back(&eventList_[i]);
         }
 
         logger.printMessage(timestep, eventPointers);
         eventPointers.clear();
         eventList_.clear();
+
+        if (buildOrder.empty() and buildingsIdle == true)
+            running = false;
 
         timestep += 1;
     }
