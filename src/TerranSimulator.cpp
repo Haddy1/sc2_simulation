@@ -79,9 +79,11 @@ void TerranSimulator::simulate() {
             if (CommandCenter::cCenterList[i].busy())
                 buildingsIdle = false;
         }
+        /*
         for ( size_t i = 0; i < CommandCenter::cCenterList.size(); ++i){
             CommandCenter::cCenterList[i].callMule();
         }
+        */
 
         for ( size_t i = 0; i < MULE::muleList.size(); ++i){
             MULE::muleList[i].update();
