@@ -3,7 +3,7 @@
 unordered_map<string, vector<shared_ptr<TerranBuilding>>> TerranBuilding::buildingList=  
                                 {{"refinery", vector<shared_ptr<TerranBuilding>>()}
                                 ,{"engineering_bay", vector<shared_ptr<TerranBuilding>>()}
-                                ,{"missile_tower", vector<shared_ptr<TerranBuilding>>()}
+                                ,{"missile_turret", vector<shared_ptr<TerranBuilding>>()}
                                 ,{"sensor_tower", vector<shared_ptr<TerranBuilding>>()}
                                 ,{"armory", vector<shared_ptr<TerranBuilding>>()}
                                 ,{"bunker", vector<shared_ptr<TerranBuilding>>()}
@@ -56,7 +56,7 @@ void TerranBuilding::update(){
         if (constrTimeRemaining > 0){
             --constrTimeRemaining;
         }
-        else {
+        if (constrTimeRemaining == 0){
             underConstruction = false;
             constrWorker_->busy = false;
             logger_->addBuildend(BuildEndEntry(name_, constrWorker_->getID(), id));
@@ -88,7 +88,7 @@ void FactoryBuilding::update(int& ID_Counter){
         if (constrTimeRemaining > 0){
             --constrTimeRemaining;
         }
-        else {
+        if (constrTimeRemaining == 0){
             underConstruction = false;
             constrWorker_->busy = false;
             if (addon_ == noAddon){
@@ -99,27 +99,27 @@ void FactoryBuilding::update(int& ID_Counter){
             }
         }
     }
-    else if (workTimeRemaining > 0)
+    else if(producing){
+    if (workTimeRemaining > 0)
     {
         --workTimeRemaining;
     }
-    else if (workTimeRemaining == 0)
+    if (workTimeRemaining == 0)
     {
         TerranUnit newUnit(ID_Counter, workName);
         TerranUnit::unitList.push_back(newUnit);
-        rm->consumeSupply(newUnit.getEntityData()->supplyCost);
         logger_->addBuildend(BuildEndEntry(workName, id, newUnit.getID()));
         workTimeRemaining = 0;
         producing = false;
     }
-    if (addon_ == reactor){
+    }
+    if (addon_ == reactor && producing_reactor){
         if (workTimeRemaining_reactor > 0){
             --workTimeRemaining_reactor;
         }
-        else if (workTimeRemaining_reactor == 0){
+        if (workTimeRemaining_reactor == 0){
             TerranUnit newUnit(ID_Counter, workName_reactor);
             TerranUnit::unitList.push_back(newUnit);
-            rm->consumeSupply(newUnit.getEntityData()->supplyCost);
             logger_->addBuildend(BuildEndEntry(workName_reactor, id, newUnit.getID()));
             workTimeRemaining_reactor = 0;
             producing_reactor = false;
@@ -147,6 +147,7 @@ bool FactoryBuilding::createUnit(string unitName){
         {
             rm->consumeMinerals(unit.minerals);
             rm->consumeVespene(unit.vespene);
+            rm->consumeSupply(unit.supplyCost);
 
             if (! producing){
                 workName = unitName;
@@ -191,7 +192,13 @@ bool FactoryBuilding::buildAddon(string addonName){
         addon_ = addon;
         underConstruction = true;
         constrTimeRemaining = addonEntity.buildTime;
-        factoryList.at(newName).push_back(shared_ptr<FactoryBuilding>(this));
+
+        // We cannot safely create a new shared_ptr from this -> use the shared_ptr in the factory list
+        for (std::shared_ptr<FactoryBuilding>& factory : factoryList.at(name_)){
+            if (factory->getID() == id){
+                factoryList.at(newName).push_back(shared_ptr<FactoryBuilding>(shared_ptr<FactoryBuilding>(factory)));
+            }
+        }
         logger_->addBuildstart(BuildStartEntry(addonName, id));
         return true;
     }
@@ -220,16 +227,18 @@ void CommandCenter::update(int& ID_Counter){
     {
         if (constrTimeRemaining > 0)
             --constrTimeRemaining;
-        else 
-        {
+        if (constrTimeRemaining == 0){
             underConstruction = false;
-            constrWorker_->busy = false;
-            if (name_ == "command_center"){
+            if (upgradeConstructed.empty()){
+                constrWorker_->busy = false;
                 logger_->addBuildend(BuildEndEntry(name_, constrWorker_->getID(), id));
                 rm->addSupplyMax(getEntityData()->supplyProvided);
             }
-            else
-                logger_->addBuildend(BuildEndEntry(name_, id, id));
+            else{
+                energy = entityDataMap.at("orbital_command").startEnergy;
+                logger_->addBuildend(BuildEndEntry(upgradeConstructed, id, id));
+                name_ = upgradeConstructed;
+            }
         }
     }
     else if (producing){
@@ -237,11 +246,10 @@ void CommandCenter::update(int& ID_Counter){
         {
             --workTimeRemaining;
         }
-        else 
+        if (workTimeRemaining == 0)
         {
             SCV newWorker(ID_Counter, "scv", logger_);
             SCV::workerList.push_back(newWorker);
-            rm->consumeSupply(newWorker.getEntityData()->supplyCost);
             logger_->addBuildend(BuildEndEntry("scv", id, newWorker.getID()));
             producing = false;
         }
@@ -266,6 +274,7 @@ bool CommandCenter::createUnit(string unitName){
         {
             rm->consumeMinerals(unit.minerals);
             rm->consumeVespene(unit.vespene);
+            rm->consumeSupply(unit.supplyCost);
             workTimeRemaining = unit.buildTime;
             producing = true;
             logger_->addBuildstart(BuildStartEntry(unitName, id));
@@ -280,20 +289,15 @@ bool CommandCenter::createUnit(string unitName){
 }
 
 bool CommandCenter::upgrade(string addonName){
-    if (name_ != "command_center") return false;
+    if (! upgradeConstructed.empty()) return false;
     if (busy()) return false;
-    string newName;
-    if (addonName == "orbital_command")
-        newName = "orbital_command";
-    else
-        newName = "planetary_fortress";
-
-    EntityData upgradeEntity = entityDataMap.at(newName);
+    
+    EntityData upgradeEntity = entityDataMap.at(addonName);
     if (rm->canBuild(upgradeEntity)){
         rm->consumeMinerals(upgradeEntity.minerals);
         rm->consumeVespene(upgradeEntity.vespene);
-
-        name_ = newName;
+        
+        upgradeConstructed = addonName;
         underConstruction = true;
         constrTimeRemaining = upgradeEntity.buildTime;
 
@@ -305,14 +309,14 @@ bool CommandCenter::upgrade(string addonName){
 }
 
 bool CommandCenter::callMule(){
-    bool success = false;
-    if (name_ == "orbital_command" && energy >= MULE::energyCost ){
+    if (upgradeConstructed == "orbital_command" && !underConstruction && energy >= MULE::energyCost ){
+        energy -= MULE::energyCost;
         MULE newMule(rm, logger_);
         MULE::muleList.push_back(newMule);
-        success = true;
         logger_->addSpecial(SpecialEntry("mule", id));
+        return true;
     }
 
-    return success;
+    return false;
 }
 

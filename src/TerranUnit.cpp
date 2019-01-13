@@ -67,14 +67,14 @@ MULE::MULE(ResourceManager* resourceManager, JsonLoggerV2* eventList):
     rm->setMineralWorkers(rm->getMineralWorkers() + 4);
 }
 MULE::~MULE(){
-    assert (rm->getMineralWorkers() >= 4 && "MULE removed with less than 4 minerals workers remaining");
-    rm->setMineralWorkers(rm->getMineralWorkers() - 4);
 }
 
 void MULE::update(){
     if (lifeTime > 0)
         --lifeTime;
     else {
+        assert (rm->getMineralWorkers() >= 4 && "MULE removed with less than 4 minerals workers remaining");
+        rm->setMineralWorkers(rm->getMineralWorkers() - 4);
         MULE::muleList.pop_back();
         delete this;
     }

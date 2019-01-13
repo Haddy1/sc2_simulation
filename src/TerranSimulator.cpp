@@ -49,7 +49,7 @@ void TerranSimulator::simulate() {
     bool buildingsIdle = true;
     while(running and timestep < maxTime){
         rm.update();
-        
+
         buildingsIdle = true;
         // Update all regular buildings
         std::unordered_map<string, vector<std::shared_ptr<TerranBuilding>>>::iterator itBuilding;
@@ -87,55 +87,58 @@ void TerranSimulator::simulate() {
 
 
         if (! buildOrder.empty()){
-        string buildName = buildOrder.front();
+            string buildName = buildOrder.front();
 
-        string producer = entityDataMap.at(buildName).producedBy[0];
+            string producer = entityDataMap.at(buildName).producedBy[0];
 
-        if (buildName == "scv") {
-            for ( size_t i = 0; i < CommandCenter::cCenterList.size(); ++i){
-                if (CommandCenter::cCenterList[i].createUnit(buildName)){
-                    buildOrder.pop();
-                    break;
-                }
-            }
-        }
-        else if (producer == "scv"){
-            for ( size_t i = 0; i < SCV::workerList.size(); ++i){
-                if (SCV::workerList[i].construct(ID_Counter, buildName, &rm)){
-                    buildOrder.pop();
-                    break;
-                }
-            }
-        }
-        else if (FactoryBuilding::factoryList.find(producer) != FactoryBuilding::factoryList.end()){
-            if (buildName.find("with_tech_lab") != string::npos || buildName.find("with_reactor") != string::npos){
-                for (std::shared_ptr<FactoryBuilding> factoryBuilding : FactoryBuilding::factoryList.at(producer)){
-                    if (factoryBuilding->buildAddon(buildName)){
-                        buildOrder.pop();
-                        break;
+            if (rm.canBuild(entityDataMap.at(buildName))){
+
+                if (buildName == "scv") {
+                    for ( size_t i = 0; i < CommandCenter::cCenterList.size(); ++i){
+                        if (CommandCenter::cCenterList[i].createUnit(buildName)){
+                            buildOrder.pop();
+                            break;
+                        }
                     }
                 }
-            }
-            else {
-                for (shared_ptr<FactoryBuilding> factoryBuilding : FactoryBuilding::factoryList.at(producer)){
-                    if (factoryBuilding->createUnit(buildName)){
-                        buildOrder.pop();
-                        break;
-                    }   
+                else if (producer == "scv"){
+                    for ( size_t i = 0; i < SCV::workerList.size(); ++i){
+                        if (SCV::workerList[i].construct(ID_Counter, buildName, &rm)){
+                            buildOrder.pop();
+                            break;
+                        }
+                    }
+                }
+                else if (FactoryBuilding::factoryList.find(producer) != FactoryBuilding::factoryList.end()){
+                    if (buildName.find("with_tech_lab") != string::npos || buildName.find("with_reactor") != string::npos){
+                        for (std::shared_ptr<FactoryBuilding> factoryBuilding : FactoryBuilding::factoryList.at(producer)){
+                            if (factoryBuilding->buildAddon(buildName)){
+                                buildOrder.pop();
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        for (shared_ptr<FactoryBuilding> factoryBuilding : FactoryBuilding::factoryList.at(producer)){
+                            if (factoryBuilding->createUnit(buildName)){
+                                buildOrder.pop();
+                                break;
+                            }   
+                        }
+                    }
+                }
+                else if (buildName == "orbital_command" || buildName == "planetary_fortress"){
+                    for ( size_t i = 0; i < CommandCenter::cCenterList.size(); ++i){
+                        if (CommandCenter::cCenterList[i].upgrade(buildName)){
+                            buildOrder.pop();
+                            break;
+                        }
+                    }
+                }
+                else {
+                    std::cerr << buildName << " could not be handled!" << std::endl;
                 }
             }
-        }
-        else if (buildName == "orbital_command" || buildName == "planetary_fortress"){
-            for ( CommandCenter cCenter : CommandCenter::cCenterList){
-                if (cCenter.upgrade(buildName)){
-                    buildOrder.pop();
-                    break;
-                }
-            }
-        }
-        else {
-            std::cerr << buildName << " could not be handled!" << std::endl;
-        }
         }
 
         int freeWorkers = 0;
@@ -150,7 +153,7 @@ void TerranSimulator::simulate() {
         freeWorkers -= vespeneWorkers;
         int nrMules = MULE::muleList.size();
         rm.setMineralWorkers(4 * nrMules + freeWorkers);
-        
+
 
         logger.printMessage(timestep);
 

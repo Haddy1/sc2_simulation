@@ -94,6 +94,7 @@ private:
     FixedPoint energy = 0;
     const FixedPoint energyRegen = 0.625;
     FixedPoint maxEnergy = 200;
+    string upgradeConstructed = ""; // Stores the upgrade name 
 };
 
 
