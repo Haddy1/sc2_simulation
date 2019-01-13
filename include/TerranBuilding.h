@@ -19,16 +19,14 @@ using std::unordered_map;
 using std::vector;
 using std::shared_ptr;
 
-class TerranBuilding
+class TerranBuilding : public Building
 {
     public:
     static unordered_map<string,vector<shared_ptr<TerranBuilding>>> buildingList;
-    vector<string> techLabs = {"barracks_with_reactor", "factory_with_reactor", "starport_with_reactor"};
 
 public:
 protected:
     string name_;
-    string id;
     bool underConstruction;
     int constrTimeRemaining;
     SCV* constrWorker_;
@@ -66,7 +64,6 @@ class FactoryBuilding : public TerranBuilding{
         int workTimeRemaining = 0;
         int workTimeRemaining_reactor = 0;
         AddonType addon_ = noAddon;
-        string addonID = "";
         
 
 };

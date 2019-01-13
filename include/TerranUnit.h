@@ -8,24 +8,22 @@
 #include "TerranBuilding.h"
 #include "ResourceManager.h"
 #include "Tech.h"
+#include "Unit.h"
 #include "JsonLogger.h"
 
 using std::vector;
 using std::string;
 
-class TerranUnit //: public Unit
+class TerranUnit : public Unit
 {
     bool constructing = false;
 protected:
-    string id;
     string name_;
 
 public:
     static vector<TerranUnit> unitList ;
     TerranUnit(string name);
     ~TerranUnit();
-    string getId(){return id;}
-
 };
 
 class SCV : public TerranUnit
@@ -38,7 +36,6 @@ public:
     ~SCV();
     bool construct(string building, ResourceManager* resourceManager);
     bool busy = false;
-    string getId(){return id;}
 };
 
 class MULE 

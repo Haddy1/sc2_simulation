@@ -48,13 +48,15 @@ int main(int argc, char *argv[]) {
 	}
 
 	// read csv
-	CSVParser csvp("res/techtrees.csv");
+    CSVParser csvp("res/techtrees.csv");
 	csvp.parse();
 	
 	//test print
 	for (auto it = entityDataMap.begin(); it != entityDataMap.end(); ++it) {
 		//std::cout << (*it).second << std::endl;
-	}
+    }
+
+    unordered_map<string, EntityData> entityDataMap2 = entityDataMap;
 
 	//std::cout << "end test print" << std::endl;
 
@@ -130,7 +132,6 @@ int main(int argc, char *argv[]) {
 	std::cout << "FP test: " << (d*2) << std::endl;
 	std::cout << "FP test: " << (e*2) << std::endl;
 	*/
-	
 	
 	switch (race) {
 		case TERRAN:

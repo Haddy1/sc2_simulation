@@ -29,23 +29,22 @@ vector<string> CommandCenter::upgrades = {"command_center", "orbital_command", "
 vector<MULE> MULE::muleList = vector<MULE>();
 
 TerranBuilding::TerranBuilding(string name, vector<EventEntry>* eventList, SCV* constrWorker):
-    name_(name)
+    Building(name)
+    , name_(name)
     , underConstruction(true)
     , constrTimeRemaining(entityDataMap.at(name).buildTime)
     , constrWorker_(std::move(constrWorker))
     , eventList_(eventList)
-{
-    id = name + "_" + to_string(TerranBuilding::buildingList.at(name).size());
-}
+{}
+
 TerranBuilding::TerranBuilding(string name, vector<EventEntry>* eventList):
-    name_(name)
+    Building(name)
+    , name_(name)
     , underConstruction(false)
     , constrTimeRemaining(0)
     , constrWorker_(nullptr)
     , eventList_(eventList)
-{
-    id = name + "_" + to_string(TerranBuilding::buildingList.at(name).size());
-}
+{}
 
 TerranBuilding::~TerranBuilding(){}
 
@@ -58,8 +57,7 @@ void TerranBuilding::update(){
         else {
             underConstruction = false;
             constrWorker_->busy = false;
-            vector<string> ownId = {id};
-            eventList_->emplace_back("build-end", name_,  constrWorker_->getId(), ownId);
+            eventList_->emplace_back("build-end", name_,  constrWorker_->getID(), id);
         }
     }
 }
@@ -72,16 +70,12 @@ bool TerranBuilding::busy(){
 FactoryBuilding::FactoryBuilding(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager, SCV* constrWorker):
     TerranBuilding(name, eventList, constrWorker)
     , rm(resourceManager)
-{
-    id = name + "_" + to_string(FactoryBuilding::factoryList.at(name).size());
-}
+{}
 
 FactoryBuilding::FactoryBuilding(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager):
     TerranBuilding(name, eventList)
     , rm(resourceManager)
-{
-    id = name + "_" + to_string(FactoryBuilding::factoryList.at(name).size());
-}
+{}
 
 FactoryBuilding::~FactoryBuilding(){}
 
@@ -95,12 +89,10 @@ void FactoryBuilding::update(){
             underConstruction = false;
             constrWorker_->busy = false;
             if (addon_ == noAddon){
-                vector<string> ownId = {id};
-                eventList_->emplace_back("build-end", name_,  constrWorker_->getId(), ownId);
+                eventList_->emplace_back("build-end", name_,  constrWorker_->getID(), id);
             }
             else {
-                vector<string> adID = {id};
-                eventList_->emplace_back("build-end", name_,  id, adID);
+                eventList_->emplace_back("build-end", name_,  id, id);
             }
         }
     }
@@ -112,8 +104,7 @@ void FactoryBuilding::update(){
     {
         TerranUnit newUnit(workName);
         TerranUnit::unitList.push_back(newUnit);
-        vector<string> unitID = {newUnit.getId()};
-        eventList_->emplace_back("build-end", workName, id, unitID);
+        eventList_->emplace_back("build-end", workName, id, getID());
     }
     if (addon_ == reactor){
         if (workTimeRemaining_reactor > 0){
@@ -122,8 +113,7 @@ void FactoryBuilding::update(){
         else if (workTimeRemaining_reactor <= 0){
             TerranUnit newUnit(workName_reactor);
             TerranUnit::unitList.push_back(newUnit);
-            vector<string> unitID = {newUnit.getId()};
-            eventList_->emplace_back("build-end", workName_reactor, id, unitID);
+            eventList_->emplace_back("build-end", workName_reactor, id, newUnit.getID());
         }
     }
 }
@@ -181,7 +171,6 @@ bool FactoryBuilding::buildAddon(string addonName){
         addon_ = addon;
         underConstruction = true;
         constrTimeRemaining = addonEntity.buildTime;
-        addonID = addonName + "_" + to_string(factoryList.at(newName).size());
         factoryList.at(newName).push_back(shared_ptr<FactoryBuilding>(this));
         eventList_->emplace_back("build-start", addonName, id);
         return true;
@@ -193,16 +182,10 @@ bool FactoryBuilding::buildAddon(string addonName){
 
 CommandCenter::CommandCenter(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager, SCV* constrWorker):
     TerranBuilding(name, eventList, constrWorker)
-    ,rm(resourceManager) {
-
-    id = name + "_" + to_string(CommandCenter::cCenterList.size());
-    }
+    ,rm(resourceManager) {}
 CommandCenter::CommandCenter(string name, vector<EventEntry>* eventList, ResourceManager* resourceManager):
     TerranBuilding(name, eventList)
-    ,rm(resourceManager) {
-
-    id = name + "_" + to_string(CommandCenter::cCenterList.size());
-    }
+    ,rm(resourceManager) {}
 
 CommandCenter::~CommandCenter() {
 }
@@ -221,13 +204,12 @@ void CommandCenter::update(){
     {
         underConstruction = false;
         constrWorker_->busy = false;
-        vector<string> ownId = {id};
         if (name_ == "CommandCenter"){
             rm->addSupplyMax(entityDataMap.at("command_center").supplyProvided);
-            eventList_->emplace_back("build-end", name_, constrWorker_->getId(), ownId);
+            eventList_->emplace_back("build-end", name_, constrWorker_->getID(), id);
         }
         else
-            eventList_->emplace_back("build-end", name_, id, ownId);
+            eventList_->emplace_back("build-end", name_, id, id);
     }
     else if (workTimeRemaining > 0)
     {

@@ -28,7 +28,8 @@ void TerranSimulator::init() {
         SCV::workerList.emplace_back("scv", &eventList_);
         rm.consumeSupply(entityDataMap.at("scv").supplyCost);
     }
-    CommandCenter::cCenterList.emplace_back("command_center", &eventList_, &rm);
+    CommandCenter cCenter("command_center", &eventList_, &rm);
+    CommandCenter::cCenterList.push_back(cCenter);
     rm.addSupplyMax(entityDataMap.at("command_center").supplyProvided); 
     vector<int> cCenterId = {0};
 
