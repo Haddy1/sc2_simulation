@@ -18,7 +18,7 @@
 #include <string>
 #include <list>
 #include <memory>
->>>>>>> 46d2e5b8b23614476c98578d23e200e17946ee86
+#include <map>
 
 using std::vector;
 using std::queue;
@@ -60,11 +60,12 @@ inline ForwardSimulator::~ForwardSimulator() {}
 
 class TerranSimulator : public ForwardSimulator {
 	queue<string> buildOrder;
-    vector<EventEntry> eventList_;
-	ResourceManager rm;
+	vector<Building*> buildings;
+	vector<Unit*> units;
+	vector<Unit*> workers;
+	ResourceManager resourceManager;
 	int timestep;
 	bool running;
-    JsonLogger logger;
 	
 public:
 	TerranSimulator();
