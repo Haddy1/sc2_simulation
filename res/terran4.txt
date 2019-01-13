@@ -3,6 +3,7 @@ scv
 supply_depot
 barracks
 orbital_command
+barracks_with_reactor
 marine
 marine
 marine
