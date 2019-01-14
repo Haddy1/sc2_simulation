@@ -184,6 +184,12 @@ bool BuildlistValidator::checkNext(string s) {
 		return false;
 	}
 	
+	if (gasBuildings == 2) {
+		if ((s == string("refinery")) || (s == string("assimilator")) || (s == string("extractor"))) {
+			return false;
+		}
+	}
+	
 	return true;
 }
 

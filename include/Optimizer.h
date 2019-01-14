@@ -51,14 +51,14 @@ public:
 	queue<string> optimize();
 	
 	//helpers:
-	Individual mate(const Individual& a, const Individual& b, Race race);
-	Individual mutateDelete(const Individual& a, Race race);
-	Individual mutateInsert(const Individual& a, Race race);
+	Individual mate(const Individual& a, const Individual& b);
+	Individual mutateDelete(const Individual& a);
+	Individual mutateInsert(const Individual& a);
 	
 	template<typename T> int calcDistance(queue<T> a, queue<T> b);
 	pair<int, int> pairLargestDistance(Individual inds[4]);
-	string getRandomValidGene(const queue<string>& buildList, BuildlistValidator& validator, Race race);
-	queue<string> createGenome(Race race, int size);
+	string getRandomValidGene(const queue<string>& buildList, BuildlistValidator& validator);
+	queue<string> createGenome(int size);
 	
 	void addToSetRec(const string&);
 };

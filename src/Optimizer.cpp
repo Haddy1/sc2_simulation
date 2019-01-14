@@ -10,6 +10,16 @@ using Individual = Optimizer::Individual;
 
 void Optimizer::Individual::calcFitness(bool rush, string target, int num, Race race) {
 	//TODO need good fitness function
+	bool timedOut = false;
+	int targetUnits = 0;
+	int timesteps = 0;
+	int maxTime;
+	if (rush) {
+		maxTime = num;
+	} else {//push
+		maxTime = 1000;
+	}
+	
 	switch(race) {
 	case TERRAN:
 	{
@@ -23,37 +33,34 @@ void Optimizer::Individual::calcFitness(bool rush, string target, int num, Race 
 	}
 	case ZERG:
 	{
-		int maxTime;
-		if (rush) {
-			maxTime = num;
-		} else {//push
-			maxTime = 1000;
-		}
-		
 		ZergSimulator sim(list, false, maxTime);
 		sim.init(); //dont forget init...
 		sim.simulate();
-		int targetUnits = sim.numberOfUnits(target);
-		
-		if (rush) {
+		targetUnits = sim.numberOfUnits(target);
+		timedOut = sim.timedOut;
+		timesteps = sim.timestep;
+		break;
+	}
+	default:
+		break;
+	}
+	
+	
+	
+	if (rush) {
 			//if (targetUnits == 0) {
-			if (targetUnits == 0 || sim.timedOut) {
+			if (targetUnits == 0 || timedOut) {
 				fitness = 2000000;
 			} else {
 				fitness = 100000/targetUnits;
 			}
 		} else {//push
 			if (targetUnits >= num) {
-				fitness = sim.timestep;
+				fitness = timesteps;
 			} else {
 				fitness = 2000000;
 			}
 		}
-		break;
-	}
-	default:
-		break;
-	}
 	
 	
 }
@@ -110,7 +117,7 @@ pair<int, int> Optimizer::pairLargestDistance(Individual inds[4]) {
 	}
 }
 
-string Optimizer::getRandomValidGene(const queue<string>& buildList, BuildlistValidator& validator, Race race) {
+string Optimizer::getRandomValidGene(const queue<string>& buildList, BuildlistValidator& validator) {
 	/*
 	vector<string> validChoices;
 	for (int i = startIndex; i < endIndex; ++i) {
@@ -131,7 +138,7 @@ string Optimizer::getRandomValidGene(const queue<string>& buildList, BuildlistVa
 	return validChoices[rand() % validChoices.size()];
 }
 
-queue<string> Optimizer::createGenome(Race race, int size) {
+queue<string> Optimizer::createGenome(int size) {
 	//generate at random and make sure the buildlist is valid
 	queue<string> buildList;
 	
@@ -139,7 +146,7 @@ queue<string> Optimizer::createGenome(Race race, int size) {
 	//int randIndex = (rand() % range) + start;
 	BuildlistValidator validator(race);
 	for (int i = 0; i < size; ++i) {
-		string nextGene = getRandomValidGene(buildList, validator, race);
+		string nextGene = getRandomValidGene(buildList, validator);
 		buildList.push(nextGene);
 		validator.validateNext(nextGene);
 	}
@@ -147,7 +154,7 @@ queue<string> Optimizer::createGenome(Race race, int size) {
 	return buildList;
 }
 
-Individual Optimizer::mate(const Individual& a, const Individual& b, Race race) {
+Individual Optimizer::mate(const Individual& a, const Individual& b) {
 	
 	
 	// make both parent lists same length
@@ -159,7 +166,7 @@ Individual Optimizer::mate(const Individual& a, const Individual& b, Race race) 
 		BuildlistValidator validatorA(race, listA);
 		validatorA.validate();
 		for (int i = n; i < m; ++i) {
-			string nextGene = getRandomValidGene(listA, validatorA, race);
+			string nextGene = getRandomValidGene(listA, validatorA);
 			listA.push(nextGene);
 			validatorA.validateNext(nextGene);
 		}
@@ -167,7 +174,7 @@ Individual Optimizer::mate(const Individual& a, const Individual& b, Race race) 
 		BuildlistValidator validatorB(race, listB);
 		validatorB.validate();
 		for (int i = m; i < n; ++i) {
-			string nextGene = getRandomValidGene(listB, validatorB, race);
+			string nextGene = getRandomValidGene(listB, validatorB);
 			listB.push(nextGene);
 			validatorB.validateNext(nextGene);
 		}
@@ -207,8 +214,11 @@ Individual Optimizer::mate(const Individual& a, const Individual& b, Race race) 
 	return Individual(buildList);
 }
 
-Individual Optimizer::mutateDelete(const Individual& a, Race race) {
+Individual Optimizer::mutateDelete(const Individual& a) {
 	int size = a.list.size();
+	if (size == 0) {
+		return a;
+	}
 	int r = rand() % size;
 	queue<string> copyList = a.list;
 	queue<string> newBuildList;
@@ -227,7 +237,21 @@ Individual Optimizer::mutateDelete(const Individual& a, Race race) {
 	}
 }
 
-Individual Optimizer::mutateInsert(const Individual& a, Race race) {
+//insert random at end of list
+Individual Optimizer::mutateInsert(const Individual& a) {
+	//int size = a.list.size();
+	queue<string> newBuildList = a.list;
+	BuildlistValidator validator(race, newBuildList);
+	validator.validate();
+	
+	string randGene = getRandomValidGene(newBuildList, validator);
+	newBuildList.push(randGene);
+	validator.validateNext(randGene);
+	return Individual(newBuildList);
+}
+
+/*
+Individual Optimizer::mutateInsert(const Individual& a) {
 	int size = a.list.size();
 	int r = rand() % size;
 	queue<string> copyList = a.list;
@@ -249,6 +273,7 @@ Individual Optimizer::mutateInsert(const Individual& a, Race race) {
 	}
 	return Individual(newBuildList);
 }
+*/
 
 bool operator<(const Individual& i, const Individual& j) {
 	return i.fitness < j.fitness;
@@ -330,22 +355,42 @@ queue<string> Optimizer::optimize() {
 	timer.start();
 	
 	srand(0);
-	//rand() between 0 and RAND_MAX
+	
+	long long timeout_ms = 179000;
 	bool found = false;
 	int generation = 0;
 	int maxGeneration = 50;
 	int populationSize = 10000;
-	int numSelect = populationSize/10;
-	int numMate = 8*populationSize/10;
-	int matingPoolSize = populationSize/10;
+	
 	int buildListSize = 10;
-	long timeout = 179000;
+	int buildListSizeVariation = 20;
+	
+	//int numSelect = populationSize/10;
+	//int numMate = 8*populationSize/10;
+	//int matingPoolSize = populationSize/10;
+	
+	
+	//standard settings
+	//int numSelect = 1000;
+	//int numMate = 8000;
+	//int numMutateInsert = 500;
+	//int numMutateDelete = 500;
+	//int matingPoolSize = 1000;
+	
+	//better for push?
+	int numSelect = 1000;
+	int numMate = 4000;
+	int numMutateInsert = 2500;
+	int numMutateDelete = 2500;
+	int matingPoolSize = 1000;
+	
+	
 	
 	vector<Individual> population;
 	
 	for (int i = 0; i < populationSize; ++i) {
-		int listSizeVariation = rand() % 20;
-		queue<string> genome = createGenome(race, buildListSize + listSizeVariation);
+		int r = rand() % buildListSizeVariation;
+		queue<string> genome = createGenome(buildListSize + r);
 		population.push_back(Individual(genome));
 	}
 	
@@ -365,7 +410,7 @@ queue<string> Optimizer::optimize() {
 		//std::clog << population[9999].list.size() << std::endl;
 		//condition for loop end
 		
-		if (generation > maxGeneration || timer.elapsedMilli() > timeout) {
+		if (generation > maxGeneration || timer.elapsedMilli() > timeout_ms) {
 			//found = true;
 			break;
 		}
@@ -379,27 +424,26 @@ queue<string> Optimizer::optimize() {
 		}
 		
 		//Reproduction
-		for (int i = numSelect; i < numMate + numSelect; ++i) {
+		for (int i = 0; i < numMate; ++i) {
 			Individual parents[4];
 			for (int j = 0; j < 4; ++j) {
 				int r = rand() % matingPoolSize;
 				parents[j] = population[r];
 			}
 			pair<int, int> p = pairLargestDistance(parents);
-			nextPopulation.push_back(mate(parents[p.first], parents[p.second], race));
+			nextPopulation.push_back(mate(parents[p.first], parents[p.second]));
 		}
 		
 		//Mutation
 		//mutate copies of best genomes instead of the offspring by inserting/deleting random genes
-		for (int i = numMate + numSelect; i < 95*populationSize/100; ++i) {
+		for (int i = 0; i < numMutateDelete; ++i) {
 			int r = rand() % numSelect;
-			nextPopulation.push_back(mutateDelete(population[r], race));
+			nextPopulation.push_back(mutateDelete(population[r]));
 		}
-		for (int i = 95*populationSize/100; i < populationSize; ++i) {
+		for (int i = 0; i < numMutateInsert; ++i) {
 			int r = rand() % numSelect;
-			nextPopulation.push_back(mutateInsert(population[r], race));
+			nextPopulation.push_back(mutateInsert(population[r]));
 		}
-		
 		
 		population = nextPopulation;
 		
