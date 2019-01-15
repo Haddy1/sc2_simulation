@@ -30,7 +30,6 @@ public:
 		Individual() {}
 		Individual(queue<string> q) : list(q) {}
 	
-		void calcFitness(bool rush, string target, int num, Race race);
 		void printList();
 	};
 
@@ -44,6 +43,7 @@ private:
 	int endIndex;
 	
 	set<string> searchSpace;
+	unordered_map<string, int> searchSpaceLevels;
 
 public:
 	Optimizer(bool rush, string target, int num, Race race);
@@ -60,7 +60,9 @@ public:
 	string getRandomValidGene(const queue<string>& buildList, BuildlistValidator& validator);
 	queue<string> createGenome(int size);
 	
-	void addToSetRec(const string&);
+	void calcFitness(Individual& ind);
+	
+	void addToSetRec(const string&, int level);
 };
 
 

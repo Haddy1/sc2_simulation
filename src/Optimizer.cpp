@@ -8,7 +8,7 @@ using std::vector;
 
 using Individual = Optimizer::Individual;
 
-void Optimizer::Individual::calcFitness(bool rush, string target, int num, Race race) {
+void Optimizer::calcFitness(Individual& ind) {
 	//TODO need good fitness function
 	bool timedOut = false;
 	int targetUnits = 0;
@@ -28,12 +28,12 @@ void Optimizer::Individual::calcFitness(bool rush, string target, int num, Race 
 	}
 	case PROTOSS:
 	{
-		ProtossSimulator sim(list, false);//TODO
+		ProtossSimulator sim(ind.list, false);//TODO
 		break;
 	}
 	case ZERG:
 	{
-		ZergSimulator sim(list, false, maxTime);
+		ZergSimulator sim(ind.list, false, maxTime);
 		sim.init(); //dont forget init...
 		sim.simulate();
 		targetUnits = sim.numberOfUnits(target);
@@ -46,21 +46,36 @@ void Optimizer::Individual::calcFitness(bool rush, string target, int num, Race 
 	}
 	
 	
-	
+	//ghetto heuristic, but kinda works for push finally. smaller fitness is better
+	//for rush, number of built target units determines fitness (only if simulation didnt exceed max time)
+	//for push, if number of target units is met, fitness is just the number of timesteps of the simulation
+	// if there is not enough or none of the target units then prefer the lists which are closest to the target unit
 	if (rush) {
-			//if (targetUnits == 0) {
-			if (targetUnits == 0 || timedOut) {
-				fitness = 2000000;
-			} else {
-				fitness = 100000/targetUnits;
-			}
-		} else {//push
-			if (targetUnits >= num) {
-				fitness = timesteps;
-			} else {
-				fitness = 2000000;
-			}
+		if (targetUnits == 0 || timedOut) {
+			ind.fitness = 2000000000;
+		} else {
+			ind.fitness = 2000000000/targetUnits;
 		}
+	} else {//push
+		if (targetUnits >= num) {
+			ind.fitness = timesteps;
+		} else {
+			ind.fitness = 2000000000 / (targetUnits + 1);
+			
+			int minLevel = 1000;
+			queue<string> listCopy = ind.list;
+			int size = listCopy.size();
+			for (int i = 0; i < size; ++i) {
+				string item = listCopy.front();
+				listCopy.pop();
+				if (searchSpaceLevels.find(item) != searchSpaceLevels.end()) {
+					minLevel = min(searchSpaceLevels.at(item), minLevel);
+				}
+			}
+			
+			ind.fitness += minLevel;
+		}
+	}
 	
 	
 }
@@ -142,8 +157,6 @@ queue<string> Optimizer::createGenome(int size) {
 	//generate at random and make sure the buildlist is valid
 	queue<string> buildList;
 	
-	//int range = end - start;
-	//int randIndex = (rand() % range) + start;
 	BuildlistValidator validator(race);
 	for (int i = 0; i < size; ++i) {
 		string nextGene = getRandomValidGene(buildList, validator);
@@ -283,22 +296,26 @@ Optimizer::Optimizer(bool rush, string target, int num, Race race) : rush(rush),
 	
 }
 
-void Optimizer::addToSetRec(const string& entityName) {
+void Optimizer::addToSetRec(const string& entityName, int level) {
 	if (searchSpace.find(entityName) != searchSpace.end()) { //already in set
+		if (searchSpaceLevels.find(entityName) != searchSpaceLevels.end()) {
+			searchSpaceLevels.at(entityName) = max(level, searchSpaceLevels.at(entityName));
+		}
 		return;
 	}
 	const EntityData& entityData = entityDataMap.at(entityName);
 	
 	if (entityName != string("larva")) { //avoid adding larva //TODO dont hardcode
 		searchSpace.insert(entityName);
+		searchSpaceLevels.emplace(entityName, level);
 	}
 	//searchSpace.insert(entityName);
 	
 	for (const string& s : entityData.dependencies) {
-		addToSetRec(s);
+		addToSetRec(s, level+1);
 	}
 	for (const string& s : entityData.producedBy) {
-		addToSetRec(s);
+		addToSetRec(s, level+1);
 	}
 }
 
@@ -340,7 +357,7 @@ void Optimizer::init() {
 		break;
 	}
 	
-	addToSetRec(target);
+	addToSetRec(target, 0);
 	
 	
 	std::clog << "search space: " << std::endl;
@@ -356,7 +373,7 @@ queue<string> Optimizer::optimize() {
 	
 	srand(0);
 	
-	long long timeout_ms = 179000;
+	long long timeout_ms = 175000;
 	bool found = false;
 	int generation = 0;
 	int maxGeneration = 50;
@@ -398,7 +415,7 @@ queue<string> Optimizer::optimize() {
 	
 	while (!found) {
 		for (auto it = population.begin(); it != population.end(); ++it) {
-			it->calcFitness(rush, target, num, race);
+			calcFitness(*it);
 		}
 		
 		sort(population.begin(), population.end());
