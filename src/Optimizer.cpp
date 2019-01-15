@@ -360,11 +360,11 @@ void Optimizer::init() {
 	addToSetRec(target, 0);
 	
 	
-	std::clog << "search space: " << std::endl;
-	for (auto it = searchSpace.begin(); it != searchSpace.end(); ++it) {
-		std::clog << (*it) << std::endl;
-	}
-	std::clog << std::endl;
+	//std::clog << "search space: " << std::endl;
+	//for (auto it = searchSpace.begin(); it != searchSpace.end(); ++it) {
+	//	std::clog << (*it) << std::endl;
+	//}
+	//std::clog << std::endl;
 }
 
 queue<string> Optimizer::optimize() {
@@ -373,7 +373,7 @@ queue<string> Optimizer::optimize() {
 	
 	srand(0);
 	
-	long long timeout_ms = 175000;
+	long long timeout_ms = 150000;
 	bool found = false;
 	int generation = 0;
 	int maxGeneration = 50;
@@ -421,10 +421,8 @@ queue<string> Optimizer::optimize() {
 		sort(population.begin(), population.end());
 		
 	
-		std::clog << "best fitness: " << population[0].fitness << std::endl;
-		std::clog << "worst fitness: " << population[9999].fitness << std::endl;
-		//std::clog << population[0].list.size() << std::endl;
-		//std::clog << population[9999].list.size() << std::endl;
+		//std::clog << "best fitness: " << population[0].fitness << std::endl;
+		//std::clog << "worst fitness: " << population[9999].fitness << std::endl;
 		//condition for loop end
 		
 		if (generation > maxGeneration || timer.elapsedMilli() > timeout_ms) {
@@ -464,7 +462,7 @@ queue<string> Optimizer::optimize() {
 		
 		population = nextPopulation;
 		
-		std::clog << "Generation " << generation << ", Population " << population.size() << std::endl;
+		//std::clog << "Generation " << generation << ", Population " << population.size() << std::endl;
 		
 		++generation;
 	}
