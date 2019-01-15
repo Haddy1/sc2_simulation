@@ -38,6 +38,8 @@ public:
 	int getWorkers() const { return mineralWorkers + vespeneWorkers; }
 	int getSupplyInt();
 	int getSupplyMaxInt();
+
+    void addMinerals(FixedPoint); // used by MULE
 	
 	bool consumeMinerals(FixedPoint);
 	bool consumeVespene(FixedPoint);

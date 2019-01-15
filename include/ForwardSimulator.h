@@ -64,12 +64,14 @@ inline ForwardSimulator::~ForwardSimulator() {}
 
 class TerranSimulator : public ForwardSimulator {
 	queue<string> buildOrder;
-	vector<Building*> buildings;
-	vector<Unit*> units;
-	vector<Unit*> workers;
-	ResourceManager resourceManager;
+    vector<EventEntry> eventList_;
+	ResourceManager rm;
+	Tech tech;
+	int maxTime = 1000;
 	int timestep;
 	bool running;
+	JsonLoggerV2 logger;
+    int ID_Counter;
 	
 public:
 	TerranSimulator();
