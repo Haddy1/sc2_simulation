@@ -48,12 +48,12 @@ void ZergSimulator::init() {
 	resourceManager.setMineralWorkers(6);
 	resourceManager.setVespeneWorkers(0);
 	
-	vector<pair<string, vector<int>>> initUnits;
-	initUnits.push_back(pair<string, vector<int>>(string("drone"), droneIDs));
-	initUnits.push_back(pair<string, vector<int>>(string("hatchery"), hatcheryIDs));
-	initUnits.push_back(pair<string, vector<int>>(string("overlord"), overlordIDs));
 	
 	if (logging) {
+		vector<pair<string, vector<int>>> initUnits;
+		initUnits.push_back(pair<string, vector<int>>(string("drone"), droneIDs));
+		initUnits.push_back(pair<string, vector<int>>(string("hatchery"), hatcheryIDs));
+		initUnits.push_back(pair<string, vector<int>>(string("overlord"), overlordIDs));
 		logger.printBeginning();
 		logger.printSetup(initUnits);
 	}
@@ -166,32 +166,42 @@ void ZergSimulator::simulate() {
 			larvax.update();
 			if (larvax.isDone()) {
 				EntityData *entityData = larvax.getUnitData();
-				string producerID = to_string(larvax.getID());
+				
 				vector<string> producedIDs;
 				//create new unit
 				if (entityData->type == drone) {
 					ZergDrone dronex(ID_Counter, drone, resourceManager, tech, busyCounter);
 					drones.push_back(dronex);
-					producedIDs.push_back(to_string(dronex.getID()));
+					if (logging) {
+						producedIDs.push_back(to_string(dronex.getID()));
+					}
 				} else if (entityData->type == zergling) { //edge case: 2 zerglings are produced
 					ZergUpgradeableUnit unit1x(ID_Counter, entityData->type, resourceManager, tech, busyCounter);
 					ZergUpgradeableUnit unit2x(ID_Counter, entityData->type, resourceManager, tech, busyCounter);
 					upgradeableUnits.push_back(unit1x);
 					upgradeableUnits.push_back(unit2x);
-					producedIDs.push_back(to_string(unit1x.getID()));
-					producedIDs.push_back(to_string(unit2x.getID()));
+					if (logging) {
+						producedIDs.push_back(to_string(unit1x.getID()));
+						producedIDs.push_back(to_string(unit2x.getID()));
+					}
 				} else if ((entityData->type == overlord) || (entityData->type == corruptor)) {
 					ZergUpgradeableUnit unitx(ID_Counter, entityData->type, resourceManager, tech, busyCounter);
 					upgradeableUnits.push_back(unitx);
-					producedIDs.push_back(to_string(unitx.getID()));
+					if (logging) {
+						producedIDs.push_back(to_string(unitx.getID()));
+					}
 				} else {
 					ZergUnit unitx(ID_Counter, entityData->type, resourceManager);
 					units.push_back(unitx);
-					producedIDs.push_back(to_string(unitx.getID()));
+					if (logging) {
+						producedIDs.push_back(to_string(unitx.getID()));
+					}
 				}
 				
-				if (logging)
+				if (logging) {
+					string producerID = to_string(larvax.getID());
 					logger.addBuildend(BuildEndEntry(entityData->name, producerID, producedIDs));
+				}
 				//remove this larva
 				it = larvas.erase(it);
 				--busyCounter; //larva done, so decrease counter
@@ -337,9 +347,10 @@ void ZergSimulator::simulate() {
 			}
 			
 			
-			string nextItemString = entityNameMap.at(nextItem);
+			
 			if (buildStarted) {
 				if (logging) {
+					string nextItemString = entityNameMap.at(nextItem);
 					if (producerID == -1) {
 						logger.addBuildstart(BuildStartEntry(nextItemString));
 					} else {

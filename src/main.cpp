@@ -82,7 +82,7 @@ void forwardSimulate(char *filename) {
 	while (buildListFile.good()) {
 		string s;
 		buildListFile >> s;
-		if (s.size() == 0) {
+		if (s.empty()) {
 			continue;
 		}
 		if (!entityExists(s)) {

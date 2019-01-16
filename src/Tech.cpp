@@ -13,7 +13,7 @@ void Tech::remove(EntityType t) {
 }
 
 bool Tech::dependencyFulfilled(const EntityData& e) {
-	if (e.dependencies.size() == 0) {
+	if (e.dependencies.empty()) {
 		return true;
 	}
 	for (EntityType dep : e.dependencies) {

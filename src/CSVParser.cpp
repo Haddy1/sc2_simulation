@@ -104,7 +104,7 @@ void CSVParser::parseLine(string line) {
 		}
 	} else {
 		//line does not start with #
-		if (line.size() == 0) {
+		if (line.empty()) {
 			//reached end
 		}
 		else {

@@ -379,7 +379,7 @@ queue<EntityType> Optimizer::optimize() {
 	Timer timer;
 	timer.start();
 	
-	srand(0);
+	srand(1);
 	
 	long long timeout_ms = 150000;
 	int generation = 0;
