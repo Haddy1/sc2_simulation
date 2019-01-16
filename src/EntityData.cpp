@@ -55,7 +55,7 @@ void initEntityNameMap() {
 	entityNameMap.emplace(scv,string("scv"));
 	entityNameMap.emplace(marine,string("marine"));
 	entityNameMap.emplace(marauder,string("marauder"));
-	entityNameMap.emplace(reaper,string("eaper"));
+	entityNameMap.emplace(reaper,string("reaper"));
 	entityNameMap.emplace(ghost,string("ghost"));
 	entityNameMap.emplace(hellion,string("hellion"));
 	entityNameMap.emplace(siege_tank,string("siege_tank"));
@@ -126,4 +126,10 @@ void initEntityNameMap() {
 	for (auto it = entityNameMap.begin(); it != entityNameMap.end(); ++it) {
 		nameEntityMap.emplace(it->second, it->first);
 	}
+	
+	/*
+	for (auto it = entityNameMap.begin(); it != entityNameMap.end(); ++it) {
+		std::clog << it->second << it->first << std::endl;
+	}
+	*/
 }

@@ -171,7 +171,9 @@ int main(int argc, char *argv[]) {
 	
 	// read csv
 	CSVParser csvp("res/techtrees.csv");
+	
 	csvp.parse();
+	
 	
 	
 	

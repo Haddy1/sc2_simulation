@@ -28,9 +28,10 @@ void CSVParser::parseEntityLine(string line) {
 	} else {
 		entityData.isBuilding = true;
 	}
-
+	
 	getline(iss, token, ','); //name
 	entityData.name = token;
+	
 	entityData.type = nameEntityMap.at(token);
 	
 	getline(iss, token, ',');
@@ -63,7 +64,7 @@ void CSVParser::parseEntityLine(string line) {
 		}
 	}
 	entityData.producedBy = prods;
-
+	
 	getline(iss, token, ',');
 	vector<EntityType> deps;
 	istringstream iss3(token);

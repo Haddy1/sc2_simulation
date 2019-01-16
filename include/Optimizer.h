@@ -25,10 +25,11 @@ class Optimizer {
 public:
 	struct Individual {
 		int fitness;
+		bool fitnessCalculated;
 		queue<EntityType> list;
 	
-		Individual() {}
-		Individual(queue<EntityType> q) : list(q) {}
+		Individual() : fitness(0), fitnessCalculated(false) {}
+		Individual(queue<EntityType> q) : fitness(0), fitnessCalculated(false), list(q) {}
 	
 		void printList();
 	};

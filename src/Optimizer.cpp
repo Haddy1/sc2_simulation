@@ -10,6 +10,11 @@ using Individual = Optimizer::Individual;
 
 void Optimizer::calcFitness(Individual& ind) {
 	//TODO need good fitness function
+	if (ind.fitnessCalculated) {
+		return;
+	}
+	
+	
 	bool timedOut = false;
 	int targetUnits = 0;
 	int timesteps = 0;
@@ -76,6 +81,8 @@ void Optimizer::calcFitness(Individual& ind) {
 			ind.fitness += minLevel;
 		}
 	}
+	
+	ind.fitnessCalculated = true;
 	
 	
 }
@@ -376,8 +383,8 @@ queue<EntityType> Optimizer::optimize() {
 	long long timeout_ms = 150000;
 	bool found = false;
 	int generation = 0;
-	int maxGeneration = 50;
-	int populationSize = 10000;
+	int maxGeneration = 500;//50
+	int populationSize = 20000;
 	
 	int buildListSize = 10;
 	int buildListSizeVariation = 20;
@@ -395,11 +402,11 @@ queue<EntityType> Optimizer::optimize() {
 	//int matingPoolSize = 1000;
 	
 	//better for push?
-	int numSelect = 1000;
-	int numMate = 4000;
-	int numMutateInsert = 2500;
-	int numMutateDelete = 2500;
-	int matingPoolSize = 1000;
+	int numSelect = 1*populationSize/10; //1000
+	int numMate = 4*populationSize/10; //4000
+	int numMutateInsert = 25*populationSize/100; //2500
+	int numMutateDelete = 25*populationSize/100; //2500
+	int matingPoolSize = 1*populationSize/10; //1000
 	
 	
 	
