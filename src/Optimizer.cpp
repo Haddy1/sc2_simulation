@@ -366,12 +366,13 @@ void Optimizer::init() {
 	
 	addToSetRec(target, 0);
 	
-	
-	//std::clog << "search space: " << std::endl;
-	//for (auto it = searchSpace.begin(); it != searchSpace.end(); ++it) {
-	//	std::clog << (*it) << std::endl;
-	//}
-	//std::clog << std::endl;
+	/*
+	std::clog << "search space: " << std::endl;
+	for (auto it = searchSpace.begin(); it != searchSpace.end(); ++it) {
+		std::clog << entityNameMap.at(*it) << std::endl;
+	}
+	std::clog << std::endl;
+	*/
 }
 
 queue<EntityType> Optimizer::optimize() {
@@ -381,10 +382,9 @@ queue<EntityType> Optimizer::optimize() {
 	srand(0);
 	
 	long long timeout_ms = 150000;
-	bool found = false;
 	int generation = 0;
 	int maxGeneration = 500;//50
-	int populationSize = 20000;
+	int populationSize = 30000;
 	
 	int buildListSize = 10;
 	int buildListSizeVariation = 20;
@@ -420,7 +420,7 @@ queue<EntityType> Optimizer::optimize() {
 	
 	//population[0].printList();
 	
-	while (!found) {
+	while (true) {
 		for (auto it = population.begin(); it != population.end(); ++it) {
 			calcFitness(*it);
 		}
@@ -429,9 +429,9 @@ queue<EntityType> Optimizer::optimize() {
 		
 	
 		//std::clog << "best fitness: " << population[0].fitness << std::endl;
-		//std::clog << "worst fitness: " << population[9999].fitness << std::endl;
-		//condition for loop end
+		//std::clog << "worst fitness: " << population[populationSize-1].fitness << std::endl;
 		
+		//condition for loop end
 		if (generation > maxGeneration || timer.elapsedMilli() > timeout_ms) {
 			//found = true;
 			break;
