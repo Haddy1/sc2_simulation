@@ -25,30 +25,30 @@ class Optimizer {
 public:
 	struct Individual {
 		int fitness;
-		queue<string> list;
+		queue<EntityType> list;
 	
 		Individual() {}
-		Individual(queue<string> q) : list(q) {}
+		Individual(queue<EntityType> q) : list(q) {}
 	
 		void printList();
 	};
 
 private:
 	bool rush;
-	string target;
+	EntityType target;
 	int num;
 	Race race;
 	
 	int startIndex;
 	int endIndex;
 	
-	set<string> searchSpace;
-	unordered_map<string, int> searchSpaceLevels;
+	set<EntityType> searchSpace;
+	unordered_map<EntityType, int> searchSpaceLevels;
 
 public:
-	Optimizer(bool rush, string target, int num, Race race);
+	Optimizer(bool rush, EntityType target, int num, Race race);
 	void init();
-	queue<string> optimize();
+	queue<EntityType> optimize();
 	
 	//helpers:
 	Individual mate(const Individual& a, const Individual& b);
@@ -57,12 +57,12 @@ public:
 	
 	template<typename T> int calcDistance(queue<T> a, queue<T> b);
 	pair<int, int> pairLargestDistance(Individual inds[4]);
-	string getRandomValidGene(const queue<string>& buildList, BuildlistValidator& validator);
-	queue<string> createGenome(int size);
+	EntityType getRandomValidGene(const queue<EntityType>& buildList, BuildlistValidator& validator);
+	queue<EntityType> createGenome(int size);
 	
 	void calcFitness(Individual& ind);
 	
-	void addToSetRec(const string&, int level);
+	void addToSetRec(const EntityType&, int level);
 };
 
 

@@ -11,37 +11,6 @@ using std::unordered_map;
 using std::string;
 using std::vector;
 
-struct EntityData {
-	string name;
-	int minerals;
-	int vespene;
-	int buildTime;
-	float supplyCost; //can be 0.5 for zerglings
-	int supplyProvided;
-	int startEnergy;
-	int maxEnergy;
-	Race race;
-	vector<string> producedBy;
-	vector<string> dependencies;
-	bool isBuilding;
-
-	friend std::ostream& operator<<(std::ostream& os, const EntityData& d) {
-		os << d.name << "," << d.minerals << "," << d.vespene << "," << d.buildTime << "," << d.supplyCost << "," << d.supplyProvided << "," << d.startEnergy << "," << d.maxEnergy << "," << d.race << ",";
-		os << " producedBy: ";
-		for (string s : d.producedBy) os << s << "/";
-		os << ",";
-		os << " dependencies: ";
-		for (string s : d.dependencies) os << s << "/";
-		return os;
-	}
-};
-
-extern unordered_map<string, EntityData> entityDataMap;
-
-bool entityExists(string s);
-
-
-
 
 enum EntityType {
 	none = 0,
@@ -54,7 +23,7 @@ enum EntityType {
 	hydralisk,
 	drone,
 	queen,
-	//larva,
+	larva,
 	zergling,
 	baneling,
 	roach,
@@ -83,15 +52,114 @@ enum EntityType {
 	spire,
 	zerg_end,
 	
+	
 	//TERRAN
 	terran_start = 200,
+	scv = terran_start,
+	marine,
+	marauder,
+	reaper,
+	ghost,
+	hellion,
+	siege_tank,
+	thor,
+	medivac,
+	viking,
+	raven,
+	banshee,
+	battlecruiser,
+	//buildings
+	command_center,
+	orbital_command,
+	planetary_fortress,
+	refinery,
+	engineering_bay,
+	missile_turret,
+	sensor_tower,
+	barracks,
+	factory,
+	armory,
+	bunker,
+	ghost_academy,
+	starport,
+	fusion_core,
+	supply_depot,
+	barracks_with_reactor,
+	barracks_with_tech_lab,
+	starport_with_reactor,
+	starport_with_tech_lab,
+	factory_with_reactor,
+	factory_with_tech_lab,
 	terran_end,
+	
+	
 	//PROTOSS
 	protoss_start = 300,
+	probe = protoss_start,
+	zealot,
+	stalker,
+	sentry,
+	warp_prism,
+	immortal,
+	observer,
+	colossus,
+	high_templar,
+	dark_templar,
+	mothership,
+	phoenix,
+	void_ray,
+	carrier,
+	//buildings
+	nexus,
+	pylon,
+	gateway,
+	cybernetics_core,
+	robotics_facility,
+	robotics_bay,
+	twilight_council,
+	templar_archives,
+	dark_shrine,
+	stargate,
+	fleet_beacon,
+	assimilator,
+	forge,
+	photon_cannon,
 	protoss_end
+	
+	
 };
 
-extern unordered_map<int, string> entityNameMap;
+
+struct EntityData {
+	EntityType type;
+	string name;
+	int minerals;
+	int vespene;
+	int buildTime;
+	float supplyCost; //can be 0.5 for zerglings
+	int supplyProvided;
+	int startEnergy;
+	int maxEnergy;
+	Race race;
+	vector<EntityType> producedBy;
+	vector<EntityType> dependencies;
+	bool isBuilding;
+
+};
+
+extern unordered_map<EntityType, EntityData> entityDataMap;
+
+bool entityExists(string s);
+
+bool entityExists(EntityType t);
+
+
+
+
+
+
+extern unordered_map<EntityType, string> entityNameMap;
+extern unordered_map<string, EntityType> nameEntityMap;
 
 void initEntityNameMap();
 

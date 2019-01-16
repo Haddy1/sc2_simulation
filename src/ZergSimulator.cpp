@@ -14,7 +14,7 @@ ZergSimulator::ZergSimulator(bool logging, int maxTime) : logger(ZERG, resourceM
 	
 }
 
-ZergSimulator::ZergSimulator(queue<string> q, bool logging, int maxTime) : logger(ZERG, resourceManager, true), buildOrder(q), maxTime(maxTime), gasBuildings(0), busyCounter(0), ID_Counter(0), logging(logging), timestep(1), timedOut(false) {
+ZergSimulator::ZergSimulator(queue<EntityType> q, bool logging, int maxTime) : logger(ZERG, resourceManager, true), buildOrder(q), maxTime(maxTime), gasBuildings(0), busyCounter(0), ID_Counter(0), logging(logging), timestep(1), timedOut(false) {
 	
 }
 
@@ -28,20 +28,20 @@ void ZergSimulator::init() {
 	vector<int> hatcheryIDs;
 	vector<int> overlordIDs;
 	
-	ZergHatchery hatchery(ID_Counter, string("hatchery"), resourceManager, tech, busyCounter);
-	hatcheryIDs.push_back(hatchery.getID());
-	hatcheries.push_back(hatchery);
+	ZergHatchery hatcheryx(ID_Counter, hatchery, resourceManager, tech, busyCounter);
+	hatcheryIDs.push_back(hatcheryx.getID());
+	hatcheries.push_back(hatcheryx);
 	
-	ZergUpgradeableUnit overlord(ID_Counter, string("overlord"), resourceManager, tech, busyCounter);
-	overlordIDs.push_back(overlord.getID());
-	upgradeableUnits.push_back(overlord);
+	ZergUpgradeableUnit overlordx(ID_Counter, overlord, resourceManager, tech, busyCounter);
+	overlordIDs.push_back(overlordx.getID());
+	upgradeableUnits.push_back(overlordx);
 	
 	
 	
 	for (int i = 0; i < 6; ++i) {
-		ZergDrone drone(ID_Counter, string("drone"), resourceManager, tech, busyCounter);
-		droneIDs.push_back(drone.getID());
-		drones.push_back(drone);
+		ZergDrone dronex(ID_Counter, drone, resourceManager, tech, busyCounter);
+		droneIDs.push_back(dronex.getID());
+		drones.push_back(dronex);
 	}
 	
 	resourceManager.consumeSupply(6); //6 drones cost
@@ -87,10 +87,10 @@ void ZergSimulator::simulate() {
 					logger.addBuildend(BuildEndEntry(b.getName(), b.getID(), b.getID()));
 			}
 			if (b.takeQueen()) {
-				ZergQueen queen(ID_Counter, string("queen"), resourceManager, busyCounter);
-				queens.push_back(queen);
+				ZergQueen queenx(ID_Counter, queen, resourceManager, busyCounter);
+				queens.push_back(queenx);
 				if (logging)
-					logger.addBuildend(BuildEndEntry("queen", b.getID(), queen.getID()));
+					logger.addBuildend(BuildEndEntry("queen", b.getID(), queenx.getID()));
 			}
 			//std::clog << "Hatchery num larvas: " << b.getLarvaCount() << std::endl;
 		}
@@ -103,7 +103,7 @@ void ZergSimulator::simulate() {
 		for (ZergNydusNetwork& b : nydusNetworks) {
 			b.update();
 			if (b.takeUnit()) {
-				ZergUnit nydusWorm(ID_Counter, string("nydus_worm"), resourceManager);
+				ZergUnit nydusWorm(ID_Counter, nydus_worm, resourceManager);
 				units.push_back(nydusWorm);
 				if (logging)
 					logger.addBuildend(BuildEndEntry("nydus_worm", b.getID(), nydusWorm.getID()));
@@ -121,32 +121,32 @@ void ZergSimulator::simulate() {
 		//Drones
 		auto it2 = drones.begin();
 		while (it2 != drones.end()) {
-			ZergDrone& drone = (*it2);
-			drone.update();
-			if (drone.morphingDone()) {
-				EntityData *entityData = drone.getBuildingData();
-				int producerID = drone.getID();
+			ZergDrone& dronex = (*it2);
+			dronex.update();
+			if (dronex.morphingDone()) {
+				EntityData *entityData = dronex.getBuildingData();
+				int producerID = dronex.getID();
 				int producedIDs;
 				//create new unit
-				if (entityData->name == string("hatchery")) {
-					ZergHatchery hatchery(ID_Counter, string("hatchery"), resourceManager, tech, busyCounter);
-					hatcheries.push_back(hatchery);
-					producedIDs = hatchery.getID();
-				} else if (entityData->name == string("spire")) {
-					ZergSpire spire(ID_Counter, string("spire"), resourceManager, tech, busyCounter);
-					spires.push_back(spire);
-					producedIDs = spire.getID();
-				} else if (entityData->name == string("nydus_network")) {
-					ZergNydusNetwork nydusNetwork(ID_Counter, string("nydus_network"), resourceManager, tech, busyCounter);
-					nydusNetworks.push_back(nydusNetwork);
-					producedIDs = nydusNetwork.getID();
+				if (entityData->type == hatchery) {
+					ZergHatchery hatcheryx(ID_Counter, hatchery, resourceManager, tech, busyCounter);
+					hatcheries.push_back(hatcheryx);
+					producedIDs = hatcheryx.getID();
+				} else if (entityData->type == spire) {
+					ZergSpire spirex(ID_Counter, spire, resourceManager, tech, busyCounter);
+					spires.push_back(spirex);
+					producedIDs = spirex.getID();
+				} else if (entityData->type == nydus_network) {
+					ZergNydusNetwork nydusNetworkx(ID_Counter, nydus_network, resourceManager, tech, busyCounter);
+					nydusNetworks.push_back(nydusNetworkx);
+					producedIDs = nydusNetworkx.getID();
 				} else {
-					if (entityData->name == string("extractor")) {
+					if (entityData->type == extractor) {
 						++gasBuildings;
 					}
-					ZergBuilding building(ID_Counter, entityData->name, resourceManager, tech);
-					buildings.push_back(building);
-					producedIDs = building.getID();
+					ZergBuilding buildingx(ID_Counter, entityData->type, resourceManager, tech);
+					buildings.push_back(buildingx);
+					producedIDs = buildingx.getID();
 				}
 				
 				if (logging)
@@ -162,32 +162,32 @@ void ZergSimulator::simulate() {
 		//Larvas
 		auto it = larvas.begin();
 		while (it != larvas.end()) {
-			ZergLarva& larva = (*it);
-			larva.update();
-			if (larva.isDone()) {
-				EntityData *entityData = larva.getUnitData();
-				string producerID = to_string(larva.getID());
+			ZergLarva& larvax = (*it);
+			larvax.update();
+			if (larvax.isDone()) {
+				EntityData *entityData = larvax.getUnitData();
+				string producerID = to_string(larvax.getID());
 				vector<string> producedIDs;
 				//create new unit
-				if (entityData->name == string("drone")) {
-					ZergDrone drone(ID_Counter, string("drone"), resourceManager, tech, busyCounter);
-					drones.push_back(drone);
-					producedIDs.push_back(to_string(drone.getID()));
-				} else if (entityData->name == string("zergling")) { //edge case: 2 zerglings are produced
-					ZergUpgradeableUnit unit1(ID_Counter, entityData->name, resourceManager, tech, busyCounter);
-					ZergUpgradeableUnit unit2(ID_Counter, entityData->name, resourceManager, tech, busyCounter);
-					upgradeableUnits.push_back(unit1);
-					upgradeableUnits.push_back(unit2);
-					producedIDs.push_back(to_string(unit1.getID()));
-					producedIDs.push_back(to_string(unit2.getID()));
-				} else if ((entityData->name == string("overlord")) || (entityData->name == string("corruptor"))) {
-					ZergUpgradeableUnit unit(ID_Counter, entityData->name, resourceManager, tech, busyCounter);
-					upgradeableUnits.push_back(unit);
-					producedIDs.push_back(to_string(unit.getID()));
+				if (entityData->type == drone) {
+					ZergDrone dronex(ID_Counter, drone, resourceManager, tech, busyCounter);
+					drones.push_back(dronex);
+					producedIDs.push_back(to_string(dronex.getID()));
+				} else if (entityData->type == zergling) { //edge case: 2 zerglings are produced
+					ZergUpgradeableUnit unit1x(ID_Counter, entityData->type, resourceManager, tech, busyCounter);
+					ZergUpgradeableUnit unit2x(ID_Counter, entityData->type, resourceManager, tech, busyCounter);
+					upgradeableUnits.push_back(unit1x);
+					upgradeableUnits.push_back(unit2x);
+					producedIDs.push_back(to_string(unit1x.getID()));
+					producedIDs.push_back(to_string(unit2x.getID()));
+				} else if ((entityData->type == overlord) || (entityData->type == corruptor)) {
+					ZergUpgradeableUnit unitx(ID_Counter, entityData->type, resourceManager, tech, busyCounter);
+					upgradeableUnits.push_back(unitx);
+					producedIDs.push_back(to_string(unitx.getID()));
 				} else {
-					ZergUnit unit(ID_Counter, entityData->name, resourceManager);
-					units.push_back(unit);
-					producedIDs.push_back(to_string(unit.getID()));
+					ZergUnit unitx(ID_Counter, entityData->type, resourceManager);
+					units.push_back(unitx);
+					producedIDs.push_back(to_string(unitx.getID()));
 				}
 				
 				if (logging)
@@ -209,15 +209,15 @@ void ZergSimulator::simulate() {
 		*/
 		bool abilityStarted = false;
 		
-		for (ZergQueen& queen : queens) {
-			if (queen.canInjectLarvas()) {
+		for (ZergQueen& queenx : queens) {
+			if (queenx.canInjectLarvas()) {
 				//search for a hatchery
 				for (ZergHatchery& hatchery : hatcheries) {
 					if (hatchery.injectLarvas()) {
-						queen.injectLarvas();
+						queenx.injectLarvas();
 						abilityStarted = true;
 						int hatcheryID = hatchery.getID();
-						int queenID = queen.getID();
+						int queenID = queenx.getID();
 						
 						if (logging)
 							logger.addSpecial(SpecialEntry("injectlarvae", queenID, hatcheryID));
@@ -234,15 +234,15 @@ void ZergSimulator::simulate() {
 		bool buildStarted = false;
 		
 		if ((!buildOrder.empty()) && (!abilityStarted)) {
-			string nextItem = buildOrder.front();
+			EntityType nextItem = buildOrder.front();
 			EntityData& entityData = entityDataMap.at(nextItem);
 			
 			int producerID = -1;
 			
 			
-			if (nextItem == string("overseer")) { //unit upgrade
+			if (nextItem == overseer) { //unit upgrade
 				for (auto& u : upgradeableUnits) {
-					if (u.getName() == string("overlord")) {
+					if (u.getType() == overlord) {
 						if (u.upgrade()) {
 							buildStarted = true;
 							producerID = u.getID();
@@ -250,9 +250,9 @@ void ZergSimulator::simulate() {
 						}
 					}
 				}
-			} else if (nextItem == string("baneling")) {
+			} else if (nextItem == baneling) {
 				for (auto& u : upgradeableUnits) {
-					if (u.getName() == string("zergling")) {
+					if (u.getType() == zergling) {
 						if (u.upgrade()) {
 							buildStarted = true;
 							producerID = u.getID();
@@ -260,9 +260,9 @@ void ZergSimulator::simulate() {
 						}
 					}
 				}
-			} else if (nextItem == string("brood_lord")) {
+			} else if (nextItem == brood_lord) {
 				for (auto& u : upgradeableUnits) {
-					if (u.getName() == string("corruptor")) {
+					if (u.getType() == corruptor) {
 						if (u.upgrade()) {
 							buildStarted = true;
 							producerID = u.getID();
@@ -270,9 +270,9 @@ void ZergSimulator::simulate() {
 						}
 					}
 				}
-			} else if (nextItem == string("lair")) { //building upgrade
+			} else if (nextItem == lair) { //building upgrade
 				for (auto& b : hatcheries) {
-					if (b.getName() == string("hatchery")) {
+					if (b.getType() == hatchery) {
 						if (b.upgrade()) {
 							buildStarted = true;
 							producerID = b.getID();
@@ -280,9 +280,9 @@ void ZergSimulator::simulate() {
 						}
 					}
 				}
-			} else if (nextItem == string("hive")) {
+			} else if (nextItem == hive) {
 				for (auto& b : hatcheries) {
-					if (b.getName() == string("lair")) {
+					if (b.getType() == lair) {
 						if (b.upgrade()) {
 							buildStarted = true;
 							producerID = b.getID();
@@ -290,7 +290,7 @@ void ZergSimulator::simulate() {
 						}
 					}
 				}
-			} else if (nextItem == string("greater_spire")) {
+			} else if (nextItem == greater_spire) {
 				for (auto& s : spires) {
 					if (s.upgrade()) {
 						buildStarted = true;
@@ -298,7 +298,7 @@ void ZergSimulator::simulate() {
 						break;
 					}
 				}
-			} else if (nextItem == string("nydus_worm")) { //building produce unit
+			} else if (nextItem == nydus_worm) { //building produce unit
 				for (auto& n : nydusNetworks) {
 					if (n.spawn()) {
 						buildStarted = true;
@@ -306,7 +306,7 @@ void ZergSimulator::simulate() {
 						break;
 					}
 				}
-			} else if (nextItem == string("queen")) {
+			} else if (nextItem == queen) {
 				for (auto& b : hatcheries) {
 					if (b.spawnQueen()) {
 						buildStarted = true;
@@ -326,8 +326,8 @@ void ZergSimulator::simulate() {
 			} else { //larva to unit
 				for (auto& b : hatcheries) {
 					if (b.morphLarva(entityData)) {
-						ZergLarva larva(ID_Counter, string("larva"), resourceManager, &entityData, busyCounter);
-						larvas.push_back(larva);
+						ZergLarva larvax(ID_Counter, larva, resourceManager, &entityData, busyCounter);
+						larvas.push_back(larvax);
 						buildStarted = true;
 						producerID = -1; //if larva morphs, dont give a producerID
 						++busyCounter; //started a morph
@@ -337,12 +337,13 @@ void ZergSimulator::simulate() {
 			}
 			
 			
+			string nextItemString = entityNameMap.at(nextItem);
 			if (buildStarted) {
 				if (logging) {
 					if (producerID == -1) {
-						logger.addBuildstart(BuildStartEntry(nextItem));
+						logger.addBuildstart(BuildStartEntry(nextItemString));
 					} else {
-						logger.addBuildstart(BuildStartEntry(nextItem, producerID));
+						logger.addBuildstart(BuildStartEntry(nextItemString, producerID));
 					}
 				}
 				buildOrder.pop();
@@ -403,28 +404,28 @@ void ZergSimulator::simulate() {
 	
 }
 
-int ZergSimulator::numberOfUnits(string unitname) {
+int ZergSimulator::numberOfUnits(EntityType type) {
 	//TODO
 	//EntityData& entityData = entityDataMap.at(unitname);
 	int count = 0;
 	
 	for (auto& x : units) {
-		if ((x.getEntityData())->name == unitname) {
+		if ((x.getEntityData())->type == type) {
 			++count;
 		}
 	}
 	for (auto& x : upgradeableUnits) {
-		if ((x.getEntityData())->name == unitname) {
+		if ((x.getEntityData())->type == type) {
 			++count;
 		}
 	}
 	for (auto& x : drones) {
-		if ((x.getEntityData())->name == unitname) {
+		if ((x.getEntityData())->type == type) {
 			++count;
 		}
 	}
 	for (auto& x : queens) {
-		if ((x.getEntityData())->name == unitname) {
+		if ((x.getEntityData())->type == type) {
 			++count;
 		}
 	}
@@ -434,22 +435,22 @@ int ZergSimulator::numberOfUnits(string unitname) {
 	}
 	
 	for (auto& x : buildings) {
-		if ((x.getEntityData())->name == unitname) {
+		if ((x.getEntityData())->type == type) {
 			++count;
 		}
 	}
 	for (auto& x : hatcheries) {
-		if ((x.getEntityData())->name == unitname) {
+		if ((x.getEntityData())->type == type) {
 			++count;
 		}
 	}
 	for (auto& x : spires) {
-		if ((x.getEntityData())->name == unitname) {
+		if ((x.getEntityData())->type == type) {
 			++count;
 		}
 	}
 	for (auto& x : nydusNetworks) {
-		if ((x.getEntityData())->name == unitname) {
+		if ((x.getEntityData())->type == type) {
 			++count;
 		}
 	}

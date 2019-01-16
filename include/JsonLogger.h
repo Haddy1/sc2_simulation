@@ -68,7 +68,7 @@ public:
 	virtual bool valid() const {
 		const char* type = first().c_str();
 		string name = second();
-		return (strcmp(type, "build-start") == 0 || strcmp(type, "build-end") == 0) && (entityDataMap.find(name) != entityDataMap.end());
+		return (strcmp(type, "build-start") == 0 || strcmp(type, "build-end") == 0);// && (entityDataMap.find(name) != entityDataMap.end());
 	}
 private:
 	pair<string, string> val;

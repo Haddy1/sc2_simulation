@@ -9,8 +9,8 @@
 #include "JsonLogger.h"
 #include "JsonLoggerV2.h"
 #include "EntityData.h"
-#include "ProtossBuilding.h"
-#include "ProtossUnit.h"
+//#include "ProtossBuilding.h"
+//#include "ProtossUnit.h"
 
 #include <algorithm>
 #include <vector>
@@ -38,7 +38,7 @@ using std::pair;
 
 class ForwardSimulator {
 	
-	queue<string> buildOrder;
+	queue<EntityType> buildOrder;
 	/*
 	vector<Building> buildings;
 	vector<Unit> units;
@@ -50,20 +50,24 @@ class ForwardSimulator {
 	
 public:
 	ForwardSimulator() {}
-	ForwardSimulator(queue<string> q) : buildOrder(q) {}
+	ForwardSimulator(queue<EntityType> q) : buildOrder(q) {}
 	virtual ~ForwardSimulator() = 0;
 	virtual void init() = 0;
 	virtual void simulate() = 0;
 	
-	virtual int numberOfUnits(string unitname) {return 0;}
+	virtual int numberOfUnits(EntityType unitname) {return 0;}
 	virtual int numberOfWorkers() {return 0;}
 	virtual int numberOfProductionStructures() {return 0;}
 };
 
 inline ForwardSimulator::~ForwardSimulator() {}
 
+
+
+
+/*
 class TerranSimulator : public ForwardSimulator {
-	queue<string> buildOrder;
+	queue<EntityType> buildOrder;
     vector<EventEntry> eventList_;
 	ResourceManager rm;
 	Tech tech;
@@ -75,18 +79,18 @@ class TerranSimulator : public ForwardSimulator {
 	
 public:
 	TerranSimulator();
-	TerranSimulator(queue<string>);
+	TerranSimulator(queue<EntityType>);
 	~TerranSimulator() {}
 	void init();
 	void simulate();
 };
 
-typedef shared_ptr<ProtossBuilding> building_ptr;
-typedef shared_ptr<ProtossUnit> unit_ptr;
+//typedef shared_ptr<ProtossBuilding> building_ptr;
+//typedef shared_ptr<ProtossUnit> unit_ptr;
 
 class ProtossSimulator : public ForwardSimulator {
 	// buildings
-	multimap<string, building_ptr> buildings;
+	multimap<EntityType, building_ptr> buildings;
 	vector<building_ptr> unfinishedBuildings;
 	shared_ptr<Nexus> nexus;
 	shared_ptr<ProtossBuilding> boosted_building;
@@ -94,7 +98,7 @@ class ProtossSimulator : public ForwardSimulator {
 	vector<unit_ptr> units;
 	vector<unit_ptr> unfinishedUnits;
 	// other members
-	queue<string> buildOrder;
+	queue<EntityType> buildOrder;
 	Tech tech;
 	ResourceManager resourceManager;
 	JsonLogger logger;
@@ -104,7 +108,7 @@ class ProtossSimulator : public ForwardSimulator {
 	int numWorkers;
 public:
 	ProtossSimulator(bool);
-	ProtossSimulator(queue<string>, bool);
+	ProtossSimulator(queue<EntityType>, bool);
 	~ProtossSimulator();
 	void init();
 	void simulate();
@@ -112,13 +116,14 @@ public:
 	void handle_chronoboost(vector<shared_ptr<EventEntry>>&);
 	void process_buildlist(vector<shared_ptr<EventEntry>>&);
 };
+*/
 
 
 class ZergSimulator : public ForwardSimulator {
 	JsonLoggerV2 logger;
 	ResourceManager resourceManager;
 	Tech tech;
-	queue<string> buildOrder;
+	queue<EntityType> buildOrder;
 	int maxTime;
 	int gasBuildings;
 	int busyCounter;
@@ -138,11 +143,11 @@ class ZergSimulator : public ForwardSimulator {
 	
 public:
 	ZergSimulator(bool logging, int maxTime = 1000);
-	ZergSimulator(queue<string>, bool logging, int maxTime = 1000);
+	ZergSimulator(queue<EntityType>, bool logging, int maxTime = 1000);
 	~ZergSimulator();
 	void init();
 	void simulate();
-	int numberOfUnits(string unitname);
+	int numberOfUnits(EntityType type);
 	int numberOfWorkers();
 	int numberOfProductionStructures();
 	

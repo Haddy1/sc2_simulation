@@ -23,12 +23,12 @@ void Optimizer::calcFitness(Individual& ind) {
 	switch(race) {
 	case TERRAN:
 	{
-		TerranSimulator sim();//TODO
+		//TerranSimulator sim();//TODO
 		break;
 	}
 	case PROTOSS:
 	{
-		ProtossSimulator sim(ind.list, false);//TODO
+		//ProtossSimulator sim(ind.list, false);//TODO
 		break;
 	}
 	case ZERG:
@@ -63,10 +63,10 @@ void Optimizer::calcFitness(Individual& ind) {
 			ind.fitness = 2000000000 / (targetUnits + 1);
 			
 			int minLevel = 1000;
-			queue<string> listCopy = ind.list;
+			queue<EntityType> listCopy = ind.list;
 			int size = listCopy.size();
 			for (int i = 0; i < size; ++i) {
-				string item = listCopy.front();
+				EntityType item = listCopy.front();
 				listCopy.pop();
 				if (searchSpaceLevels.find(item) != searchSpaceLevels.end()) {
 					minLevel = min(searchSpaceLevels.at(item), minLevel);
@@ -81,7 +81,7 @@ void Optimizer::calcFitness(Individual& ind) {
 }
 
 void Optimizer::Individual::printList() {
-	queue<string> x = list;
+	queue<EntityType> x = list;
 	unsigned int size = x.size();
 	for (unsigned int i = 0; i < size; ++i) {
 		std::clog << x.front() << std::endl;
@@ -132,7 +132,7 @@ pair<int, int> Optimizer::pairLargestDistance(Individual inds[4]) {
 	}
 }
 
-string Optimizer::getRandomValidGene(const queue<string>& buildList, BuildlistValidator& validator) {
+EntityType Optimizer::getRandomValidGene(const queue<EntityType>& buildList, BuildlistValidator& validator) {
 	/*
 	vector<string> validChoices;
 	for (int i = startIndex; i < endIndex; ++i) {
@@ -143,9 +143,9 @@ string Optimizer::getRandomValidGene(const queue<string>& buildList, BuildlistVa
 	}
 	return validChoices[rand() % validChoices.size()];
 	*/
-	vector<string> validChoices;
+	vector<EntityType> validChoices;
 	for (auto it = searchSpace.begin(); it != searchSpace.end(); ++it) {
-		const string& entityName = *it;
+		const EntityType& entityName = *it;
 		if (validator.checkNext(entityName)) {
 			validChoices.push_back(entityName);
 		}
@@ -153,13 +153,13 @@ string Optimizer::getRandomValidGene(const queue<string>& buildList, BuildlistVa
 	return validChoices[rand() % validChoices.size()];
 }
 
-queue<string> Optimizer::createGenome(int size) {
+queue<EntityType> Optimizer::createGenome(int size) {
 	//generate at random and make sure the buildlist is valid
-	queue<string> buildList;
+	queue<EntityType> buildList;
 	
 	BuildlistValidator validator(race);
 	for (int i = 0; i < size; ++i) {
-		string nextGene = getRandomValidGene(buildList, validator);
+		EntityType nextGene = getRandomValidGene(buildList, validator);
 		buildList.push(nextGene);
 		validator.validateNext(nextGene);
 	}
@@ -173,13 +173,13 @@ Individual Optimizer::mate(const Individual& a, const Individual& b) {
 	// make both parent lists same length
 	int n = a.list.size();
 	int m = b.list.size();
-	queue<string> listA = a.list;
-	queue<string> listB = b.list;
+	queue<EntityType> listA = a.list;
+	queue<EntityType> listB = b.list;
 	if (n < m) {
 		BuildlistValidator validatorA(race, listA);
 		validatorA.validate();
 		for (int i = n; i < m; ++i) {
-			string nextGene = getRandomValidGene(listA, validatorA);
+			EntityType nextGene = getRandomValidGene(listA, validatorA);
 			listA.push(nextGene);
 			validatorA.validateNext(nextGene);
 		}
@@ -187,19 +187,19 @@ Individual Optimizer::mate(const Individual& a, const Individual& b) {
 		BuildlistValidator validatorB(race, listB);
 		validatorB.validate();
 		for (int i = m; i < n; ++i) {
-			string nextGene = getRandomValidGene(listB, validatorB);
+			EntityType nextGene = getRandomValidGene(listB, validatorB);
 			listB.push(nextGene);
 			validatorB.validateNext(nextGene);
 		}
 	}
 	
 	// generate child list
-	queue<string> buildList;
+	queue<EntityType> buildList;
 	int size = max(n, m);
 	BuildlistValidator validator(race);
 	for (int i = 0; i < size; ++i) {
-		string nextGene;
-		string otherGene;
+		EntityType nextGene;
+		EntityType otherGene;
 		if (rand() % 2 == 0) {
 			nextGene = listA.front();
 			otherGene = listB.front();
@@ -233,8 +233,8 @@ Individual Optimizer::mutateDelete(const Individual& a) {
 		return a;
 	}
 	int r = rand() % size;
-	queue<string> copyList = a.list;
-	queue<string> newBuildList;
+	queue<EntityType> copyList = a.list;
+	queue<EntityType> newBuildList;
 	for (int i = 0; i < size; ++i) {
 		if (i != r) {
 			newBuildList.push(copyList.front());
@@ -253,11 +253,11 @@ Individual Optimizer::mutateDelete(const Individual& a) {
 //insert random at end of list
 Individual Optimizer::mutateInsert(const Individual& a) {
 	//int size = a.list.size();
-	queue<string> newBuildList = a.list;
+	queue<EntityType> newBuildList = a.list;
 	BuildlistValidator validator(race, newBuildList);
 	validator.validate();
 	
-	string randGene = getRandomValidGene(newBuildList, validator);
+	EntityType randGene = getRandomValidGene(newBuildList, validator);
 	newBuildList.push(randGene);
 	validator.validateNext(randGene);
 	return Individual(newBuildList);
@@ -292,11 +292,11 @@ bool operator<(const Individual& i, const Individual& j) {
 	return i.fitness < j.fitness;
 }
 
-Optimizer::Optimizer(bool rush, string target, int num, Race race) : rush(rush), target(target), num(num), race(race) {
+Optimizer::Optimizer(bool rush, EntityType target, int num, Race race) : rush(rush), target(target), num(num), race(race) {
 	
 }
 
-void Optimizer::addToSetRec(const string& entityName, int level) {
+void Optimizer::addToSetRec(const EntityType& entityName, int level) {
 	if (searchSpace.find(entityName) != searchSpace.end()) { //already in set
 		if (searchSpaceLevels.find(entityName) != searchSpaceLevels.end()) {
 			searchSpaceLevels.at(entityName) = max(level, searchSpaceLevels.at(entityName));
@@ -305,16 +305,16 @@ void Optimizer::addToSetRec(const string& entityName, int level) {
 	}
 	const EntityData& entityData = entityDataMap.at(entityName);
 	
-	if (entityName != string("larva")) { //avoid adding larva //TODO dont hardcode
+	if (entityName != larva) { //avoid adding larva //TODO dont hardcode
 		searchSpace.insert(entityName);
 		searchSpaceLevels.emplace(entityName, level);
 	}
 	//searchSpace.insert(entityName);
 	
-	for (const string& s : entityData.dependencies) {
+	for (const EntityType& s : entityData.dependencies) {
 		addToSetRec(s, level+1);
 	}
-	for (const string& s : entityData.producedBy) {
+	for (const EntityType& s : entityData.producedBy) {
 		addToSetRec(s, level+1);
 	}
 }
@@ -347,11 +347,11 @@ void Optimizer::init() {
 		
 		break;
 	case ZERG:
-		searchSpace.insert(string("drone"));
-		searchSpace.insert(string("overlord"));
-		searchSpace.insert(string("queen"));
-		searchSpace.insert(string("extractor"));
-		searchSpace.insert(string("hatchery"));
+		searchSpace.insert(drone);
+		searchSpace.insert(overlord);
+		searchSpace.insert(queen);
+		searchSpace.insert(extractor);
+		searchSpace.insert(hatchery);
 		break;
 	default:
 		break;
@@ -367,7 +367,7 @@ void Optimizer::init() {
 	//std::clog << std::endl;
 }
 
-queue<string> Optimizer::optimize() {
+queue<EntityType> Optimizer::optimize() {
 	Timer timer;
 	timer.start();
 	
@@ -407,7 +407,7 @@ queue<string> Optimizer::optimize() {
 	
 	for (int i = 0; i < populationSize; ++i) {
 		int r = rand() % buildListSizeVariation;
-		queue<string> genome = createGenome(buildListSize + r);
+		queue<EntityType> genome = createGenome(buildListSize + r);
 		population.push_back(Individual(genome));
 	}
 	

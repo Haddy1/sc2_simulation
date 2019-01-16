@@ -10,13 +10,13 @@ using std::set;
 using std::string;
 
 class Tech {
-	set<string> builtTech;
+	set<EntityType> builtTech;
 	
 public:
 	Tech() {}
-	bool contains(string s);
-	void add(string s);
-	void remove(string s);
+	bool contains(EntityType t);
+	void add(EntityType t);
+	void remove(EntityType t);
 	bool dependencyFulfilled(const EntityData& e);
 	void print();
 };

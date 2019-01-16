@@ -8,7 +8,7 @@ using std::endl;
 /*
  * Generic Unit that cant morph
  */
-ZergUnit::ZergUnit(int& ID_Counter, string name, ResourceManager& r) : Unit(ID_Counter, name), r(r) {
+ZergUnit::ZergUnit(int& ID_Counter, EntityType type, ResourceManager& r) : Unit(ID_Counter, type), r(r) {
 	r.addSupplyMax(entityData->supplyProvided);
 }
 
@@ -16,11 +16,11 @@ ZergUnit::ZergUnit(int& ID_Counter, string name, ResourceManager& r) : Unit(ID_C
 /*
  * Larva
  */
-ZergLarva::ZergLarva(int& ID_Counter, string name, ResourceManager& r, string morphingTo, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphingToData(&entityDataMap.at(morphingTo)), morphProgress(0), busyCounter(busyCounter) {
+ZergLarva::ZergLarva(int& ID_Counter, EntityType type, ResourceManager& r, EntityType morphingTo, int& busyCounter) : ZergUnit(ID_Counter, type, r), morphingToData(&entityDataMap.at(morphingTo)), morphProgress(0), busyCounter(busyCounter) {
 	//++busyCounter;
 }
 
-ZergLarva::ZergLarva(int& ID_Counter, string name, ResourceManager& r, EntityData *morphingTo, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphingToData(morphingTo), morphProgress(0), busyCounter(busyCounter) {
+ZergLarva::ZergLarva(int& ID_Counter, EntityType type, ResourceManager& r, EntityData *morphingTo, int& busyCounter) : ZergUnit(ID_Counter, type, r), morphingToData(morphingTo), morphProgress(0), busyCounter(busyCounter) {
 	//++busyCounter;
 }
 
@@ -48,7 +48,7 @@ bool ZergLarva::busy() {
 /*
  * Drone
  */
-ZergDrone::ZergDrone(int& ID_Counter, string name, ResourceManager& r, Tech& tech, int& busyCounter) : ZergUnit(ID_Counter, name, r), morphing(false) , morphProgress(0) , morphingToData(nullptr), busyCounter(busyCounter), tech(tech) {
+ZergDrone::ZergDrone(int& ID_Counter, EntityType type, ResourceManager& r, Tech& tech, int& busyCounter) : ZergUnit(ID_Counter, type, r), morphing(false) , morphProgress(0) , morphingToData(nullptr), busyCounter(busyCounter), tech(tech) {
 	
 }
 
@@ -62,7 +62,7 @@ void ZergDrone::update() {
 	}
 }
 
-bool ZergDrone::morph(string s) {
+bool ZergDrone::morph(EntityType s) {
 	return morph(&entityDataMap.at(s));
 }
 
@@ -111,7 +111,7 @@ bool ZergDrone::busy() {
 FixedPoint ZergQueen::chargeRate(0.5625);
 FixedPoint ZergQueen::fixed25(25);
 
-ZergQueen::ZergQueen(int& ID_Counter, string name, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, name, r), energy(entityData->startEnergy), maxEnergy(entityData->maxEnergy), busyCounter(busyCounter) {
+ZergQueen::ZergQueen(int& ID_Counter, EntityType type, ResourceManager& r, int& busyCounter) : ZergUnit(ID_Counter, type, r), energy(entityData->startEnergy), maxEnergy(entityData->maxEnergy), busyCounter(busyCounter) {
 	
 }
 
@@ -144,7 +144,7 @@ bool ZergQueen::busy() {
 /*
  * Upgradeable Unit: Overlord, Zergling, Corruptor
  */
-ZergUpgradeableUnit::ZergUpgradeableUnit(int& ID_Counter, string name, ResourceManager& r, Tech& tech, int& busyCounter) : ZergUnit(ID_Counter, name, r), upgradeData(nullptr), upgrading(false), upgradeProgress(0), busyCounter(busyCounter), tech(tech) {
+ZergUpgradeableUnit::ZergUpgradeableUnit(int& ID_Counter, EntityType type, ResourceManager& r, Tech& tech, int& busyCounter) : ZergUnit(ID_Counter, type, r), upgradeData(nullptr), upgrading(false), upgradeProgress(0), busyCounter(busyCounter), tech(tech) {
 	
 }
 
@@ -166,12 +166,12 @@ bool ZergUpgradeableUnit::upgrade() {
 		return false;
 	}
 	
-	if (entityData->name == string("overlord")) {
-		upgradeData = &entityDataMap.at(string("overseer"));
-	} else if (entityData->name == string("zergling")) {
-		upgradeData = &entityDataMap.at(string("baneling"));
-	} else if (entityData->name == string("corruptor")) {
-		upgradeData = &entityDataMap.at(string("brood_lord"));
+	if (entityData->type == overlord) {
+		upgradeData = &entityDataMap.at(overseer);
+	} else if (entityData->type == zergling) {
+		upgradeData = &entityDataMap.at(baneling);
+	} else if (entityData->type == corruptor) {
+		upgradeData = &entityDataMap.at(brood_lord);
 	} else {
 		return false;
 	}

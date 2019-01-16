@@ -2,102 +2,58 @@
 
 
 BuildlistValidator::BuildlistValidator(Race race) : race(race), gasBuildings(0), supply(0.f), supplyMax(0.f) {
-	//starting conditions
-	switch (race) {
-		case TERRAN:
-			{
-			EntityData& data1 = entityDataMap.at(string("command_center"));
-			supply += data1.supplyCost;
-			supplyMax += data1.supplyProvided;
-			tech.add(string("command_center"));
-			
-			EntityData& data2 = entityDataMap.at(string("scv"));
-			supply += data2.supplyCost * 6;
-			supplyMax += data2.supplyProvided * 6;
-			tech.add(string("scv"));
-			}
-			break;
-		case PROTOSS:
-			{
-			EntityData& data3 = entityDataMap.at(string("nexus"));
-			supply += data3.supplyCost;
-			supplyMax += data3.supplyProvided;
-			tech.add(string("nexus"));
-			
-			EntityData& data4 = entityDataMap.at(string("probe"));
-			supply += data4.supplyCost * 6;
-			supplyMax += data4.supplyProvided * 6;
-			tech.add(string("probe"));
-			}
-			break;
-		case ZERG:
-			{
-			EntityData& data5 = entityDataMap.at(string("hatchery"));
-			supply += data5.supplyCost;
-			supplyMax += data5.supplyProvided;
-			tech.add(string("hatchery"));
-			
-			EntityData& data6 = entityDataMap.at(string("drone"));
-			supply += data6.supplyCost * 6;
-			supplyMax += data6.supplyProvided * 6;
-			tech.add(string("drone"));
-			
-			EntityData& data7 = entityDataMap.at(string("overlord"));
-			supply += data7.supplyCost;
-			supplyMax += data7.supplyProvided;
-			tech.add(string("overlord"));
-			}
-			break;
-		default:
-			break;
-	}
+	init();
 }
 
-BuildlistValidator::BuildlistValidator(Race race, queue<string> buildQueue) : buildQueue(buildQueue), race(race), gasBuildings(0), supply(0.f), supplyMax(0.f) {
+BuildlistValidator::BuildlistValidator(Race race, queue<EntityType> buildQueue) : buildQueue(buildQueue), race(race), gasBuildings(0), supply(0.f), supplyMax(0.f) {
+	init();
+}
+
+void BuildlistValidator::init() {
 	//starting conditions
 	switch (race) {
 		case TERRAN:
 			{
-			EntityData& data1 = entityDataMap.at(string("command_center"));
+			EntityData& data1 = entityDataMap.at(command_center);
 			supply += data1.supplyCost;
 			supplyMax += data1.supplyProvided;
-			tech.add(string("command_center"));
+			tech.add(command_center);
 			
-			EntityData& data2 = entityDataMap.at(string("scv"));
+			EntityData& data2 = entityDataMap.at(scv);
 			supply += data2.supplyCost * 6;
 			supplyMax += data2.supplyProvided * 6;
-			tech.add(string("scv"));
+			tech.add(scv);
 			}
 			break;
 		case PROTOSS:
 			{
-			EntityData& data3 = entityDataMap.at(string("nexus"));
+			EntityData& data3 = entityDataMap.at(nexus);
 			supply += data3.supplyCost;
 			supplyMax += data3.supplyProvided;
-			tech.add(string("nexus"));
+			tech.add(nexus);
 			
-			EntityData& data4 = entityDataMap.at(string("probe"));
+			EntityData& data4 = entityDataMap.at(probe);
 			supply += data4.supplyCost * 6;
 			supplyMax += data4.supplyProvided * 6;
-			tech.add(string("probe"));
+			tech.add(probe);
 			}
 			break;
 		case ZERG:
 			{
-			EntityData& data5 = entityDataMap.at(string("hatchery"));
+			EntityData& data5 = entityDataMap.at(hatchery);
 			supply += data5.supplyCost;
 			supplyMax += data5.supplyProvided;
-			tech.add(string("hatchery"));
+			tech.add(hatchery);
 			
-			EntityData& data6 = entityDataMap.at(string("drone"));
+			EntityData& data6 = entityDataMap.at(drone);
 			supply += data6.supplyCost * 6;
 			supplyMax += data6.supplyProvided * 6;
-			tech.add(string("drone"));
+			tech.add(drone);
 			
-			EntityData& data7 = entityDataMap.at(string("overlord"));
+			EntityData& data7 = entityDataMap.at(overlord);
 			supply += data7.supplyCost;
 			supplyMax += data7.supplyProvided;
-			tech.add(string("overlord"));
+			tech.add(overlord);
 			}
 			break;
 		default:
@@ -108,17 +64,17 @@ BuildlistValidator::BuildlistValidator(Race race, queue<string> buildQueue) : bu
 bool BuildlistValidator::validate() {
 	//Check if each entry has its dependencies fulfilled by previous entries
 	while (!buildQueue.empty()) {
-		string s = buildQueue.front();
+		EntityType type = buildQueue.front();
 		buildQueue.pop();
-		if (!validateNext(s)) {
+		if (!validateNext(type)) {
 			return false;
 		}
 	}
 	return true;
 }
 
-bool BuildlistValidator::validateNext(string s) {
-	EntityData& data = entityDataMap.at(s);
+bool BuildlistValidator::validateNext(EntityType t) {
+	EntityData& data = entityDataMap.at(t);
 	
 	if (!tech.dependencyFulfilled(data)) {
 		return false;
@@ -137,7 +93,7 @@ bool BuildlistValidator::validateNext(string s) {
 			supplyMax -= producedByData.supplyProvided;
 		}
 	}
-	supply += ((data.name == string("zergling")) ? (data.supplyCost * 2) : data.supplyCost);
+	supply += ((data.type == zergling) ? (data.supplyCost * 2) : data.supplyCost);
 	supplyMax += data.supplyProvided;
 		
 	if (supply > supplyMax) {
@@ -145,8 +101,8 @@ bool BuildlistValidator::validateNext(string s) {
 	}
 	
 	//requirements met, add new tech
-	tech.add(s);
-	if ((s == string("refinery")) || (s == string("assimilator")) || (s == string("extractor"))) {
+	tech.add(t);
+	if ((t == refinery) || (t == assimilator) || (t == extractor)) {
 		++gasBuildings;
 		if (gasBuildings > 2) {
 			return false;
@@ -156,8 +112,8 @@ bool BuildlistValidator::validateNext(string s) {
 	return true;
 }
 
-bool BuildlistValidator::checkNext(string s) {
-	EntityData& data = entityDataMap.at(s);
+bool BuildlistValidator::checkNext(EntityType t) {
+	EntityData& data = entityDataMap.at(t);
 	
 	if (!tech.dependencyFulfilled(data)) {
 		return false;
@@ -167,7 +123,7 @@ bool BuildlistValidator::checkNext(string s) {
 		return false;
 	}
 	
-	float supplyChange = ((data.name == string("zergling")) ? (data.supplyCost * 2) : data.supplyCost);
+	float supplyChange = ((data.type == zergling) ? (data.supplyCost * 2) : data.supplyCost);
 	float supplyMaxChange = data.supplyProvided;
 	
 	if (data.producedBy.size() == 1) {
@@ -185,7 +141,7 @@ bool BuildlistValidator::checkNext(string s) {
 	}
 	
 	if (gasBuildings == 2) {
-		if ((s == string("refinery")) || (s == string("assimilator")) || (s == string("extractor"))) {
+		if ((t == refinery) || (t == assimilator) || (t == extractor)) {
 			return false;
 		}
 	}

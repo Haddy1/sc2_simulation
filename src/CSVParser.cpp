@@ -31,6 +31,8 @@ void CSVParser::parseEntityLine(string line) {
 
 	getline(iss, token, ','); //name
 	entityData.name = token;
+	entityData.type = nameEntityMap.at(token);
+	
 	getline(iss, token, ',');
 	entityData.minerals = stoi(token);
 	getline(iss, token, ',');
@@ -49,33 +51,35 @@ void CSVParser::parseEntityLine(string line) {
 	entityData.race = currentRace;
 					
 	getline(iss, token, ',');
-	vector<string> prods;
+	vector<EntityType> prods;
 	istringstream iss2(token);
 	string subToken;
 	while(iss2.good()) {
 		getline(iss2, subToken, '/');
 		if (subToken.size() > 0) {
 			subToken.erase(remove_if(subToken.begin(), subToken.end(), isspace), subToken.end());//remove spaces
-			prods.push_back(subToken);
+			EntityType t = nameEntityMap.at(subToken);
+			prods.push_back(t);
 		}
 	}
 	entityData.producedBy = prods;
 
 	getline(iss, token, ',');
-	vector<string> deps;
+	vector<EntityType> deps;
 	istringstream iss3(token);
 	string subToken2;
 	while(iss3.good()) {
 		getline(iss3, subToken2, '/');
 		if (subToken2.size() > 0) {
 			subToken2.erase(remove_if(subToken2.begin(), subToken2.end(), isspace), subToken2.end());
-			deps.push_back(subToken2);
+			EntityType t = nameEntityMap.at(subToken2);
+			deps.push_back(t);
 		}
 	}
 	entityData.dependencies = deps;
 	
-	string entityName = entityData.name;
-	entityDataMap.emplace(entityName, entityData);
+	EntityType type = entityData.type;
+	entityDataMap.emplace(type, entityData);
 }
 
 

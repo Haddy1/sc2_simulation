@@ -15,7 +15,7 @@ using std::queue;
 
 class BuildlistValidator {
 	Tech tech;
-	queue<string> buildQueue;
+	queue<EntityType> buildQueue;
 	Race race;
 	
 	int gasBuildings;
@@ -23,12 +23,14 @@ class BuildlistValidator {
 	float supply;
 	float supplyMax;
 	
+	void init();
+	
 public:
 	BuildlistValidator(Race race);
-	BuildlistValidator(Race race, queue<string> buildQueue);
+	BuildlistValidator(Race race, queue<EntityType> buildQueue);
 	bool validate(); // validates whole given list
-	bool validateNext(string s); // validates next
-	bool checkNext(string s); // validates next but does not change state of validator
+	bool validateNext(EntityType t); // validates next
+	bool checkNext(EntityType t); // validates next but does not change state of validator
 };
 
 

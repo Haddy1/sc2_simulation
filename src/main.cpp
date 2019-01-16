@@ -35,21 +35,23 @@ void optimize(bool rush, string unitname, int number) {
 		std::cerr << "invalid unit name" << std::endl;
 		return;
 	}
-	EntityData& entityData = entityDataMap.at(unitname);
+	
+	EntityType entityType = nameEntityMap.at(unitname);
+	EntityData& entityData = entityDataMap.at(entityType);
 	race = entityData.race;
 	//std::clog << toString(race) << std::endl;
 	
-	Optimizer opt(rush, unitname, number, race);
+	Optimizer opt(rush, entityType, number, race);
 	opt.init();
-	queue<string> result = opt.optimize();
+	queue<EntityType> result = opt.optimize();
 	
 	ForwardSimulator *simulator;
 	switch (race) {
 		case TERRAN:
-			simulator = new TerranSimulator(result);
+			//simulator = new TerranSimulator(result);
 			break;
 		case PROTOSS:
-			simulator = new ProtossSimulator(result, true);
+			//simulator = new ProtossSimulator(result, true);
 			break;
 		case ZERG:
 			simulator = new ZergSimulator(result, true);
@@ -75,8 +77,8 @@ void forwardSimulate(char *filename) {
 	}
 	
 	
-	
-	queue<string> buildQueue;
+	//read buildlist from input file
+	queue<EntityType> buildQueue;
 	while (buildListFile.good()) {
 		string s;
 		buildListFile >> s;
@@ -88,12 +90,13 @@ void forwardSimulate(char *filename) {
 			break;
 		}
 		
-		EntityData& entityData = entityDataMap.at(s); //always use reference to EntityData
+		EntityType type = nameEntityMap.at(s);
+		EntityData& entityData = entityDataMap.at(type);
 		if (entityData.race != race) {
 			invalidBuildlist = true;
 		}
 		
-		buildQueue.push(s);
+		buildQueue.push(type);
 	}
 	buildListFile.close();
 	
@@ -116,10 +119,10 @@ void forwardSimulate(char *filename) {
 	
 	switch (race) {
 		case TERRAN:
-			simulator = new TerranSimulator(buildQueue);
+			//simulator = new TerranSimulator(buildQueue);
 			break;
 		case PROTOSS:
-			simulator = new ProtossSimulator(buildQueue, !invalidBuildlist);
+			//simulator = new ProtossSimulator(buildQueue, !invalidBuildlist);
 			break;
 		case ZERG:
 			simulator = new ZergSimulator(buildQueue, true);
@@ -163,12 +166,14 @@ int main(int argc, char *argv[]) {
 		usage(argv[0]);
 		return -1;
 	}
-
+	
+	initEntityNameMap();
+	
 	// read csv
 	CSVParser csvp("res/techtrees.csv");
 	csvp.parse();
 	
-	initEntityNameMap();
+	
 	
 	if (opt) {
 		optimize(rush, string(argv[2]), atoi(argv[3]));

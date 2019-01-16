@@ -1,22 +1,22 @@
 #include "../include/Tech.h"
 
-bool Tech::contains(string s) {
-	return builtTech.find(s) != builtTech.end();
+bool Tech::contains(EntityType t) {
+	return builtTech.find(t) != builtTech.end();
 }
 
-void Tech::add(string s) {
-	builtTech.insert(s);
+void Tech::add(EntityType t) {
+	builtTech.insert(t);
 }
 
-void Tech::remove(string s) {
-	builtTech.erase(s);
+void Tech::remove(EntityType t) {
+	builtTech.erase(t);
 }
 
 bool Tech::dependencyFulfilled(const EntityData& e) {
 	if (e.dependencies.size() == 0) {
 		return true;
 	}
-	for (const string& dep : e.dependencies) {
+	for (EntityType dep : e.dependencies) {
 		if (contains(dep)) {
 			return true;
 		}
@@ -25,9 +25,11 @@ bool Tech::dependencyFulfilled(const EntityData& e) {
 }
 
 void Tech::print() {
+	/*
 	std::cout << "Tech available: ";
 	for (auto it = builtTech.begin(); it != builtTech.end(); ++it) {
 		std::cout << (*it) << ", ";
 	}
 	std::cout << std::endl;
+	*/
 }

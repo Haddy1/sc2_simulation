@@ -17,7 +17,7 @@ protected:
 	//string name;
 public:
 	Unit() = delete;
-	Unit(int& ID_Counter, string);
+	Unit(int& ID_Counter, EntityType);
 	//~Unit();
 	//bool busy();
 	//bool assign();
