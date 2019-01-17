@@ -413,7 +413,7 @@ queue<EntityType> Optimizer::optimize() {
 		}
 		
 		sort(population.begin(), population.end());
-		
+		population.erase( unique( population.begin(), population.end() ), population.end() );
 	
 		std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
 		

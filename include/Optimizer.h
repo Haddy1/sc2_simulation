@@ -32,6 +32,7 @@ public:
 		Individual(queue<EntityType> q) : fitness(0), fitnessCalculated(false), list(q) {}
 	
 		void printList();
+		bool operator==(const Individual& other) { return other.list == list; }
 	};
 
 private:
