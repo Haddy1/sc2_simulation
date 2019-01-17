@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++14 -Wall -pedantic -O3
+CXXFLAGS = -std=c++14 -Wall -pedantic -O3 -pthread
 # uncomment for removing debug features
 #CXXFLAGS += -DNDEBUG
 

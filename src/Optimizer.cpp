@@ -378,6 +378,23 @@ void Optimizer::init() {
 	*/
 }
 
+void Optimizer::threadFunc(int nthreads, int index) {
+	/*
+	for (auto it = population.begin(); it != population.end(); ++it) {
+		calcFitness(*it);
+	}
+	*/
+	int blocksize = populationSize/nthreads;
+	int start = index * blocksize;
+	int end = start + blocksize;
+	if (index == nthreads - 1) {
+		end = populationSize;
+	}
+	for (int i = start; i < end; ++i) {
+		calcFitness(population[i]);
+	}
+}
+
 queue<EntityType> Optimizer::optimize() {
 	//standard settings
 	//config(150000, 50, 10000, 10, 20, 0.1f, 0.8f, 0.05f, 0.05f, 0.1f);
@@ -396,8 +413,15 @@ queue<EntityType> Optimizer::optimize() {
 	timer.start();
 	srand(0);
 	
+	
+	int numThreads = thread::hardware_concurrency();
+	if (numThreads == 0) {
+		numThreads = 1;
+	}
+	//std::clog << "num threads: " << numThreads << std::endl;
+	
 	int generation = 0;
-	vector<Individual> population;
+	
 	
 	for (int i = 0; i < populationSize; ++i) {
 		int r = rand() % buildListSizeVariation;
@@ -408,14 +432,30 @@ queue<EntityType> Optimizer::optimize() {
 	//population[0].printList();
 	
 	while (true) {
-		for (auto it = population.begin(); it != population.end(); ++it) {
-			calcFitness(*it);
+		
+		/*
+		constexpr int numThreads = 10;
+		thread threads[numThreads];
+		for (int j = 0; j < numThreads; ++j) {
+			threads[j] = thread(&Optimizer::threadFunc, this, numThreads, j);
 		}
+		for (int j = 0; j < numThreads; ++j) {
+			threads[j].join();
+		}
+		*/
+		thread *threads = new thread[numThreads];
+		for (int j = 0; j < numThreads; ++j) {
+			threads[j] = thread(&Optimizer::threadFunc, this, numThreads, j);
+		}
+		for (int j = 0; j < numThreads; ++j) {
+			threads[j].join();
+		}
+		delete[] threads;
 		
 		sort(population.begin(), population.end());
 		population.erase( unique( population.begin(), population.end() ), population.end() );
 	
-		std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
+		//std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
 		
 		
 		//condition for loop end
@@ -459,7 +499,7 @@ queue<EntityType> Optimizer::optimize() {
 		++generation;
 	}
 	
-	std::clog << mateFail << ", " << mateNum << std::endl;
+	//std::clog << mateFail << ", " << mateNum << std::endl;
 	
 	return population[0].list;
 }

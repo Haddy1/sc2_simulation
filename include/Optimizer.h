@@ -14,10 +14,12 @@
 #include <string>
 #include <queue>
 #include <utility>
+#include <thread>
 
 using std::string;
 using std::queue;
 using std::pair;
+using std::thread;
 
 
 
@@ -36,6 +38,8 @@ public:
 	};
 
 private:
+	vector<Individual> population;
+	
 	bool rush;
 	EntityType target;
 	int num;
@@ -80,6 +84,8 @@ public:
 	void addToSetRec(const EntityType&, int level);
 	
 	void config(long long, int, int, int, int, float, float, float, float, float);
+	
+	void threadFunc(int, int);
 };
 
 
