@@ -10,9 +10,9 @@ using Individual = Optimizer::Individual;
 
 void Optimizer::calcFitness(Individual& ind) {
 	//TODO need good fitness function
-	if (ind.fitnessCalculated) {
-		return;
-	}
+	//if (ind.fitnessCalculated) {
+	//	return;
+	//}
 	
 	
 	bool timedOut = false;
@@ -174,10 +174,12 @@ queue<EntityType> Optimizer::createGenome(int size) {
 	return buildList;
 }
 
+static int mateNum = 0;
+static int mateFail = 0;
+
 Individual Optimizer::mate(const Individual& a, const Individual& b) {
-	
-	
 	// make both parent lists same length
+	mateNum++;
 	int n = a.list.size();
 	int m = b.list.size();
 	queue<EntityType> listA = a.list;
@@ -225,6 +227,7 @@ Individual Optimizer::mate(const Individual& a, const Individual& b) {
 				validator.validateNext(otherGene);
 			} else {
 				//failed, for now return parent A
+				mateFail++;
 				return a;
 			}
 		}
@@ -376,40 +379,24 @@ void Optimizer::init() {
 }
 
 queue<EntityType> Optimizer::optimize() {
-	Timer timer;
-	timer.start();
-	
-	srand(1);
-	
-	long long timeout_ms = 150000;
-	int generation = 0;
-	int maxGeneration = 500;//50
-	int populationSize = 30000;
-	
-	int buildListSize = 10;
-	int buildListSizeVariation = 20;
-	
-	//int numSelect = populationSize/10;
-	//int numMate = 8*populationSize/10;
-	//int matingPoolSize = populationSize/10;
-	
-	
 	//standard settings
-	//int numSelect = 1000;
-	//int numMate = 8000;
-	//int numMutateInsert = 500;
-	//int numMutateDelete = 500;
-	//int matingPoolSize = 1000;
+	//config(150000, 50, 10000, 10, 20, 0.1f, 0.8f, 0.05f, 0.05f, 0.1f);
 	
 	//better for push?
-	int numSelect = 1*populationSize/10; //1000
-	int numMate = 4*populationSize/10; //4000
-	int numMutateInsert = 25*populationSize/100; //2500
-	int numMutateDelete = 25*populationSize/100; //2500
-	int matingPoolSize = 1*populationSize/10; //1000
+	config(150000, 50, 10000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
+	
+	//seems a little better for rush
+	//config(150000, 50, 10000, 10, 20, 0.1f, 0.1f, 0.4f, 0.4f, 0.1f);
+	
+	//test
+	//config(150000, 50, 1000, 10, 20, 0.01f, 0.59f, 0.2f, 0.2f, 0.1f);
 	
 	
+	Timer timer;
+	timer.start();
+	srand(0);
 	
+	int generation = 0;
 	vector<Individual> population;
 	
 	for (int i = 0; i < populationSize; ++i) {
@@ -428,8 +415,8 @@ queue<EntityType> Optimizer::optimize() {
 		sort(population.begin(), population.end());
 		
 	
-		//std::clog << "best fitness: " << population[0].fitness << std::endl;
-		//std::clog << "worst fitness: " << population[populationSize-1].fitness << std::endl;
+		std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
+		
 		
 		//condition for loop end
 		if (generation > maxGeneration || timer.elapsedMilli() > timeout_ms) {
@@ -469,12 +456,36 @@ queue<EntityType> Optimizer::optimize() {
 		
 		population = nextPopulation;
 		
-		//std::clog << "Generation " << generation << ", Population " << population.size() << std::endl;
-		
 		++generation;
 	}
 	
+	std::clog << mateFail << ", " << mateNum << std::endl;
+	
 	return population[0].list;
+}
+
+void Optimizer::config(
+	long long itimeout_ms,
+	int imaxGeneration,
+	int ipopulationSize,
+	int ibuildListSize,
+	int ibuildListSizeVariation,
+	float fnumSelect,
+	float fnumMate,
+	float fnumMutateInsert,
+	float fnumMutateDelete,
+	float fmatingPoolSize)
+{
+	timeout_ms = itimeout_ms;
+	maxGeneration = imaxGeneration;
+	populationSize = ipopulationSize;
+	buildListSize = ibuildListSize;
+	buildListSizeVariation = ibuildListSizeVariation;
+	numSelect = fnumSelect*populationSize;
+	numMate = fnumMate*populationSize;
+	numMutateInsert = fnumMutateInsert*populationSize;
+	numMutateDelete = fnumMutateDelete*populationSize;
+	matingPoolSize = fmatingPoolSize*populationSize;
 }
 
 

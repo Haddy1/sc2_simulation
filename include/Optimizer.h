@@ -45,6 +45,19 @@ private:
 	
 	set<EntityType> searchSpace;
 	unordered_map<EntityType, int> searchSpaceLevels;
+	
+	
+	//config:
+	long long timeout_ms = 150000;
+	int maxGeneration = 50;//50
+	int populationSize = 10000;
+	int buildListSize = 10;
+	int buildListSizeVariation = 20;
+	int numSelect = 0.1*populationSize;
+	int numMate = 0.4*populationSize;
+	int numMutateInsert = 0.25*populationSize;
+	int numMutateDelete = 0.25*populationSize;
+	int matingPoolSize = 0.1*populationSize;
 
 public:
 	Optimizer(bool rush, EntityType target, int num, Race race);
@@ -64,6 +77,8 @@ public:
 	void calcFitness(Individual& ind);
 	
 	void addToSetRec(const EntityType&, int level);
+	
+	void config(long long, int, int, int, int, float, float, float, float, float);
 };
 
 
