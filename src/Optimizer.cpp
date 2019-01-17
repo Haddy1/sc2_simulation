@@ -260,6 +260,7 @@ Individual Optimizer::mutateDelete(const Individual& a) {
 	}
 }
 
+/*
 //insert random at end of list
 Individual Optimizer::mutateInsert(const Individual& a) {
 	//int size = a.list.size();
@@ -272,17 +273,18 @@ Individual Optimizer::mutateInsert(const Individual& a) {
 	validator.validateNext(randGene);
 	return Individual(newBuildList);
 }
+*/
 
-/*
+
 Individual Optimizer::mutateInsert(const Individual& a) {
 	int size = a.list.size();
 	int r = rand() % size;
-	queue<string> copyList = a.list;
-	queue<string> newBuildList;
+	queue<EntityType> copyList = a.list;
+	queue<EntityType> newBuildList;
 	BuildlistValidator validator(race);
 	for (int i = 0; i < size; ++i) {
 		if (i == r) {
-			string randGene = getRandomValidGene(newBuildList, validator, race);
+			EntityType randGene = getRandomValidGene(newBuildList, validator);
 			newBuildList.push(randGene);
 			validator.validateNext(randGene);
 		}
@@ -296,7 +298,7 @@ Individual Optimizer::mutateInsert(const Individual& a) {
 	}
 	return Individual(newBuildList);
 }
-*/
+
 
 bool operator<(const Individual& i, const Individual& j) {
 	return i.fitness < j.fitness;
@@ -400,13 +402,19 @@ queue<EntityType> Optimizer::optimize() {
 	//config(150000, 50, 10000, 10, 20, 0.1f, 0.8f, 0.05f, 0.05f, 0.1f);
 	
 	//better for push?
-	config(150000, 50, 10000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
+	//config(150000, 100, 10000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
 	
 	//seems a little better for rush
 	//config(150000, 50, 10000, 10, 20, 0.1f, 0.1f, 0.4f, 0.4f, 0.1f);
 	
 	//test
 	//config(150000, 50, 1000, 10, 20, 0.01f, 0.59f, 0.2f, 0.2f, 0.1f);
+	
+	//all 6 zerg tests pass: (with delete at end only)
+	//config(150000, 100, 10000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
+	
+	//4 tests pass
+	config(150000, 100, 20000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
 	
 	
 	Timer timer;
@@ -459,7 +467,7 @@ queue<EntityType> Optimizer::optimize() {
 		
 		
 		//condition for loop end
-		if (generation > maxGeneration || timer.elapsedMilli() > timeout_ms) {
+		if (generation >= maxGeneration || timer.elapsedMilli() > timeout_ms) {
 			//found = true;
 			break;
 		}
@@ -500,6 +508,8 @@ queue<EntityType> Optimizer::optimize() {
 	}
 	
 	//std::clog << mateFail << ", " << mateNum << std::endl;
+	
+	std::clog << "Generations " << generation << ", best fitness: " << population[0].fitness << std::endl;
 	
 	return population[0].list;
 }
