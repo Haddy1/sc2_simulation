@@ -58,15 +58,8 @@ void Optimizer::calcFitness(Individual& ind) {
 	if (rush) {
 		if (targetUnits == 0 || timedOut) {
 			ind.fitness = 2000000000;
-		} else {
-			ind.fitness = 2000000000/targetUnits;
-		}
-	} else {//push
-		if (targetUnits >= num) {
-			ind.fitness = timesteps;
-		} else {
-			ind.fitness = 2000000000 / (targetUnits + 1);
 			
+			//prefer lists close to target in tech tree
 			int minLevel = 1000;
 			queue<EntityType> listCopy = ind.list;
 			int size = listCopy.size();
@@ -77,8 +70,31 @@ void Optimizer::calcFitness(Individual& ind) {
 					minLevel = min(searchSpaceLevels.at(item), minLevel);
 				}
 			}
-			
 			ind.fitness += minLevel;
+			
+			
+		} else {
+			ind.fitness = 2000000000/targetUnits;
+		}
+	} else {//push
+		if (targetUnits >= num) {
+			ind.fitness = timesteps;
+		} else {
+			ind.fitness = 2000000000 / (targetUnits + 1);
+			
+			//prefer lists close to target in tech tree
+			int minLevel = 1000;
+			queue<EntityType> listCopy = ind.list;
+			int size = listCopy.size();
+			for (int i = 0; i < size; ++i) {
+				EntityType item = listCopy.front();
+				listCopy.pop();
+				if (searchSpaceLevels.find(item) != searchSpaceLevels.end()) {
+					minLevel = min(searchSpaceLevels.at(item), minLevel);
+				}
+			}
+			ind.fitness += minLevel;
+			
 		}
 	}
 	
@@ -278,6 +294,9 @@ Individual Optimizer::mutateInsert(const Individual& a) {
 
 Individual Optimizer::mutateInsert(const Individual& a) {
 	int size = a.list.size();
+	if (size == 0) {
+		return a;
+	}
 	int r = rand() % size;
 	queue<EntityType> copyList = a.list;
 	queue<EntityType> newBuildList;
@@ -364,6 +383,7 @@ void Optimizer::init() {
 		searchSpace.insert(queen);
 		searchSpace.insert(extractor);
 		searchSpace.insert(hatchery);
+		searchSpace.insert(spawning_pool);
 		break;
 	default:
 		break;
@@ -413,8 +433,11 @@ queue<EntityType> Optimizer::optimize() {
 	//all 6 zerg tests pass: (with delete at end only)
 	//config(150000, 100, 10000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
 	
-	//4 tests pass
-	config(150000, 100, 20000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
+	//brood lord under 10 min but parse error...
+	//config(150000, 100, 40000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
+	
+	config(150000, 50, 20000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
+	
 	
 	
 	Timer timer;
@@ -451,6 +474,7 @@ queue<EntityType> Optimizer::optimize() {
 			threads[j].join();
 		}
 		*/
+		
 		thread *threads = new thread[numThreads];
 		for (int j = 0; j < numThreads; ++j) {
 			threads[j] = thread(&Optimizer::threadFunc, this, numThreads, j);
@@ -468,7 +492,6 @@ queue<EntityType> Optimizer::optimize() {
 		
 		//condition for loop end
 		if (generation >= maxGeneration || timer.elapsedMilli() > timeout_ms) {
-			//found = true;
 			break;
 		}
 		
@@ -497,6 +520,7 @@ queue<EntityType> Optimizer::optimize() {
 			int r = rand() % numSelect;
 			nextPopulation.push_back(mutateDelete(population[r]));
 		}
+		
 		for (int i = 0; i < numMutateInsert; ++i) {
 			int r = rand() % numSelect;
 			nextPopulation.push_back(mutateInsert(population[r]));
@@ -509,7 +533,7 @@ queue<EntityType> Optimizer::optimize() {
 	
 	//std::clog << mateFail << ", " << mateNum << std::endl;
 	
-	std::clog << "Generations " << generation << ", best fitness: " << population[0].fitness << std::endl;
+	//std::clog << "Generations " << generation << ", best fitness: " << population[0].fitness << std::endl;
 	
 	return population[0].list;
 }
