@@ -41,7 +41,7 @@ void optimize(bool rush, string unitname, int number) {
 	race = entityData.race;
 	//std::clog << toString(race) << std::endl;
 	
-	Optimizer opt(rush, entityType, number, race);
+	Optimizer<EntityType> opt(rush, entityType, number, race);
 	opt.init();
 	queue<EntityType> result = opt.optimize();
 	
