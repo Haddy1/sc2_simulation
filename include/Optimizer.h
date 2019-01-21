@@ -480,9 +480,9 @@ public:
 	
 	void calcFitness(Individual& ind) {
 		//TODO need good fitness function
-		//if (ind.fitnessCalculated) {
-		//	return;
-		//}
+		if (ind.fitnessCalculated) {
+			return;
+		}
 		
 		
 		bool timedOut = false;
@@ -530,7 +530,7 @@ public:
 				ind.fitness = 2000000000;
 				
 				//prefer lists close to target in tech tree
-				int minLevel = 1000;
+				int minLevel = 10;
 				queue<T> listCopy = ind.list;
 				int size = listCopy.size();
 				for (int i = 0; i < size; ++i) {
@@ -544,16 +544,16 @@ public:
 				
 				
 			} else {
-				ind.fitness = 2000000000/targetUnits;
+				ind.fitness = 2000000000 - targetUnits;
 			}
 		} else {//push
 			if (targetUnits >= num) {
 				ind.fitness = timesteps;
 			} else {
-				ind.fitness = 2000000000 / (targetUnits + 1);
+				ind.fitness = 2000000000 - ((targetUnits + 1) << 8);
 				
 				//prefer lists close to target in tech tree
-				int minLevel = 1000;
+				int minLevel = 10;
 				queue<T> listCopy = ind.list;
 				int size = listCopy.size();
 				for (int i = 0; i < size; ++i) {
