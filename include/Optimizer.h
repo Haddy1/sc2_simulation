@@ -114,7 +114,11 @@ public:
 			
 			break;
 		case PROTOSS:
-			
+			searchSpace.insert(assimilator);
+			searchSpace.insert(pylon);
+			searchSpace.insert(probe);
+			searchSpace.insert(nexus);
+
 			break;
 		case ZERG:
 			searchSpace.insert(drone);
@@ -503,7 +507,12 @@ public:
 			}
 		case PROTOSS:
 			{
-				//ProtossSimulator sim(ind.list, false);//TODO
+				ProtossSimulator sim(ind.list, false, false, maxTime);
+				sim.init();
+				sim.simulate();
+				targetUnits = sim.numberOfUnits(target);
+				timedOut = sim.getTimesteps() >= 1000;
+				timesteps = sim.getTimesteps();
 				break;
 			}
 		case ZERG:

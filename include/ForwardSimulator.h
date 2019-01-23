@@ -84,39 +84,39 @@ public:
 	void init();
 	void simulate();
 };
+*/
 
-//typedef shared_ptr<ProtossBuilding> building_ptr;
-//typedef shared_ptr<ProtossUnit> unit_ptr;
+typedef shared_ptr<ProtossBuilding> building_ptr;
+typedef shared_ptr<ProtossUnit> unit_ptr;
 
 class ProtossSimulator : public ForwardSimulator {
 	// buildings
-	multimap<EntityType, building_ptr> buildings;
+	multimap<string, building_ptr> buildings;
 	vector<building_ptr> unfinishedBuildings;
-	shared_ptr<Nexus> nexus;
-	shared_ptr<ProtossBuilding> boosted_building;
+	vector<shared_ptr<Nexus>> nexuses;
+	shared_ptr<Nexus> boosted_building;
 	// units
-	vector<unit_ptr> units;
+	map<string, int> units;
 	vector<unit_ptr> unfinishedUnits;
-	// other members
-	queue<EntityType> buildOrder;
-	Tech tech;
-	ResourceManager resourceManager;
 	JsonLogger logger;
+	bool logging;
 	int timestep;
+	int maxTime;
 	int chronoboostTimer;
 	int numEntities;
 	int numWorkers;
 public:
-	ProtossSimulator(bool);
-	ProtossSimulator(queue<EntityType>, bool);
+	ProtossSimulator(bool, bool, int);
+	ProtossSimulator(queue<string>, bool, bool, int);
 	~ProtossSimulator();
 	void init();
 	void simulate();
-	void update_buildProgress(vector<shared_ptr<EventEntry>>&);
-	void handle_chronoboost(vector<shared_ptr<EventEntry>>&);
 	void process_buildlist(vector<shared_ptr<EventEntry>>&);
+	int getTimesteps() {return timestep;};
+	int numberOfUnits(string unitname);
+	int numberOfWorkers() {return resourceManager.getWorkers();}
+	int numberOfProductionStructures() {return buildings.size();}
 };
-*/
 
 
 class ZergSimulator : public ForwardSimulator {

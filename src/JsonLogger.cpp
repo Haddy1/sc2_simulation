@@ -1,21 +1,25 @@
 #include "JsonLogger.h"
 
 // log into cout
-JsonLogger::JsonLogger(Race r, ResourceManager& manager, bool valid) : race(r), rm(manager), validBuildlist(valid)  {
-	printBeginning();
+JsonLogger::JsonLogger(Race r, ResourceManager& manager, bool valid) : race(r), rm(manager), validBuildlist(valid), firstMsg(true)  {
+	if(valid) {
+		printBeginning();
+	}
 }
 
 // log into file by redirecting from cout to file(path)
-JsonLogger::JsonLogger(Race r, ResourceManager& manager, bool valid, std::string str) : race(r), rm(manager), validBuildlist(valid), path(str), out(str.c_str()), coutbuf(cout.rdbuf()) {	
-	printBeginning();
+JsonLogger::JsonLogger(Race r, ResourceManager& manager, bool valid, std::string str) : race(r), rm(manager), validBuildlist(valid), firstMsg(true), path(str), out(str.c_str()), coutbuf(cout.rdbuf()) {	
+	if(valid) {
+		printBeginning();
+	}
 }
 
 JsonLogger::~JsonLogger() {
 	redirect();
 	if(validBuildlist) {
 		cout << endl << ws << "]" << endl; // ends the "messages" block
+		cout << "}" << endl;
 	}
-	cout << "}" << endl;
 	undo_redirect();
 	
 	if(!path.empty()) {
@@ -67,9 +71,10 @@ void JsonLogger::printMessage(int time, vector<shared_ptr<EventEntry>>& events) 
 	}
 	redirect();
 	// add message entry to output
-	if(time > 1) {
+	if(!firstMsg) {
 		cout << "," << endl; // separation with previous message entry
 	}
+	firstMsg = false;
 	cout << string(2, ws) << "{" << endl;
 	// time
 	cout << string(3, ws) << "\"time\": " << time << "," << endl;

@@ -122,7 +122,7 @@ void forwardSimulate(char *filename) {
 			//simulator = new TerranSimulator(buildQueue);
 			break;
 		case PROTOSS:
-			//simulator = new ProtossSimulator(buildQueue, !invalidBuildlist);
+			simulator = new ProtossSimulator(buildQueue, !invalidBuildlist, true, 1000);
 			break;
 		case ZERG:
 			simulator = new ZergSimulator(buildQueue, true);
