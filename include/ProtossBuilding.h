@@ -6,6 +6,7 @@
 #include "FixedPoint.h"
 #include "ResourceManager.h"
 #include "ProtossUnit.h"
+#include "EntityData.h"
 #include "Tech.h"
 #include <memory>
 #include <iostream>
@@ -18,7 +19,7 @@ typedef shared_ptr<ProtossUnit> u_ptr;
 
 class ProtossBuilding : public Building {
 public:
-	ProtossBuilding(int&, string, ResourceManager&, Tech&);
+	ProtossBuilding(int&, EntityType, ResourceManager&, Tech&);
 	bool update();
 	bool isBusy();
 	bool produceUnit(u_ptr);
@@ -34,7 +35,7 @@ protected:
 
 class Nexus : public ProtossBuilding {
 public:
-	Nexus(int&, string, ResourceManager&, Tech&);
+	Nexus(int&, EntityType, ResourceManager&, Tech&);
 	void updateEnergy();
 	void consumeEnergy();
 	FixedPoint getEnergy();

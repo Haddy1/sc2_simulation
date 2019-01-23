@@ -4,6 +4,7 @@
 #include "Unit.h"
 #include "ProtossBuilding.h"
 #include "ResourceManager.h"
+#include "EntityData.h"
 #include <memory>
 
 class ProtossBuilding;
@@ -13,7 +14,7 @@ typedef shared_ptr<ProtossBuilding> b_ptr;
 
 class ProtossUnit : public Unit {
 public:
-	ProtossUnit(int&, string, b_ptr, ResourceManager&);
+	ProtossUnit(int&, EntityType, b_ptr, ResourceManager&);
 	bool update(bool finish = true);
 	b_ptr getProducer();
 private:

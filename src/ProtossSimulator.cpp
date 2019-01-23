@@ -1,17 +1,17 @@
 #include "ForwardSimulator.h"
 
-typedef multimap<string, building_ptr>::iterator MIter;
+typedef multimap<EntityType, building_ptr>::iterator MIter;
 
 // param. constructors
 ProtossSimulator::ProtossSimulator(bool validBuildlist, bool log, int mt) : 
 	logger(PROTOSS, resourceManager, validBuildlist), logging(log), \
-	timestep(1), chronoboostTimer(-1), numEntities(0) {
+	timestep(1), maxTime(mt), chronoboostTimer(-1), numEntities(0), timeout(false) {
 	// ...
 }
 
-ProtossSimulator::ProtossSimulator(queue<string> q, bool validBuildlist, bool log, int mt) : 
+ProtossSimulator::ProtossSimulator(queue<EntityType> q, bool validBuildlist, bool log, int mt) : 
 	buildOrder(q), logger(PROTOSS, resourceManager, validBuildlist), logging(log), \
-	timestep(1), maxTime(mt), chronoboostTimer(-1), numEntities(0) {
+	timestep(1), maxTime(mt), chronoboostTimer(-1), numEntities(0), timeout(false) {
 	// ...
 }
 
@@ -22,16 +22,16 @@ ProtossSimulator::~ProtossSimulator() {
 
 void ProtossSimulator::init() {
 	// setup: 1 Nexus
-	shared_ptr<Nexus> nexus = make_shared<Nexus>(Nexus(numEntities, "nexus", resourceManager, tech));
-	nexuses.push_back(nexus);
-	buildings.emplace("nexus", nexus);
+	shared_ptr<Nexus> nex = make_shared<Nexus>(Nexus(numEntities, nexus, resourceManager, tech));
+	nexuses.push_back(nex);
+	buildings.emplace(nexus, nex);
 	resourceManager.addSupplyMax(10);
-	tech.add("nexus");
+	tech.add(nexus);
 	
 	// setup: 6 probes
 	for(int i = 0; i < 6; ++i) {
-		unit_ptr u = make_shared<ProtossUnit>(ProtossUnit(numEntities, "probe", nexus, resourceManager));
-		units.emplace(make_pair(u->getName(), numberOfUnits(u->getName())+1));
+		unit_ptr u = make_shared<ProtossUnit>(ProtossUnit(numEntities, probe, nex, resourceManager));
+		units.emplace(make_pair(u->getType(), numberOfUnits(u->getType())+1));
 	}
 	resourceManager.setMineralWorkers(6);
 	resourceManager.consumeSupply(6);
@@ -72,7 +72,7 @@ void ProtossSimulator::handle_chronoboost(vector<shared_ptr<EventEntry>>& events
 			if(chronoboostTimer % 2) {
 				if(u->update(false)) { // production complete
 					events.push_back(create_event_ptr("build-end", u->getName(), boosted_building->getID(), u->getID()));
-					units.emplace(make_pair(u->getName(), numberOfUnits(u->getName())+1));
+					units.emplace(make_pair(u->getType(), numberOfUnits(u->getType())+1));
 					unfinishedUnits.erase(std::remove(unfinishedUnits.begin(), unfinishedUnits.end(), u), unfinishedUnits.end()); // remove unit
 				}
 			}
@@ -87,13 +87,13 @@ void ProtossSimulator::update_buildProgress(vector<shared_ptr<EventEntry>>& even
 	// Advance/finish buildings 
 	for(auto i = begin(unfinishedBuildings); i != end(unfinishedBuildings);) {
 		if((*i)->update()) {
-			if((*i)->getName().compare("nexus") == 0) {
+			if((*i)->getType() == nexus) {
 				int dummy = 0; // prevent from getting new id
-				shared_ptr<Nexus> n = make_shared<Nexus>(dummy, (*i)->getName(), resourceManager, tech);
+				shared_ptr<Nexus> n = make_shared<Nexus>(dummy, nexus, resourceManager, tech);
 				n->setID((*i)->getID());
 				nexuses.push_back(n);
 			}
-			buildings.emplace((*i)->getName(), *i);
+			buildings.emplace((*i)->getType(), *i);
 			events.push_back(create_event_ptr("build-end", (*i)->getName(), 1, (*i)->getID()));
 			unfinishedBuildings.erase(i);
 		} else {
@@ -105,7 +105,7 @@ void ProtossSimulator::update_buildProgress(vector<shared_ptr<EventEntry>>& even
 	for(auto i = begin(unfinishedUnits); i != end(unfinishedUnits);) {
 		if((*i)->update()) {
 			events.push_back(create_event_ptr("build-end", (*i)->getName(), (*i)->getProducer()->getID(), (*i)->getID()));
-			units.emplace(make_pair((*i)->getName(), numberOfUnits((*i)->getName())+1));
+			units.emplace(make_pair((*i)->getType(), numberOfUnits((*i)->getType())+1));
 			unfinishedUnits.erase(i);
 		} else {
 			++i;
@@ -115,8 +115,9 @@ void ProtossSimulator::update_buildProgress(vector<shared_ptr<EventEntry>>& even
 
 void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events) {
 	if(!buildOrder.empty() && chronoboostTimer != 1) {
-		string s = buildOrder.front();
-		EntityData e = entityDataMap.at(s);
+		EntityType type = buildOrder.front();
+		EntityData e = entityDataMap.at(type);
+		
 		if(resourceManager.canBuild(e) && tech.dependencyFulfilled(e)) {
 			bool beginProduction = false;
 			int producerID = -1;
@@ -124,14 +125,14 @@ void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events)
 			if(e.isBuilding) {
 				beginProduction = true;
 				producerID = 1; // always warped by same probe since it is never occupied while building (maybe TODO)
-				unfinishedBuildings.push_back(make_shared<ProtossBuilding>(ProtossBuilding(numEntities, s, resourceManager, tech)));
+				unfinishedBuildings.push_back(make_shared<ProtossBuilding>(ProtossBuilding(numEntities, type, resourceManager, tech)));
 			} else {
 				// find available producer building
 				pair<MIter, MIter> mapIter = buildings.equal_range(e.producedBy.front());
 				for(auto i = mapIter.first; i != mapIter.second;) {
 					building_ptr building = (*i).second;
 					if(!building->isBusy()) {
-						unit_ptr u = make_shared<ProtossUnit>(ProtossUnit(numEntities, s, building, resourceManager));
+						unit_ptr u = make_shared<ProtossUnit>(ProtossUnit(numEntities, type, building, resourceManager));
 						beginProduction = building->produceUnit(u);
 						unfinishedUnits.push_back(u);
 						producerID = building->getID();
@@ -144,22 +145,22 @@ void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events)
 			// entity construction has begun -> log and remove from buildlist 
 			if(beginProduction) {
 				resourceManager.consumeRes(e);
-				events.push_back(create_event_ptr("build-start", s, producerID));
+				events.push_back(create_event_ptr("build-start", e.name, producerID));
 				buildOrder.pop();
 			}
 		}
 	}	
 }
 
-int ProtossSimulator::numberOfUnits(string name) {
-	map<string, int>::iterator it;
+int ProtossSimulator::numberOfUnits(EntityType name) {
+	map<EntityType, int>::iterator it;
 	it = units.find(name);
 	if(it != units.end()) {
 		return it->second;
 	} else {
 		int c = 0;
-		for(auto& b :  buildings) {
-			if(b.second->getName() == name) {
+		for(auto& b : buildings) {
+			if(b.first == name) {
 				++c;
 			}
 		}
@@ -189,5 +190,9 @@ void ProtossSimulator::simulate() {
 			return;
 		}
 		++timestep;
+	}
+	
+	if(timestep > maxTime) {
+		timeout = true;
 	}
 }

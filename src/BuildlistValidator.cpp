@@ -87,7 +87,7 @@ bool BuildlistValidator::validateNext(EntityType t) {
 	//update supply
 	if (data.producedBy.size() == 1) {
 		EntityData& producedByData = entityDataMap.at(data.producedBy.at(0));
-		if (!producedByData.isBuilding) {
+		if (!producedByData.isBuilding && producedByData.type != probe) {
 			//producer is a unit: morphing
 			supply -= producedByData.supplyCost;
 			supplyMax -= producedByData.supplyProvided;
@@ -128,7 +128,7 @@ bool BuildlistValidator::checkNext(EntityType t) {
 	
 	if (data.producedBy.size() == 1) {
 		EntityData& producedByData = entityDataMap.at(data.producedBy.at(0));
-		if (!producedByData.isBuilding) {
+		if (!producedByData.isBuilding && producedByData.type != probe) {
 			//producer is a unit: morphing
 			supplyChange -= producedByData.supplyCost;
 			supplyMaxChange -= producedByData.supplyProvided;

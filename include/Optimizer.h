@@ -118,7 +118,6 @@ public:
 			searchSpace.insert(pylon);
 			searchSpace.insert(probe);
 			searchSpace.insert(nexus);
-
 			break;
 		case ZERG:
 			searchSpace.insert(drone);
@@ -214,7 +213,7 @@ public:
 			sort(population.begin(), population.end());
 			population.erase( unique( population.begin(), population.end() ), population.end() );
 			
-			//std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
+			std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
 			
 			
 			//condition for loop end
@@ -492,6 +491,8 @@ public:
 		bool timedOut = false;
 		int targetUnits = 0;
 		int timesteps = 0;
+		int numWorkers = 0;
+		int numProducers = 0;
 		int maxTime;
 		if (rush) {
 			maxTime = num;
@@ -511,8 +512,10 @@ public:
 				sim.init();
 				sim.simulate();
 				targetUnits = sim.numberOfUnits(target);
-				timedOut = sim.getTimesteps() >= 1000;
+				timedOut = sim.timedOut();
 				timesteps = sim.getTimesteps();
+				numWorkers = sim.numberOfWorkers();
+				numProducers = sim.numberOfProductionStructures();
 				break;
 			}
 		case ZERG:

@@ -4,18 +4,18 @@
 *	ProtossBuildings
 */
 
-ProtossBuilding::ProtossBuilding(int& numEntities, string name, ResourceManager& r, Tech& t) : Building(numEntities, name), busy(false), rm(r), tech(t), curTime(0), toProduce(nullptr) {
+ProtossBuilding::ProtossBuilding(int& numEntities, EntityType type, ResourceManager& r, Tech& t) : Building(numEntities, type), busy(false), rm(r), tech(t), curTime(0), toProduce(nullptr) {
 	
 }
 
 bool ProtossBuilding::update() {
 	if(curTime == getBuildTime()-1) {
 		// special case: assimilator
-		if(getName().compare("assimilator") == 0) {
+		if(getType() == assimilator) {
 			rm.incrementGeysers();
 		}
 		rm.addSupplyMax(entityData->supplyProvided);
-		tech.add(getName());
+		tech.add(getType());
 		return true;
 	}
 	++curTime;
@@ -45,7 +45,7 @@ u_ptr ProtossBuilding::getProducedUnit() {
 /*
 *	Nexus class to manage energy/chronoboost
 */
-Nexus::Nexus(int& numEntities, string name, ResourceManager& r, Tech& t) : ProtossBuilding(numEntities, name, r, t), energy(0) {
+Nexus::Nexus(int& numEntities, EntityType type, ResourceManager& r, Tech& t) : ProtossBuilding(numEntities, type, r, t), energy(0) {
 	
 }
 

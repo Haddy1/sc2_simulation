@@ -51,7 +51,7 @@ void optimize(bool rush, string unitname, int number) {
 			//simulator = new TerranSimulator(result);
 			break;
 		case PROTOSS:
-			//simulator = new ProtossSimulator(result, true);
+			simulator = new ProtossSimulator(result, true, true, 1000);
 			break;
 		case ZERG:
 			simulator = new ZergSimulator(result, true);

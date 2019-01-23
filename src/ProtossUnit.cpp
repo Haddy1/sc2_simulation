@@ -4,7 +4,7 @@
 *	ProtossUnits
 */
 
-ProtossUnit::ProtossUnit(int& numEntities, string name, b_ptr prod, ResourceManager& r) : Unit(numEntities, name), curTime(0), producer(prod), rm(r) {
+ProtossUnit::ProtossUnit(int& numEntities, EntityType type, b_ptr prod, ResourceManager& r) : Unit(numEntities, type), curTime(0), producer(prod), rm(r) {
 	
 }
 
@@ -17,7 +17,7 @@ bool ProtossUnit::update(bool finish) {
 	++curTime;
 	if(curTime >= getBuildTime() && finish) { // dont finish in chonoboost_handler
 		// special case: probe
-		if(getName().compare("probe") == 0) {
+		if(getType() == probe) {
 			rm.incrementMineralWorkers(); // redistribution occurs before log
 		}
 		producer->finishUnit();

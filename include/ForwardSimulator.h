@@ -9,8 +9,8 @@
 #include "JsonLogger.h"
 #include "JsonLoggerV2.h"
 #include "EntityData.h"
-//#include "ProtossBuilding.h"
-//#include "ProtossUnit.h"
+#include "ProtossBuilding.h"
+#include "ProtossUnit.h"
 
 #include <algorithm>
 #include <vector>
@@ -91,13 +91,17 @@ typedef shared_ptr<ProtossUnit> unit_ptr;
 
 class ProtossSimulator : public ForwardSimulator {
 	// buildings
-	multimap<string, building_ptr> buildings;
+	multimap<EntityType, building_ptr> buildings;
 	vector<building_ptr> unfinishedBuildings;
 	vector<shared_ptr<Nexus>> nexuses;
 	shared_ptr<Nexus> boosted_building;
 	// units
-	map<string, int> units;
+	map<EntityType, int> units;
 	vector<unit_ptr> unfinishedUnits;
+	// other members
+	queue<EntityType> buildOrder;
+	Tech tech;
+	ResourceManager resourceManager;
 	JsonLogger logger;
 	bool logging;
 	int timestep;
@@ -105,18 +109,24 @@ class ProtossSimulator : public ForwardSimulator {
 	int chronoboostTimer;
 	int numEntities;
 	int numWorkers;
+	bool timeout;
 public:
 	ProtossSimulator(bool, bool, int);
-	ProtossSimulator(queue<string>, bool, bool, int);
+	ProtossSimulator(queue<EntityType>, bool, bool, int);
 	~ProtossSimulator();
 	void init();
 	void simulate();
+	void update_buildProgress(vector<shared_ptr<EventEntry>>&);
+	void handle_chronoboost(vector<shared_ptr<EventEntry>>&);
 	void process_buildlist(vector<shared_ptr<EventEntry>>&);
 	int getTimesteps() {return timestep;};
-	int numberOfUnits(string unitname);
+	bool timedOut() {return timeout;};
+	int numberOfUnits(EntityType);
 	int numberOfWorkers() {return resourceManager.getWorkers();}
 	int numberOfProductionStructures() {return buildings.size();}
 };
+
+
 
 
 class ZergSimulator : public ForwardSimulator {
