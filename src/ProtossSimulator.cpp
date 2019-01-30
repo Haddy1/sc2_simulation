@@ -118,10 +118,12 @@ void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events)
 		EntityType type = buildOrder.front();
 		EntityData e = entityDataMap.at(type);
 		
+		/*
 		if(timestep + e.buildTime >= maxTime) {
 			buildOrder.pop();
 			return;
 		}
+		*/
 		
 		if(resourceManager.canBuild(e) && tech.dependencyFulfilled(e)) {
 			bool beginProduction = false;

@@ -147,13 +147,26 @@ public:
 	
 	
 	queue<T> optimize() {		
-		//combined rush push
+		/*
+		//good for push
+		if (rush)
+			config(150000, 200, 20000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.2f);
+		else
+			config(150000, 200, 20000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.1f);
+		
+		
+		//best for rush
 		if (rush)
 			config(150000, 1000, 20000, 10, 20, 0.5f, 0.3f, 0.1f, 0.1f, 0.5f);
 		else
-			config(150000, 1000, 20000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.1f);
+			config(150000, 1000, 20000, 10, 20, 0.5f, 0.3f, 0.1f, 0.1f, 0.5f);
+		*/
 		
-		
+		//combined rush push
+		if (rush)
+			config(150000, 100, 30000, 10, 20, 0.01f, 0.69f, 0.1f, 0.1f, 0.1f);
+		else
+			config(150000, 50, 20000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.1f);
 
 		
 		
@@ -509,21 +522,30 @@ public:
 				int cost = tunit.minerals + 2 * tunit.vespene;
 				int numWorkers = sim.numberOfWorkers();
 				int numProducers = sim.numberOfUnits(tunit.producedBy[0]);
-				if((numProducers == 3 && cost <= 100) ||  (numProducers == 2 && cost <= 250) || (numProducers == 1 && cost > 250)) {
-					++goodInfluencers; // rough cost to producer buildings ratio from pdf
+				if(rush) {
+					if((numProducers == 3 && cost <= 100) ||  (numProducers == 2 && cost <= 250) || (numProducers == 1 && cost > 250)) {
+						goodInfluencers += numProducers * cost; // rough cost to producer buildings ratio from pdf
+					}
+				} else {
+					if(numProducers <= num) {
+						goodInfluencers += numProducers * cost;
+					}
 				}
-				goodInfluencers = (numWorkers >= 2 && numWorkers <= 14) ? goodInfluencers+1 : goodInfluencers; // ideal number of workers
 				goodInfluencers = (targetUnits * cost >= 900) ? goodInfluencers+targetUnits*(cost/10) : goodInfluencers; // army value
 				if(rush) 
-					goodInfluencers = (timesteps >= (maxTime - maxTime/8)) ? goodInfluencers+1 : goodInfluencers; // reward usage of almost full timespan
-				goodInfluencers = targetUnits * (cost/10); // weighted by cost
+					goodInfluencers = (!timedOut && (timesteps >= maxTime - (maxTime/6))) ? goodInfluencers+1 : goodInfluencers; // reward usage of almost full timespan
+				else
+					goodInfluencers += numWorkers; // reward number of workers
+				
+				// just fullfill dependency for once if dependency != producer
 				if(tunit.dependencies.size() != 0 && sim.numberOfUnits(tunit.dependencies[0]) > 1 && (tunit.producedBy[0] != tunit.dependencies[0])) {
-					badInfluencers += 1; //sim.numberOfUnits(tunit.dependencies[0]); // just fullfill dependency for once if dependency != producer
+					badInfluencers += sim.numberOfUnits(tunit.dependencies[0]);
 				}
-				int leftRes = sim.getManager().getMinerals() + sim.getManager().getVespene();
-				badInfluencers = (leftRes > cost) ? badInfluencers+(leftRes/cost) : badInfluencers; // unused resources 
-				int leftSup = sim.getManager().getSupplyMax() - sim.getManager().getSupply();
-				badInfluencers = (leftSup > 10) ? badInfluencers+(leftSup/10) : badInfluencers; // unused supply
+				int leftRes = sim.getManager().getMinerals() + sim.getManager().getVespene(); // unused resources
+				int leftSup = sim.getManager().getSupplyMax() - sim.getManager().getSupply(); // unused supply
+				badInfluencers = (leftRes > cost) ? badInfluencers+(leftRes/cost) : badInfluencers;
+				badInfluencers = (leftSup > 10) ? badInfluencers+(leftSup/10) : badInfluencers;
+				
 				break;
 			}
 		case ZERG:
@@ -564,7 +586,7 @@ public:
 				
 				
 			} else {
-				ind.fitness = 2000000000;
+				ind.fitness = 2000000000 - ((targetUnits + 1) << 8);
 				ind.fitness -= goodInfluencers;
 				ind.fitness += badInfluencers;
 			}
@@ -572,7 +594,7 @@ public:
 			if (targetUnits >= num) {
 				ind.fitness = timesteps;
 			} else {
-				ind.fitness = 2000000000;//- ((targetUnits + 1) << 8);
+				ind.fitness = 2000000000 - ((targetUnits + 1) << 8);
 				ind.fitness -= goodInfluencers;
 				ind.fitness += badInfluencers;
 				
