@@ -146,34 +146,20 @@ public:
 	}
 	
 	
-	queue<T> optimize() {
-		//standard settings
-		//config(150000, 50, 20000, 10, 20, 0.1f, 0.8f, 0.05f, 0.05f, 0.1f);
-		config(150000, 20, 200000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.1f);
+	queue<T> optimize() {		
+		//combined rush push
+		if (rush)
+			config(150000, 1000, 20000, 10, 20, 0.5f, 0.3f, 0.1f, 0.1f, 0.5f);
+		else
+			config(150000, 1000, 20000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.1f);
 		
-		//better for push?
-		//config(150000, 100, 10000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
 		
-		//seems a little better for rush
-		//config(150000, 50, 10000, 10, 20, 0.1f, 0.1f, 0.4f, 0.4f, 0.1f);
-		
-		//test
-		//config(150000, 50, 1000, 10, 20, 0.01f, 0.59f, 0.2f, 0.2f, 0.1f);
-		
-		//all 6 zerg tests pass: (with delete at end only)
-		//config(150000, 100, 10000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
-		
-		//brood lord under 10 min but parse error...
-		//config(150000, 100, 40000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
-		
-		//config(150000, 50, 20000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
-		//config(150000, 20, 25000, 10, 20, 0.1f, 0.8f, 0.05f, 0.05f, 0.1f);
-		
+
 		
 		
 		Timer timer;
 		timer.start();
-		srand(0);
+		srand(1);
 		
 		
 		int numThreads = thread::hardware_concurrency();
@@ -218,7 +204,7 @@ public:
 			sort(population.begin(), population.end());
 			population.erase( unique( population.begin(), population.end() ), population.end() );
 			
-			std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
+			//std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
 			
 			
 			//condition for loop end
