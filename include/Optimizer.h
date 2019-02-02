@@ -15,6 +15,7 @@
 #include <queue>
 #include <utility>
 #include <thread>
+#include <cmath>
 
 using std::string;
 using std::queue;
@@ -109,6 +110,8 @@ public:
 		
 		//TODO
 		//Race specific units which should always be considered to be built
+		EntityData& e = entityDataMap.at(target);
+		EntityData& prod = entityDataMap.at(e.producedBy[0]);
 		switch(race) {
 		case TERRAN:
 			searchSpace.insert(scv);
@@ -119,10 +122,10 @@ public:
 			
 			break;
 		case PROTOSS:
-			searchSpace.insert(assimilator);
-			searchSpace.insert(pylon);
+			if(e.vespene > 0 || prod.vespene > 0) {
+				searchSpace.insert(assimilator);
+			}
 			searchSpace.insert(probe);
-			searchSpace.insert(nexus);
 			break;
 		case ZERG:
 			searchSpace.insert(drone);
@@ -147,32 +150,33 @@ public:
 	}
 	
 	
-	queue<T> optimize() {
-		//standard settings
-		//config(150000, 50, 10000, 10, 20, 0.1f, 0.8f, 0.05f, 0.05f, 0.1f);
+	queue<T> optimize() {		
+		/*
+		//good for push
+		if (rush)
+			config(150000, 200, 20000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.2f);
+		else
+			config(150000, 200, 20000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.1f);
 		
-		//better for push?
-		//config(150000, 100, 10000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
 		
-		//seems a little better for rush
-		//config(150000, 50, 10000, 10, 20, 0.1f, 0.1f, 0.4f, 0.4f, 0.1f);
+		//best for rush
+		if (rush)
+			config(150000, 1000, 20000, 10, 20, 0.5f, 0.3f, 0.1f, 0.1f, 0.5f);
+		else
+			config(150000, 1000, 20000, 10, 20, 0.5f, 0.3f, 0.1f, 0.1f, 0.5f);
+		*/
 		
-		//test
-		//config(150000, 50, 1000, 10, 20, 0.01f, 0.59f, 0.2f, 0.2f, 0.1f);
-		
-		//all 6 zerg tests pass: (with delete at end only)
-		//config(150000, 100, 10000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
-		
-		//brood lord under 10 min but parse error...
-		//config(150000, 100, 40000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
-		
-		config(150000, 50, 20000, 10, 20, 0.1f, 0.4f, 0.25f, 0.25f, 0.1f);
-		
+		//combined rush push
+		if (rush)
+			config(150000, 100, 30000, 10, 20, 0.01f, 0.69f, 0.1f, 0.1f, 0.1f);
+		else
+			config(150000, 50, 20000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.1f);
+
 		
 		
 		Timer timer;
 		timer.start();
-		srand(0);
+		srand(1);
 		
 		
 		int numThreads = thread::hardware_concurrency();
@@ -217,7 +221,7 @@ public:
 			sort(population.begin(), population.end());
 			population.erase( unique( population.begin(), population.end() ), population.end() );
 			
-			std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
+			//std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
 			
 			
 			//condition for loop end
@@ -495,8 +499,8 @@ public:
 		bool timedOut = false;
 		int targetUnits = 0;
 		int timesteps = 0;
-		int numWorkers = 0;
-		int numProducers = 0;
+		int goodInfluencers = 0;
+		int badInfluencers = 0;
 		int maxTime;
 		if (rush) {
 			maxTime = num;
@@ -523,8 +527,34 @@ public:
 				targetUnits = sim.numberOfUnits(target);
 				timedOut = sim.timedOut();
 				timesteps = sim.getTimesteps();
-				numWorkers = sim.numberOfWorkers();
-				numProducers = sim.numberOfProductionStructures();
+				EntityData& tunit = entityDataMap.at(target);
+				int cost = tunit.minerals + 2 * tunit.vespene;
+				int numWorkers = sim.numberOfWorkers();
+				int numProducers = sim.numberOfUnits(tunit.producedBy[0]);
+				if(rush) {
+					if((numProducers == 3 && cost <= 100) ||  (numProducers == 2 && cost <= 250) || (numProducers == 1 && cost > 250)) {
+						goodInfluencers += numProducers * cost; // rough cost to producer buildings ratio from pdf
+					}
+				} else {
+					if(numProducers <= num) {
+						goodInfluencers += numProducers * cost;
+					}
+				}
+				goodInfluencers = (targetUnits * cost >= 900) ? goodInfluencers+targetUnits*(cost/10) : goodInfluencers; // army value
+				if(rush) 
+					goodInfluencers = (!timedOut && (timesteps >= maxTime - (maxTime/6))) ? goodInfluencers+1 : goodInfluencers; // reward usage of almost full timespan
+				else
+					goodInfluencers += numWorkers; // reward number of workers
+				
+				// just fullfill dependency for once if dependency != producer
+				if(tunit.dependencies.size() != 0 && sim.numberOfUnits(tunit.dependencies[0]) > 1 && (tunit.producedBy[0] != tunit.dependencies[0])) {
+					badInfluencers += sim.numberOfUnits(tunit.dependencies[0]);
+				}
+				int leftRes = sim.getManager().getMinerals() + sim.getManager().getVespene(); // unused resources
+				int leftSup = sim.getManager().getSupplyMax() - sim.getManager().getSupply(); // unused supply
+				badInfluencers = (leftRes > cost) ? badInfluencers+(leftRes/cost) : badInfluencers;
+				badInfluencers = (leftSup > 10) ? badInfluencers+(leftSup/10) : badInfluencers;
+				
 				break;
 			}
 		case ZERG:
@@ -565,13 +595,17 @@ public:
 				
 				
 			} else {
-				ind.fitness = 2000000000 - targetUnits;
+				ind.fitness = 2000000000 - ((targetUnits + 1) << 8);
+				ind.fitness -= goodInfluencers;
+				ind.fitness += badInfluencers;
 			}
 		} else {//push
 			if (targetUnits >= num) {
 				ind.fitness = timesteps;
 			} else {
 				ind.fitness = 2000000000 - ((targetUnits + 1) << 8);
+				ind.fitness -= goodInfluencers;
+				ind.fitness += badInfluencers;
 				
 				//prefer lists close to target in tech tree
 				int minLevel = 10;

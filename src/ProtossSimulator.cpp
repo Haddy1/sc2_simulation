@@ -69,13 +69,13 @@ void ProtossSimulator::handle_chronoboost(vector<shared_ptr<EventEntry>>& events
 	if(chronoboostTimer >= 0) {
 		unit_ptr u = boosted_building->getProducedUnit();
 		if(boosted_building != nullptr && u != nullptr) {
-			if(chronoboostTimer % 2) {
-				if(u->update(false)) { // production complete
-					events.push_back(create_event_ptr("build-end", u->getName(), boosted_building->getID(), u->getID()));
-					units.emplace(make_pair(u->getType(), numberOfUnits(u->getType())+1));
-					unfinishedUnits.erase(std::remove(unfinishedUnits.begin(), unfinishedUnits.end(), u), unfinishedUnits.end()); // remove unit
-				}
+			u->update(0.5, false);
+			/*
+				events.push_back(create_event_ptr("build-end", u->getName(), boosted_building->getID(), u->getID()));
+				units.emplace(make_pair(u->getType(), numberOfUnits(u->getType())+1));
+				unfinishedUnits.erase(std::remove(unfinishedUnits.begin(), unfinishedUnits.end(), u), unfinishedUnits.end()); // remove unit
 			}
+			*/
 		}
 		++chronoboostTimer;
 	}
@@ -118,6 +118,13 @@ void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events)
 		EntityType type = buildOrder.front();
 		EntityData e = entityDataMap.at(type);
 		
+		/*
+		if(timestep + e.buildTime >= maxTime) {
+			buildOrder.pop();
+			return;
+		}
+		*/
+		
 		if(resourceManager.canBuild(e) && tech.dependencyFulfilled(e)) {
 			bool beginProduction = false;
 			int producerID = -1;
@@ -136,6 +143,9 @@ void ProtossSimulator::process_buildlist(vector<shared_ptr<EventEntry>>& events)
 						beginProduction = building->produceUnit(u);
 						unfinishedUnits.push_back(u);
 						producerID = building->getID();
+						// perform update on new unit if chronoboost already active
+						if(chronoboostTimer > 0 && producerID == boosted_building->getID())
+							u->update(0.5);
 						break;
 					} else {
 						++i;

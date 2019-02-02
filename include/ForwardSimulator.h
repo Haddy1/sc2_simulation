@@ -131,6 +131,7 @@ public:
 	int numberOfUnits(EntityType);
 	int numberOfWorkers() {return resourceManager.getWorkers();}
 	int numberOfProductionStructures() {return buildings.size();}
+	ResourceManager getManager() {return resourceManager;};
 };
 
 
