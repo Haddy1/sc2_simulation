@@ -11,6 +11,8 @@
 #include "EntityData.h"
 #include "ProtossBuilding.h"
 #include "ProtossUnit.h"
+#include "TerranBuilding.h"
+#include "TerranUnit.h"
 
 #include <algorithm>
 #include <vector>
@@ -65,26 +67,31 @@ inline ForwardSimulator::~ForwardSimulator() {}
 
 
 
-/*
 class TerranSimulator : public ForwardSimulator {
 	queue<EntityType> buildOrder;
     vector<EventEntry> eventList_;
 	ResourceManager rm;
+    TerranBuildings buildings;
+    TerranUnits units;
 	Tech tech;
-	int maxTime = 1000;
 	int timestep;
 	bool running;
 	JsonLoggerV2 logger;
-    int ID_Counter;
+	bool logging = false;
+    int ID_Counter = 0;
+	int maxTime_ = 1000;
+    bool timeout = false;
 	
 public:
-	TerranSimulator();
-	TerranSimulator(queue<EntityType>);
+	TerranSimulator(queue<EntityType>, bool log);
+	TerranSimulator(queue<EntityType>, bool log, int maxTime);
 	~TerranSimulator() {}
 	void init();
 	void simulate();
+	bool timedOut() {return timeout;};
+	int getTimeSteps() {return timestep;};
+	int getEntityCount(EntityType target);
 };
-*/
 
 typedef shared_ptr<ProtossBuilding> building_ptr;
 typedef shared_ptr<ProtossUnit> unit_ptr;

@@ -48,7 +48,7 @@ void optimize(bool rush, string unitname, int number) {
 	ForwardSimulator *simulator;
 	switch (race) {
 		case TERRAN:
-			//simulator = new TerranSimulator(result);
+			simulator = new TerranSimulator(result, true, 1000);
 			break;
 		case PROTOSS:
 			simulator = new ProtossSimulator(result, true, true, 1000);
@@ -119,7 +119,7 @@ void forwardSimulate(char *filename) {
 	
 	switch (race) {
 		case TERRAN:
-			//simulator = new TerranSimulator(buildQueue);
+			simulator = new TerranSimulator(buildQueue, true, 1000);
 			break;
 		case PROTOSS:
 			simulator = new ProtossSimulator(buildQueue, !invalidBuildlist, true, 1000);
@@ -176,7 +176,7 @@ int main(int argc, char *argv[]) {
 	
 	
 	
-	
+
 	if (opt) {
 		optimize(rush, string(argv[2]), atoi(argv[3]));
 	} else {

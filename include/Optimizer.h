@@ -111,6 +111,11 @@ public:
 		//Race specific units which should always be considered to be built
 		switch(race) {
 		case TERRAN:
+			searchSpace.insert(scv);
+			searchSpace.insert(supply_depot);
+			searchSpace.insert(refinery);
+			searchSpace.insert(command_center);
+			searchSpace.insert(orbital_command);
 			
 			break;
 		case PROTOSS:
@@ -132,7 +137,6 @@ public:
 		}
 		
 		addToSetRec(target, 0);
-		
 		/*
 		std::clog << "search space: " << std::endl;
 		for (auto it = searchSpace.begin(); it != searchSpace.end(); ++it) {
@@ -503,7 +507,12 @@ public:
 		switch(race) {
 		case TERRAN:
 			{
-				//TerranSimulator sim();//TODO
+				TerranSimulator sim(ind.list, false, maxTime);
+				sim.init();
+				sim.simulate();
+				timedOut = sim.timedOut();
+				timesteps = sim.getTimeSteps();
+				targetUnits = sim.getEntityCount(target);
 				break;
 			}
 		case PROTOSS:
@@ -640,12 +649,5 @@ public:
 	
 	
 };
-
-
-
-
-
-
-
 
 
