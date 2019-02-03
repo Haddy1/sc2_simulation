@@ -57,6 +57,7 @@ void optimize(bool rush, string unitname, int number) {
 			simulator = new ZergSimulator(result, true);
 			break;
 		default:
+			simulator = new ZergSimulator(result, true);
 			break;
 	}
 	
@@ -128,6 +129,7 @@ void forwardSimulate(char *filename) {
 			simulator = new ZergSimulator(buildQueue, true);
 			break;
 		default:
+			simulator = new ZergSimulator(buildQueue, true);
 			break;
 	}
 	
