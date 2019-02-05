@@ -1,7 +1,6 @@
 #include "TerranBuilding.h"
 
 
-
 const unordered_map<EntityType,EntityType> FactoryBuilding::labBaseBuildings = {{barracks_with_tech_lab, barracks}, {factory_with_tech_lab, factory}, {starport_with_tech_lab, starport}};
 
 const unordered_map<EntityType,EntityType> FactoryBuilding::reactorBaseBuildings = {{barracks_with_reactor, barracks}, {factory_with_reactor, factory}, {starport_with_reactor, starport}};
@@ -42,12 +41,15 @@ void TerranBuilding::update(){
         }
         if (constrTimeRemaining == 0){
             underConstruction = false;
+            // construction worker is now free again
             units_->workerList.at(constrWorkerID_).busy = false;
             if (logging_)
                 logger_->addBuildend(BuildEndEntry(getName(), units_->workerList.at(constrWorkerID_).getID(), id));
+
+            // increase supply (for supply_depot)
             rm->addSupplyMax(getEntityData()->supplyProvided);
             tech_->add(getType());
-            if (getType() == refinery)
+            if (getType() == refinery) // for refinery increase available geysers
                 rm->incrementGeysers();
         }
     }
@@ -71,6 +73,7 @@ FactoryBuilding::FactoryBuilding(int& ID_Counter, EntityType buildType, Resource
 FactoryBuilding::~FactoryBuilding(){}
 
 void FactoryBuilding::update(int& ID_Counter){
+    // First check if building is still under construction or constructing addon
     if (underConstruction)
     {
         if (constrTimeRemaining > 0){
@@ -78,12 +81,16 @@ void FactoryBuilding::update(int& ID_Counter){
         }
         if (constrTimeRemaining == 0){
             underConstruction = false;
+
+            // construction finished
             if (addonType_ == noAddon){
+                // construction worker is now free again
                 units_->workerList.at(constrWorkerID_).busy = false;
                 if (logging_)
                     logger_->addBuildend(BuildEndEntry(getName(), units_->workerList.at(constrWorkerID_).getID(), id));
                 tech_->add(getType());
             }
+            // construction of addon finished
             else {
                 if (logging_)
                     logger_->addBuildend(BuildEndEntry(entityNameMap.at(addon_), id, id));
@@ -91,26 +98,30 @@ void FactoryBuilding::update(int& ID_Counter){
             }
         }
     }
+    // update production progress
     else if(producing){
-    if (workTimeRemaining > 0)
-    {
-        --workTimeRemaining;
+        if (workTimeRemaining > 0)
+        {
+            --workTimeRemaining;
+        }
+        if (workTimeRemaining == 0)
+        {
+            // Add finished  unit
+            TerranUnit newUnit(ID_Counter, workType);
+            units_->unitList.at(workType).push_back(newUnit);
+            if (logging_)
+                logger_->addBuildend(BuildEndEntry(newUnit.getName(), id, newUnit.getID()));
+            workTimeRemaining = 0;
+            producing = false;
+        }
     }
-    if (workTimeRemaining == 0)
-    {
-        TerranUnit newUnit(ID_Counter, workType);
-        units_->unitList.at(workType).push_back(newUnit);
-        if (logging_)
-            logger_->addBuildend(BuildEndEntry(newUnit.getName(), id, newUnit.getID()));
-        workTimeRemaining = 0;
-        producing = false;
-    }
-    }
+    // update production progress for reactor if installed
     if (addonType_ == reactor && producing_reactor){
         if (workTimeRemaining_reactor > 0){
             --workTimeRemaining_reactor;
         }
         if (workTimeRemaining_reactor == 0){
+            // Add finished  unit
             TerranUnit newUnit(ID_Counter, workTypeReactor);
             units_->unitList.at(workTypeReactor).push_back(newUnit);
             if (logging_)
@@ -130,33 +141,35 @@ bool FactoryBuilding::busy(){
 }
 
 bool FactoryBuilding::createUnit(EntityType unitType){
-    if (busy())
+    if (busy()) 
         return false;
     else
     {
         EntityData unit = entityDataMap.at(unitType);
-                if(rm->canBuild(unit)){
-        if ( std::find(unit.producedBy.begin(), unit.producedBy.end(), getType()) != unit.producedBy.end() || std::find(unit.producedBy.begin(), unit.producedBy.end(), addon_) != unit.producedBy.end())
-        {
-            rm->consumeMinerals(unit.minerals);
-            rm->consumeVespene(unit.vespene);
-            rm->consumeSupply(unit.supplyCost);
-
-            if (! producing){
-                workType = unitType;
-                workTimeRemaining = unit.buildTime;
-                producing = true;
-            }
-            else if (addonType_ == reactor and !producing_reactor) {
-                workTypeReactor = unitType;
-                workTimeRemaining_reactor = unit.buildTime;
-                producing_reactor = true;
-            }
-            if (logging_)
-                logger_->addBuildstart(BuildStartEntry(entityNameMap.at(unitType), id));
-            return true;
-        }
+        if(rm->canBuild(unit)){
+            if ( std::find(unit.producedBy.begin(), unit.producedBy.end(), getType()) != unit.producedBy.end() || std::find(unit.producedBy.begin(), unit.producedBy.end(), addon_) != unit.producedBy.end()) // check if building can produce unit
+            {
+                rm->consumeMinerals(unit.minerals);
+                rm->consumeVespene(unit.vespene);
+                rm->consumeSupply(unit.supplyCost);
+                
+                // Start to produce unit
+                if (! producing){
+                    workType = unitType;
+                    workTimeRemaining = unit.buildTime;
+                    producing = true;
                 }
+                // if base is already producing try reactor
+                else if (addonType_ == reactor and !producing_reactor) {
+                    workTypeReactor = unitType;
+                    workTimeRemaining_reactor = unit.buildTime;
+                    producing_reactor = true;
+                }
+                if (logging_)
+                    logger_->addBuildstart(BuildStartEntry(entityNameMap.at(unitType), id));
+                return true;
+            }
+        }
         else
         {
             return false;
@@ -168,7 +181,7 @@ bool FactoryBuilding::createUnit(EntityType unitType){
 bool FactoryBuilding::buildAddon(EntityType addon, AddonType addonType){
     if (addonType_ != noAddon) return false;
     if (busy()) return false;
-    
+
     EntityData addonEntity = entityDataMap.at(addon);
     if (rm->canBuild(addonEntity)){
         rm->consumeMinerals(addonEntity.minerals);
@@ -206,12 +219,14 @@ bool CommandCenter::busy(){
 
 void CommandCenter::update(int& ID_Counter){
     if (!underConstruction && getType() == orbital_command ){
-    	if (energy < entityData->maxEnergy){
+        // Update energy 
+        if (energy < entityData->maxEnergy){
             energy += energyRegen;
             if (energy > entityData->maxEnergy){
                 energy = entityData->maxEnergy;
             }
-    	}
+        }
+        // Update mineral income from MULE
         if (muleLifetime > 0){
             rm->addMinerals(rm->mineralsPerWorkerSecond);
             rm->addMinerals(rm->mineralsPerWorkerSecond);
@@ -226,13 +241,17 @@ void CommandCenter::update(int& ID_Counter){
             --constrTimeRemaining;
         if (constrTimeRemaining == 0){
             underConstruction = false;
+            // base building has finished construction
             if (getType() == command_center){
+                // construction worker is now free again
                 units_->workerList.at(constrWorkerID_).busy = false;
                 if (logging_)
                     logger_->addBuildend(BuildEndEntry(getName(), units_->workerList.at(constrWorkerID_).getID(), id));
+                // add supply to max
                 rm->addSupplyMax(getEntityData()->supplyProvided);
                 tech_->add(command_center);
             }
+            // upgrade has finished construction
             else{
                 energy = entityDataMap.at(orbital_command).startEnergy;
                 if (logging_)
@@ -246,6 +265,7 @@ void CommandCenter::update(int& ID_Counter){
         {
             --workTimeRemaining;
         }
+        // production of worker has finished
         if (workTimeRemaining == 0)
         {
             SCV newWorker(ID_Counter, scv, logger_, logging_);
@@ -288,13 +308,14 @@ bool CommandCenter::createUnit(EntityType unitType){
 bool CommandCenter::upgrade(EntityType upgrade){
     if (getType() != command_center) return false;
     if (busy()) return false;
-    
+
     EntityData upgradeEntity = entityDataMap.at(upgrade);
     if (rm->canBuild(upgradeEntity)){
         rm->consumeMinerals(upgradeEntity.minerals);
         rm->consumeVespene(upgradeEntity.vespene);
+        // replace base building with upgrade Entity
         entityData = &entityDataMap.at(upgrade);
-        
+
         underConstruction = true;
         constrTimeRemaining = upgradeEntity.buildTime;
 
@@ -303,13 +324,13 @@ bool CommandCenter::upgrade(EntityType upgrade){
         return true;
     }
     return false;
-    
+
 }
 
 bool CommandCenter::callMule(){
     if (getType() != orbital_command) return false;
     if (underConstruction) return false;
-
+    
     if (energy >= muleEnergyCost and muleLifetime <= 0){
         energy -= muleEnergyCost;
         muleLifetime = muleInitLifetime;

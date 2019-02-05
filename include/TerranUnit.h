@@ -38,9 +38,9 @@ public:
     ~SCV();
     bool construct(int& ID_Counter, EntityType buildType, ResourceManager* rm, Tech* tech, TerranBuildings& buildings, TerranUnits* units);
     bool busy = false;
-    static void clearList();
 };
 
+// Container Class for Terran Units
 class TerranUnits{
     public:
         unordered_map<int, SCV> workerList;

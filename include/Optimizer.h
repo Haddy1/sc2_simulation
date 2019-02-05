@@ -168,9 +168,12 @@ public:
 		
 		//combined rush push
 		if (rush)
-			config(150000, 100, 30000, 10, 20, 0.01f, 0.69f, 0.1f, 0.1f, 0.1f);
+			config(150000, 100, 30000, 10, 20, 0.10f, 0.42f, 0.15f, 0.15f, 0.1f);
 		else
-			config(150000, 50, 20000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.1f);
+            if (race == TERRAN)
+			    config(150000, 50, 20000, 10, 20, 0.10f, 0.42f, 0.20f, 0.20f, 0.1f);
+            else
+		    	config(150000, 50, 20000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.1f);
 
 		Timer timer;
 		timer.start();
@@ -516,22 +519,24 @@ public:
 				EntityData& targetEntity = entityDataMap.at(target);
 				int cost = targetEntity.minerals + 2 * targetEntity.vespene;
 				int numProducers = sim.numberOfUnits(targetEntity.producedBy[0]);
-
-
-                goodInfluencers += cost/10. * numProducers;
                 
+                if (rush){
+                    // More production is more good
+                    goodInfluencers += numProducers;
+
+                    // Reward good army value
+                    goodInfluencers += cost * targetUnits;
+
+                    // Reward good use of timelimit
                 if (maxTime > sim.getTimeSteps())
                     goodInfluencers += sim.getTimeSteps();
                 else
                     badInfluencers += maxTime - sim.getTimeSteps();
 
-                // Punish unused supplies
-                badInfluencers +=  sim.getRM().getSupplyMax() - sim.getRM().getSupply();
-
                 // Punish unneccessary structures
-                badInfluencers += 10 * (sim.numberOfProductionStructures() - targetEntity.dependencies.size() - numProducers);
+                badInfluencers +=   (sim.numberOfProductionStructures() - targetEntity.dependencies.size() - numProducers) ;
 
-                // Punish overabundance of ressources
+                // Punish unused ressources
                 if (sim.getRM().getMinerals() > targetEntity.minerals){
                 if (targetEntity.minerals > 0)
                     badInfluencers += sim.getRM().getMinerals() / targetEntity.minerals;
@@ -544,6 +549,11 @@ public:
                     badInfluencers += sim.getRM().getVespene() / targetEntity.vespene;
                 else
                     badInfluencers += sim.getRM().getVespene();
+                }
+                }
+                else{
+                    // for push time seems the most influencial
+                    badInfluencers += sim.getTimeSteps();
                 }
 
 				break;

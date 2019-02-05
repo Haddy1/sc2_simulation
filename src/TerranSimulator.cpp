@@ -39,7 +39,10 @@ void TerranSimulator::init() {
 
     CommandCenter cCenter(ID_Counter, command_center, &rm, &tech, &units, &logger, logging);
     buildings.cCenterList.push_back(cCenter);
-    tech.add(command_center);
+
+    // dont forget to add initial command_center to tech_tree
+    tech.add(command_center); 
+    // save id as vector, so logger can handle the input
     vector<int> initCCenterId = {cCenter.getID()};
     rm.addSupplyMax(entityDataMap.at(command_center).supplyProvided);
 
@@ -47,11 +50,13 @@ void TerranSimulator::init() {
     for (int i = 0; i < 6; i++){
         SCV newWorker(ID_Counter, scv, &logger, logging);
         units.workerList.insert(std::pair<int,SCV>(newWorker.getID(), newWorker));
+        // manually consume supply
         rm.consumeSupply(newWorker.getEntityData()->supplyCost);
         initWorkerIds.push_back(newWorker.getID());
     }
     rm.setMineralWorkers(6);
 
+    // log initial status
     if (logging){
         vector<pair<string, vector<int>>> initUnits;
         initUnits.emplace_back("command_center", initCCenterId);
@@ -116,7 +121,7 @@ void TerranSimulator::simulate() {
                     }
                     buildingsIdle = false;
 
-                    if (itemType == scv) {
+                    if (itemType == scv) { // worker
                         for ( size_t i = 0; i < buildings.cCenterList.size(); ++i){
                             if (buildings.cCenterList[i].createUnit(itemType)){
                                 buildOrder.pop();
@@ -124,7 +129,7 @@ void TerranSimulator::simulate() {
                             }
                         }
                     }
-                    else if (producer == scv){
+                    else if (producer == scv){ // buildings
                     std::unordered_map<int, SCV>::iterator itSCV;
                         for ( itSCV = units.workerList.begin(); itSCV != units.workerList.end(); ++itSCV){
                             if (itSCV->second.construct(ID_Counter, itemType, &rm, &tech, buildings, &units)){
@@ -133,7 +138,9 @@ void TerranSimulator::simulate() {
                             }
                         }
                     }
-                    else if (buildings.factoryList.find(producer) != buildings.factoryList.end()){
+                    // addons
+                    else if (buildings.factoryList.find(producer) != buildings.factoryList.end()){                    
+                        // tech_lab
                         if (FactoryBuilding::labBaseBuildings.find(itemType) != FactoryBuilding::labBaseBuildings.end()){
                             for (FactoryBuilding& factoryBuilding : buildings.factoryList.at(producer)){
                                 if (factoryBuilding.buildAddon(itemType, FactoryBuilding::tech_lab)){
@@ -142,6 +149,7 @@ void TerranSimulator::simulate() {
                                 }
                             }
                         }
+                        // reactor
                         else if (FactoryBuilding::reactorBaseBuildings.find(itemType) != FactoryBuilding::reactorBaseBuildings.end()){
                             for (FactoryBuilding& factoryBuilding : buildings.factoryList.at(producer)){
                                 if (factoryBuilding.buildAddon(itemType, FactoryBuilding::reactor)){
@@ -150,6 +158,7 @@ void TerranSimulator::simulate() {
                                 }
                             }
                         }
+                        // unit
                         else {
                             for (FactoryBuilding& factoryBuilding : buildings.factoryList.at(producer)){
                                 if (factoryBuilding.createUnit(itemType)){
@@ -159,6 +168,7 @@ void TerranSimulator::simulate() {
                             }
                         }
                     }
+                    // upgrade for command_center
                     else if (itemType == orbital_command || itemType == planetary_fortress){
                         for ( size_t i = 0; i < buildings.cCenterList.size(); ++i){
                             if (buildings.cCenterList[i].upgrade(itemType)){
@@ -167,6 +177,7 @@ void TerranSimulator::simulate() {
                             }
                         }
                     }
+                    // should not happen
                     else {
                         std::cerr << entityNameMap.at(itemType) << " could not be handled!" << std::endl;
                     }
@@ -176,11 +187,13 @@ void TerranSimulator::simulate() {
 
         int freeWorkers = 0;
         std::unordered_map<int, SCV>::iterator itSCV;
+        // search for available workers
             for ( itSCV = units.workerList.begin(); itSCV != units.workerList.end(); ++itSCV){
             if (! itSCV->second.busy)
                 freeWorkers += 1;
         }
-
+        
+        // redistribute workers
         int nrRefineries = rm.getGeysers();
         int vespeneWorkers = std::min(freeWorkers, 3 * nrRefineries);
         rm.setVespeneWorkers(vespeneWorkers);
@@ -203,6 +216,7 @@ void TerranSimulator::simulate() {
         logger.printEnd();
 }
 
+// number of constructed units of type target
 int TerranSimulator::numberOfUnits(EntityType target){
     if (target == scv)
         return units.workerList.size();
@@ -229,6 +243,7 @@ int TerranSimulator::numberOfUnits(EntityType target){
         }
     }
     // reactors and tech_labs have to be handled by comparing entry for entry
+    // reactor
     else if (FactoryBuilding::reactorBaseBuildings.find(target) != FactoryBuilding::reactorBaseBuildings.end()){
         int count = 0;
         std::unordered_map<EntityType, vector<FactoryBuilding>>::iterator itFactory;
@@ -240,6 +255,7 @@ int TerranSimulator::numberOfUnits(EntityType target){
         }
         return count;
     }
+    // tech_lab
     else if (FactoryBuilding::labBaseBuildings.find(target) != FactoryBuilding::labBaseBuildings.end()){
         int count = 0;
         std::unordered_map<EntityType, vector<FactoryBuilding>>::iterator itFactory;
@@ -256,7 +272,7 @@ int TerranSimulator::numberOfUnits(EntityType target){
         return units.unitList.at(target).size();
     }
 }
-
+// total number of producing buildings
 int TerranSimulator::numberOfProductionStructures(){
     int count = 0;
     count += buildings.cCenterList.size();

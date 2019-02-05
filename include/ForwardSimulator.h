@@ -71,8 +71,8 @@ class TerranSimulator : public ForwardSimulator {
 	queue<EntityType> buildOrder;
 	ResourceManager rm;
     vector<EventEntry> eventList_;
-    TerranBuildings buildings;
-    TerranUnits units;
+    TerranBuildings buildings; // container for building lists
+    TerranUnits units; // container for unit lists
 	Tech tech;
 	int timestep;
 	bool running;

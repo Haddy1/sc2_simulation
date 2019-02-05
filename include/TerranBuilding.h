@@ -50,8 +50,8 @@ class FactoryBuilding : public TerranBuilding{
         ,reactor = 1
         ,tech_lab = 2
     };
-    static const unordered_map<EntityType,EntityType> labBaseBuildings;
-    static const unordered_map<EntityType,EntityType> reactorBaseBuildings;
+    static const unordered_map<EntityType,EntityType> labBaseBuildings; // maps techlab to base building
+    static const unordered_map<EntityType,EntityType> reactorBaseBuildings; // maps reactor to base building
 
     FactoryBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, int constrWorkerID, bool logging);
     FactoryBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, bool logging);
@@ -65,10 +65,10 @@ class FactoryBuilding : public TerranBuilding{
         ResourceManager* rm;
         EntityType workType = none;
         EntityType workTypeReactor = none;
-        int workTimeRemaining = 0;
-        int workTimeRemaining_reactor = 0;
-        EntityType addon_ = none;
-        AddonType addonType_ = noAddon;
+        int workTimeRemaining = 0;          // counter for work queue
+        int workTimeRemaining_reactor = 0;  // counter for reactor work queue
+        EntityType addon_ = none;       // The installed addon
+        AddonType addonType_ = noAddon; // specifies which addon is installed
         bool producing = false;
         bool producing_reactor = false;
 
@@ -101,6 +101,7 @@ private:
     const int muleInitLifetime = 90;
 };
 
+// Container Class for Terran Buildings
 class TerranBuildings{
     public:
     vector<TerranBuilding> buildingList ;
