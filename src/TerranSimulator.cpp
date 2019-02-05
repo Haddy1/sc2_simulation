@@ -63,7 +63,6 @@ void TerranSimulator::init() {
 
 void TerranSimulator::simulate() {
 
-    if (logging) std::clog << maxTime_ << std::endl;
     running = true;
     bool buildingsIdle = true;
     while(running and timestep <= maxTime_){
