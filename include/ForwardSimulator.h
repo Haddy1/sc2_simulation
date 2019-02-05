@@ -69,8 +69,8 @@ inline ForwardSimulator::~ForwardSimulator() {}
 
 class TerranSimulator : public ForwardSimulator {
 	queue<EntityType> buildOrder;
-    vector<EventEntry> eventList_;
 	ResourceManager rm;
+    vector<EventEntry> eventList_;
     TerranBuildings buildings;
     TerranUnits units;
 	Tech tech;
@@ -90,7 +90,10 @@ public:
 	void simulate();
 	bool timedOut() {return timeout;};
 	int getTimeSteps() {return timestep;};
-	int getEntityCount(EntityType target);
+	int numberOfUnits(EntityType unitname);
+    int numberOfWorkers() {return units.workerList.size();};
+	int numberOfProductionStructures();
+    ResourceManager& getRM(){return rm;};
 };
 
 typedef shared_ptr<ProtossBuilding> building_ptr;

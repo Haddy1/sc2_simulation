@@ -8,24 +8,28 @@ const unordered_map<EntityType,EntityType> FactoryBuilding::reactorBaseBuildings
 
 const vector<EntityType> CommandCenter::upgrades = {command_center, orbital_command, planetary_fortress};
 
-TerranBuilding::TerranBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, JsonLoggerV2* eventList, SCV* constrWorker):
+TerranBuilding::TerranBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, int constrWorkerID, bool logging):
     Building(ID_Counter, buildType)
     , rm(resourceManager)
     , logger_(eventList)
-    , constrWorker_(constrWorker)
+    , constrWorkerID_(constrWorkerID)
     , underConstruction(true)
     , constrTimeRemaining(entityDataMap.at(buildType).buildTime)
     , tech_(tech)
+    , units_(units)
+    , logging_(logging)
 {}
 
-TerranBuilding::TerranBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, JsonLoggerV2* eventList):
+TerranBuilding::TerranBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, bool logging):
     Building(ID_Counter, buildType)
     , rm(resourceManager)
     , logger_(eventList)
-    , constrWorker_(nullptr)
+    , constrWorkerID_(-1)
     , underConstruction(false)
     , constrTimeRemaining(0)
     , tech_(tech)
+    , units_(units)
+    , logging_(logging)
 {}
 
 TerranBuilding::~TerranBuilding(){}
@@ -38,8 +42,9 @@ void TerranBuilding::update(){
         }
         if (constrTimeRemaining == 0){
             underConstruction = false;
-            constrWorker_->busy = false;
-            logger_->addBuildend(BuildEndEntry(getName(), constrWorker_->getID(), id));
+            units_->workerList.at(constrWorkerID_).busy = false;
+            if (logging_)
+                logger_->addBuildend(BuildEndEntry(getName(), units_->workerList.at(constrWorkerID_).getID(), id));
             rm->addSupplyMax(getEntityData()->supplyProvided);
             tech_->add(getType());
             if (getType() == refinery)
@@ -53,16 +58,14 @@ bool TerranBuilding::busy(){
     else return false;
 }
 
-FactoryBuilding::FactoryBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, SCV* constrWorker):
-    TerranBuilding(ID_Counter, buildType, resourceManager, tech, eventList, constrWorker)
+FactoryBuilding::FactoryBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, int constrWorkerID, bool logging):
+    TerranBuilding(ID_Counter, buildType, resourceManager, tech, units, eventList, constrWorkerID, logging)
     , rm(resourceManager)
-    , units_(units)
 {}
 
-FactoryBuilding::FactoryBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList):
-    TerranBuilding(ID_Counter, buildType, resourceManager, tech, eventList)
+FactoryBuilding::FactoryBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, bool logging):
+    TerranBuilding(ID_Counter, buildType, resourceManager, tech, units, eventList, logging)
     , rm(resourceManager)
-    , units_(units)
 {}
 
 FactoryBuilding::~FactoryBuilding(){}
@@ -76,12 +79,14 @@ void FactoryBuilding::update(int& ID_Counter){
         if (constrTimeRemaining == 0){
             underConstruction = false;
             if (addonType_ == noAddon){
-            	constrWorker_->busy = false;
-                logger_->addBuildend(BuildEndEntry(getName(), constrWorker_->getID(), id));
+                units_->workerList.at(constrWorkerID_).busy = false;
+                if (logging_)
+                    logger_->addBuildend(BuildEndEntry(getName(), units_->workerList.at(constrWorkerID_).getID(), id));
                 tech_->add(getType());
             }
             else {
-                logger_->addBuildend(BuildEndEntry(entityNameMap.at(addon_), id, id));
+                if (logging_)
+                    logger_->addBuildend(BuildEndEntry(entityNameMap.at(addon_), id, id));
                 tech_->add(addon_);
             }
         }
@@ -95,7 +100,8 @@ void FactoryBuilding::update(int& ID_Counter){
     {
         TerranUnit newUnit(ID_Counter, workType);
         units_->unitList.at(workType).push_back(newUnit);
-        logger_->addBuildend(BuildEndEntry(newUnit.getName(), id, newUnit.getID()));
+        if (logging_)
+            logger_->addBuildend(BuildEndEntry(newUnit.getName(), id, newUnit.getID()));
         workTimeRemaining = 0;
         producing = false;
     }
@@ -107,7 +113,8 @@ void FactoryBuilding::update(int& ID_Counter){
         if (workTimeRemaining_reactor == 0){
             TerranUnit newUnit(ID_Counter, workTypeReactor);
             units_->unitList.at(workTypeReactor).push_back(newUnit);
-            logger_->addBuildend(BuildEndEntry(newUnit.getName(), id, newUnit.getID()));
+            if (logging_)
+                logger_->addBuildend(BuildEndEntry(newUnit.getName(), id, newUnit.getID()));
             workTimeRemaining_reactor = 0;
             producing_reactor = false;
         }
@@ -116,10 +123,8 @@ void FactoryBuilding::update(int& ID_Counter){
 
 bool FactoryBuilding::busy(){
     if (underConstruction) return true;
-    if (workTimeRemaining > 0 ){
-        if (addonType_ == noAddon) return true;
-        else if (workTimeRemaining_reactor > 0) return true;
-    }
+    if (producing) return true;
+    if (producing_reactor) return true;
 
     return false;
 }
@@ -147,7 +152,8 @@ bool FactoryBuilding::createUnit(EntityType unitType){
                 workTimeRemaining_reactor = unit.buildTime;
                 producing_reactor = true;
             }
-            logger_->addBuildstart(BuildStartEntry(entityNameMap.at(unitType), id));
+            if (logging_)
+                logger_->addBuildstart(BuildStartEntry(entityNameMap.at(unitType), id));
             return true;
         }
                 }
@@ -172,7 +178,8 @@ bool FactoryBuilding::buildAddon(EntityType addon, AddonType addonType){
         underConstruction = true;
         constrTimeRemaining = addonEntity.buildTime;
 
-        logger_->addBuildstart(BuildStartEntry(entityNameMap.at(addon), id));
+        if (logging_)
+            logger_->addBuildstart(BuildStartEntry(entityNameMap.at(addon), id));
         return true;
     }
 
@@ -180,15 +187,13 @@ bool FactoryBuilding::buildAddon(EntityType addon, AddonType addonType){
 
 }
 
-CommandCenter::CommandCenter(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, SCV* constrWorker):
-    TerranBuilding(ID_Counter, buildType, resourceManager, tech, eventList, constrWorker)
+CommandCenter::CommandCenter(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, int constrWorkerID, bool logging):
+    TerranBuilding(ID_Counter, buildType, resourceManager, tech, units, eventList, constrWorkerID, logging)
     ,rm(resourceManager) 
-    ,units_(units)
 {}
-CommandCenter::CommandCenter(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList):
-    TerranBuilding(ID_Counter, buildType, resourceManager, tech, eventList)
+CommandCenter::CommandCenter(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, bool logging):
+    TerranBuilding(ID_Counter, buildType, resourceManager, tech, units, eventList, logging)
     ,rm(resourceManager)
-    ,units_(units)
 {}
 
 CommandCenter::~CommandCenter() {
@@ -214,11 +219,6 @@ void CommandCenter::update(int& ID_Counter){
             rm->addMinerals(rm->mineralsPerWorkerSecond);
             muleLifetime -= 1;
         }
-        else if (energy >= muleEnergyCost and muleLifetime <= 0){
-        	energy -= muleEnergyCost;
-        	muleLifetime = muleInitLifetime;
-        	logger_->addSpecial(SpecialEntry("mule", id));
-        }
     }
     if (underConstruction)
     {
@@ -227,14 +227,16 @@ void CommandCenter::update(int& ID_Counter){
         if (constrTimeRemaining == 0){
             underConstruction = false;
             if (getType() == command_center){
-                constrWorker_->busy = false;
-                logger_->addBuildend(BuildEndEntry(getName(), constrWorker_->getID(), id));
+                units_->workerList.at(constrWorkerID_).busy = false;
+                if (logging_)
+                    logger_->addBuildend(BuildEndEntry(getName(), units_->workerList.at(constrWorkerID_).getID(), id));
                 rm->addSupplyMax(getEntityData()->supplyProvided);
                 tech_->add(command_center);
             }
             else{
                 energy = entityDataMap.at(orbital_command).startEnergy;
-                logger_->addBuildend(BuildEndEntry(getName(), id, id));
+                if (logging_)
+                    logger_->addBuildend(BuildEndEntry(getName(), id, id));
                 tech_->add(getType());
             }
         }
@@ -246,9 +248,10 @@ void CommandCenter::update(int& ID_Counter){
         }
         if (workTimeRemaining == 0)
         {
-            SCV newWorker(ID_Counter, scv, logger_);
-            units_->workerList.push_back(newWorker);
-            logger_->addBuildend(BuildEndEntry("scv", id, newWorker.getID()));
+            SCV newWorker(ID_Counter, scv, logger_, logging_);
+            units_->workerList.insert(std::pair<int,SCV>(newWorker.getID(), newWorker));
+            if (logging_)
+                logger_->addBuildend(BuildEndEntry("scv", id, newWorker.getID()));
             producing = false;
         }
     }
@@ -270,7 +273,8 @@ bool CommandCenter::createUnit(EntityType unitType){
             rm->consumeSupply(unit.supplyCost);
             workTimeRemaining = unit.buildTime;
             producing = true;
-            logger_->addBuildstart(BuildStartEntry(entityNameMap.at(unitType), id));
+            if (logging_)
+                logger_->addBuildstart(BuildStartEntry(entityNameMap.at(unitType), id));
             return true;
         }
         else
@@ -294,9 +298,25 @@ bool CommandCenter::upgrade(EntityType upgrade){
         underConstruction = true;
         constrTimeRemaining = upgradeEntity.buildTime;
 
-        logger_->addBuildstart(BuildStartEntry(getName(), id));
+        if (logging_)
+            logger_->addBuildstart(BuildStartEntry(getName(), id));
         return true;
     }
     return false;
     
+}
+
+bool CommandCenter::callMule(){
+    if (getType() != orbital_command) return false;
+    if (underConstruction) return false;
+
+    if (energy >= muleEnergyCost and muleLifetime <= 0){
+        energy -= muleEnergyCost;
+        muleLifetime = muleInitLifetime;
+        if (logging_)
+            logger_->addSpecial(SpecialEntry("mule", id));
+        return true;
+    }
+    return false;
+
 }

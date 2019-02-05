@@ -60,6 +60,7 @@ public:
 	
 	void incrementMineralWorkers() { ++mineralWorkers; }
 	void incrementGeysers() { ++geysers; }
+	int getGeysers() { return geysers;};
 	
 	void redistributeWorkers() {
 		int numWorkers = getWorkers();

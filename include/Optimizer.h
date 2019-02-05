@@ -57,7 +57,7 @@ public:
 
 private:
 	vector<Individual> population;
-	
+
 	bool rush;
 	T target;
 	int num;
@@ -172,13 +172,10 @@ public:
 		else
 			config(150000, 50, 20000, 10, 20, 0.01f, 0.49f, 0.25f, 0.25f, 0.1f);
 
-		
-		
 		Timer timer;
 		timer.start();
 		srand(1);
-		
-		
+
 		int numThreads = thread::hardware_concurrency();
 		if (numThreads == 0) {
 			numThreads = 1;
@@ -207,8 +204,7 @@ public:
 		for (int j = 0; j < numThreads; ++j) {
 			threads[j].join();
 		}
-		*/
-			
+		*/  
 			thread *threads = new thread[numThreads];
 			for (int j = 0; j < numThreads; ++j) {
 				threads[j] = thread(&Optimizer::threadFunc, this, numThreads, j);
@@ -221,7 +217,7 @@ public:
 			sort(population.begin(), population.end());
 			population.erase( unique( population.begin(), population.end() ), population.end() );
 			
-			//std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
+			std::clog << "Generation " << generation << ", best fitness: " << population[0].fitness << std::endl;
 			
 			
 			//condition for loop end
@@ -516,7 +512,40 @@ public:
 				sim.simulate();
 				timedOut = sim.timedOut();
 				timesteps = sim.getTimeSteps();
-				targetUnits = sim.getEntityCount(target);
+				targetUnits = sim.numberOfUnits(target);
+				EntityData& targetEntity = entityDataMap.at(target);
+				int cost = targetEntity.minerals + 2 * targetEntity.vespene;
+				int numProducers = sim.numberOfUnits(targetEntity.producedBy[0]);
+
+
+                goodInfluencers += cost/10. * numProducers;
+                
+                if (maxTime > sim.getTimeSteps())
+                    goodInfluencers += sim.getTimeSteps();
+                else
+                    badInfluencers += maxTime - sim.getTimeSteps();
+
+                // Punish unused supplies
+                badInfluencers +=  sim.getRM().getSupplyMax() - sim.getRM().getSupply();
+
+                // Punish unneccessary structures
+                badInfluencers += 10 * (sim.numberOfProductionStructures() - targetEntity.dependencies.size() - numProducers);
+
+                // Punish overabundance of ressources
+                if (sim.getRM().getMinerals() > targetEntity.minerals){
+                if (targetEntity.minerals > 0)
+                    badInfluencers += sim.getRM().getMinerals() / targetEntity.minerals;
+                else
+                    badInfluencers += sim.getRM().getMinerals();
+                
+                }
+                if (sim.getRM().getVespene() > targetEntity.vespene){
+                if (targetEntity.vespene > 0)
+                    badInfluencers += sim.getRM().getVespene() / targetEntity.vespene;
+                else
+                    badInfluencers += sim.getRM().getVespene();
+                }
+
 				break;
 			}
 		case PROTOSS:

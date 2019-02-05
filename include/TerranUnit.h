@@ -13,9 +13,10 @@
 
 using std::vector;
 using std::string;
+using std::shared_ptr;
 
-struct TerranBuildings;
-struct TerranUnits;
+class TerranBuildings;
+class TerranUnits;
 
 class TerranUnit : public Unit
 {
@@ -31,17 +32,22 @@ public:
 class SCV : public TerranUnit
 {
     JsonLoggerV2* logger_;
+    bool logging_;
 public:
-    SCV(int& ID_Counter, EntityType unitType, JsonLoggerV2* eventList);
+    SCV(int& ID_Counter, EntityType unitType, JsonLoggerV2* eventList, bool logging);
     ~SCV();
     bool construct(int& ID_Counter, EntityType buildType, ResourceManager* rm, Tech* tech, TerranBuildings& buildings, TerranUnits* units);
     bool busy = false;
     static void clearList();
 };
 
-struct TerranUnits{
-    vector<SCV> workerList = vector<SCV>();
-    unordered_map<EntityType, vector<TerranUnit>> unitList=  
+class TerranUnits{
+    public:
+        unordered_map<int, SCV> workerList;
+        unordered_map<EntityType, vector<TerranUnit>> unitList;
+        TerranUnits():
+        workerList(unordered_map<int, SCV>())
+    ,unitList(
             {{marine, vector<TerranUnit>()}
             ,{marauder, vector<TerranUnit>()}
             ,{reaper, vector<TerranUnit>()}
@@ -54,7 +60,8 @@ struct TerranUnits{
             ,{raven, vector<TerranUnit>()}
             ,{banshee, vector<TerranUnit>()}
             ,{battlecruiser, vector<TerranUnit>()}
-            };
+            })
+        {}
 
     void clear(){
             for (auto& entry : unitList){

@@ -5,9 +5,10 @@ TerranUnit::TerranUnit(int& ID_Counter, EntityType unitType):
 {}
 
 TerranUnit::~TerranUnit() {}
-SCV::SCV(int& ID_Counter, EntityType unitType, JsonLoggerV2* eventList):
+SCV::SCV(int& ID_Counter, EntityType unitType, JsonLoggerV2* eventList, bool logging):
     TerranUnit(ID_Counter, unitType)
     ,logger_(eventList)
+    ,logging_(logging)
 
 {}
 
@@ -25,22 +26,20 @@ bool SCV::construct(int& ID_Counter, EntityType buildType, ResourceManager* rm, 
             
             // check if command center
             if ( buildType == command_center) {
-                buildings.cCenterList.emplace_back(ID_Counter, buildType, rm, tech, units, logger_, this);
+                buildings.cCenterList.emplace_back(ID_Counter, buildType, rm, tech, units, logger_, getID(), logging_);
             }
 
             // check if unit producing building
             else if ( buildings.factoryList.find(buildType) != buildings.factoryList.end()){
-                //std::shared_ptr<FactoryBuilding> newBuilding(new FactoryBuilding(ID_Counter, buildType, rm, tech, unitList, logger_, this));
-                std::shared_ptr<FactoryBuilding> newBuilding(new FactoryBuilding(ID_Counter, buildType, rm, tech, units, logger_, this));
-                buildings.factoryList.at(buildType).push_back(newBuilding);
+                buildings.factoryList.at(buildType).emplace_back(ID_Counter, buildType, rm, tech, units, logger_, getID(), logging_);
             }
             // generic building is left
             else {
-                std::shared_ptr<TerranBuilding> newBuilding(new TerranBuilding(ID_Counter, buildType, rm, tech, logger_, this));
-                buildings.buildingList.at(buildType).push_back(newBuilding);
+                buildings.buildingList.emplace_back(ID_Counter, buildType, rm, tech, units, logger_, getID(), logging_);
             }
 
-            logger_->addBuildstart(BuildStartEntry(entityNameMap.at(buildType), id));
+            if (logging_)
+                logger_->addBuildstart(BuildStartEntry(entityNameMap.at(buildType), id));
 
             return true;
 

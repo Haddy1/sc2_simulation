@@ -12,7 +12,7 @@
 #include "TerranUnit.h"
 
 class SCV;
-struct TerranUnits;
+class TerranUnits;
 
 
 using std::string;
@@ -26,14 +26,16 @@ protected:
     EntityType buildType_;
     ResourceManager* rm;
     JsonLoggerV2* logger_;
-    SCV* constrWorker_;
+    int constrWorkerID_;
     bool underConstruction;
     int constrTimeRemaining;
     Tech* tech_;
+    TerranUnits* units_;
+    bool logging_;
 
 public:
-    TerranBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, JsonLoggerV2* eventList, SCV* constrWorker);
-    TerranBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, JsonLoggerV2* eventList);
+    TerranBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, int constrWorkerID, bool logging);
+    TerranBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, bool logging);
     ~TerranBuilding();
     void update();
     bool busy();
@@ -51,8 +53,8 @@ class FactoryBuilding : public TerranBuilding{
     static const unordered_map<EntityType,EntityType> labBaseBuildings;
     static const unordered_map<EntityType,EntityType> reactorBaseBuildings;
 
-    FactoryBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, SCV* constrWorker);
-    FactoryBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList);
+    FactoryBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, int constrWorkerID, bool logging);
+    FactoryBuilding(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, bool logging);
     ~FactoryBuilding();
     bool createUnit(EntityType unitType);
     bool buildAddon(EntityType addon, AddonType addonType);
@@ -69,7 +71,6 @@ class FactoryBuilding : public TerranBuilding{
         AddonType addonType_ = noAddon;
         bool producing = false;
         bool producing_reactor = false;
-        TerranUnits* units_;
 
         
 
@@ -80,17 +81,17 @@ class CommandCenter : public TerranBuilding
 public:
     static const vector<EntityType> upgrades;
 
-    CommandCenter(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, SCV* constrWorker);
-    CommandCenter(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList);
+    CommandCenter(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, int constrWorkerID, bool logging);
+    CommandCenter(int& ID_Counter, EntityType buildType, ResourceManager* resourceManager, Tech* tech, TerranUnits* units, JsonLoggerV2* eventList, bool logging);
     ~CommandCenter();
     bool busy();
     bool createUnit(EntityType unitType);
     void update(int& ID_Counter);
     bool upgrade(EntityType upgrade);
+    bool callMule();
 
 private:
     ResourceManager* rm;
-    TerranUnits* units_;
     int workTimeRemaining = 0;
     bool producing = false;
     FixedPoint energy = 0;
@@ -100,32 +101,20 @@ private:
     const int muleInitLifetime = 90;
 };
 
-struct TerranBuildings{
-    unordered_map<EntityType, vector<shared_ptr<TerranBuilding>>> buildingList =  
-                                {{refinery, vector<shared_ptr<TerranBuilding>>()}
-                                ,{engineering_bay, vector<shared_ptr<TerranBuilding>>()}
-                                ,{missile_turret, vector<shared_ptr<TerranBuilding>>()}
-                                ,{sensor_tower, vector<shared_ptr<TerranBuilding>>()}
-                                ,{armory, vector<shared_ptr<TerranBuilding>>()}
-                                ,{bunker, vector<shared_ptr<TerranBuilding>>()}
-                                ,{ghost_academy, vector<shared_ptr<TerranBuilding>>()}
-                                ,{fusion_core, vector<shared_ptr<TerranBuilding>>()}
-                                ,{supply_depot, vector<shared_ptr<TerranBuilding>>()}
-                                };
-    unordered_map<EntityType, vector<shared_ptr<FactoryBuilding>>> factoryList =  
-            {{barracks, vector<shared_ptr<FactoryBuilding>>()}
-            ,{factory, vector<shared_ptr<FactoryBuilding>>()}
-            ,{starport, vector<shared_ptr<FactoryBuilding>>()}
-            };
+class TerranBuildings{
+    public:
+    vector<TerranBuilding> buildingList ;
+    unordered_map<EntityType, vector<FactoryBuilding>> factoryList;
+    vector<CommandCenter> cCenterList;
+    TerranBuildings():
+    buildingList() 
 
-    vector<CommandCenter> cCenterList = vector<CommandCenter>();
-    void clear(){
-            for (auto& entry : buildingList){
-                entry.second.clear();
-            }
-            for (auto& entry : factoryList){
-                entry.second.clear();
-            }
-            cCenterList.clear();
-    }
+    , factoryList(  
+            {{barracks, vector<FactoryBuilding>()}
+            ,{factory, vector<FactoryBuilding>()}
+            ,{starport, vector<FactoryBuilding>()}
+            })
+    ,cCenterList( vector<CommandCenter>())
+    {}
+
 };

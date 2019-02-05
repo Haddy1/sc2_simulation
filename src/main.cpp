@@ -44,6 +44,7 @@ void optimize(bool rush, string unitname, int number) {
 	Optimizer<EntityType> opt(rush, entityType, number, race);
 	opt.init();
 	queue<EntityType> result = opt.optimize();
+
 	
 	ForwardSimulator *simulator;
 	switch (race) {
